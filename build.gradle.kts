@@ -42,6 +42,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
+	// OpenAPI spec (no Swagger UI: nobody needs a page, the committed openapi/openapi.yaml is the
+	// contract). Same springdoc line as the other services, built against Boot 4.1.
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.1.1")
 	runtimeOnly("org.postgresql:postgresql")
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
@@ -68,4 +71,16 @@ tasks.withType<Test> {
 
 checkstyle {
 	toolVersion = "14.3.0"
+}
+
+// Rewrites openapi/openapi.yaml from the current controllers instead of failing on a
+// mismatch - the one command to run after an API change (see OpenApiSpecTest).
+tasks.register<Test>("updateOpenApiSpec") {
+	description = "Regenerates openapi/openapi.yaml from the current controllers."
+	group = "documentation"
+	testClassesDirs = sourceSets.test.get().output.classesDirs
+	classpath = sourceSets.test.get().runtimeClasspath
+	filter { includeTestsMatching("*OpenApiSpecTest") }
+	systemProperty("openapi.update", "true")
+	outputs.upToDateWhen { false }
 }

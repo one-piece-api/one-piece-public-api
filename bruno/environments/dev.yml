@@ -1,0 +1,5 @@
+name: dev
+variables:
+  # The service running from IntelliJ (Spring profile "local"), see README.md.
+  - name: baseUrl
+    value: http://localhost:8083

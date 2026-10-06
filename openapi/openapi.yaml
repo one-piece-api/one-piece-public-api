@@ -1,0 +1,260 @@
+openapi: 3.1.0
+info:
+  title: public-api
+  version: v1
+servers:
+- url: /
+paths:
+  /v1:
+    get:
+      description: "The entry point: where the other parts of the API are"
+      operationId: indexIndex
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndexResponse"
+          description: OK
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Index
+  /v1/languages:
+    get:
+      description: The languages the content is available in
+      operationId: languageList
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LanguageResponse"
+          description: OK
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Languages
+  /v1/{lang}/devil-fruit-types:
+    get:
+      description: "Lists the Devil Fruit Types online, one page at a time"
+      operationId: devilFruitTypeList
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - description: "0-based page, 0 when missing"
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - description: "Page size: 20 when missing, at most 100"
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - description: "Text the name or the romaji contains, case-insensitive; 100\
+          \ characters at most"
+        in: query
+        name: q
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+          minLength: 0
+      - description: "name, romaji or publishedAt, then asc or desc; default name,asc"
+        in: query
+        name: sort
+        schema:
+          type: string
+          example: "name,asc"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseDevilFruitTypeSummaryResponse"
+          description: OK
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Devil Fruit Types
+  /v1/{lang}/devil-fruit-types/{idOrSlug}:
+    get:
+      description: One Devil Fruit Type by id or slug
+      operationId: devilFruitTypeGet
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: idOrSlug
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DevilFruitTypeResponse"
+          description: OK
+        "301":
+          description: "An old slug: Location is the current slug, relative to this\
+            \ address"
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Devil Fruit Types
+components:
+  responses:
+    ClientError:
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+      description: "Client error - a problem detail, except a 401/403 rejected by\
+        \ the security filter chain before reaching the application, which has no\
+        \ body"
+    ServerError:
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+      description: Unexpected server error
+  schemas:
+    DevilFruitTypeResponse:
+      type: object
+      properties:
+        advantages:
+          type: string
+        description:
+          type: string
+        disadvantages:
+          type: string
+        id:
+          type: string
+          format: uuid
+        language:
+          type: string
+        name:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+        romaji:
+          type: string
+        slug:
+          type: string
+    DevilFruitTypeSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        romaji:
+          type: string
+        slug:
+          type: string
+    FieldViolation:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+      required:
+      - field
+      - message
+    IndexResponse:
+      type: object
+      properties:
+        languages:
+          type: string
+        resources:
+          type: object
+          additionalProperties:
+            type: string
+    LanguageResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+    PageResponseDevilFruitTypeSummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/DevilFruitTypeSummaryResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    ProblemDetail:
+      type: object
+      description: "RFC 9457 problem detail, plus this API's own properties"
+      properties:
+        detail:
+          type: string
+        errorCode:
+          type: string
+          description: "Stable, machine-readable error code"
+        errors:
+          type: array
+          description: "Per-field failures, present only when errorCode is VALIDATION_FAILED"
+          items:
+            $ref: "#/components/schemas/FieldViolation"
+        instance:
+          type: string
+          format: uri
+        status:
+          type: integer
+          format: int32
+        timestamp:
+          type: string
+          format: date-time
+        title:
+          type: string
+        traceId:
+          type: string
+        type:
+          type: string
+          format: uri
+      required:
+      - errorCode
+      - status
+      - title
+      - type

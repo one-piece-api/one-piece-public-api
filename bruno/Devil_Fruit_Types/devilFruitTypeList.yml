@@ -1,0 +1,198 @@
+info:
+  name: devilFruitTypeList
+  type: http
+  seq: 1
+  tags:
+    - Devil_Fruit_Types
+
+http:
+  method: GET
+  url: "{{baseUrl}}/v1/:lang/devil-fruit-types"
+  params:
+    - name: lang
+      value: ""
+      type: path
+    - name: page
+      value: "0"
+      type: query
+      description: 0-based page, 0 when missing
+      disabled: true
+    - name: size
+      value: "1"
+      type: query
+      description: "Page size: 20 when missing, at most 100"
+      disabled: true
+    - name: q
+      value: ""
+      type: query
+      description: Text the name or the romaji contains, case-insensitive; 100 characters at most
+      disabled: true
+    - name: sort
+      value: name,asc
+      type: query
+      description: name, romaji or publishedAt, then asc or desc; default name,asc
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/v1/:lang/devil-fruit-types"
+      method: GET
+      params:
+        - name: lang
+          value: ""
+          type: path
+        - name: page
+          value: "0"
+          type: query
+          description: 0-based page, 0 when missing
+          disabled: true
+        - name: size
+          value: "1"
+          type: query
+          description: "Page size: 20 when missing, at most 100"
+          disabled: true
+        - name: q
+          value: ""
+          type: query
+          description: Text the name or the romaji contains, case-insensitive; 100 characters at most
+          disabled: true
+        - name: sort
+          value: name,asc
+          type: query
+          description: name, romaji or publishedAt, then asc or desc; default name,asc
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "content": [
+              {
+                "id": "",
+                "name": "",
+                "romaji": "",
+                "slug": ""
+              }
+            ],
+            "page": 0,
+            "size": 0,
+            "totalElements": 0,
+            "totalPages": 0
+          }
+  - name: 4XX Response
+    description: Client error - a problem detail, except a 401/403 rejected by the security filter chain before reaching the application, which has no body
+    request:
+      url: "{{baseUrl}}/v1/:lang/devil-fruit-types"
+      method: GET
+      params:
+        - name: lang
+          value: ""
+          type: path
+        - name: page
+          value: "0"
+          type: query
+          description: 0-based page, 0 when missing
+          disabled: true
+        - name: size
+          value: "1"
+          type: query
+          description: "Page size: 20 when missing, at most 100"
+          disabled: true
+        - name: q
+          value: ""
+          type: query
+          description: Text the name or the romaji contains, case-insensitive; 100 characters at most
+          disabled: true
+        - name: sort
+          value: name,asc
+          type: query
+          description: name, romaji or publishedAt, then asc or desc; default name,asc
+    response:
+      headers:
+        - name: Content-Type
+          value: application/problem+json
+      body:
+        type: json
+        data: |-
+          {
+            "detail": "",
+            "errorCode": "",
+            "errors": [
+              {
+                "field": "",
+                "message": ""
+              }
+            ],
+            "instance": "",
+            "status": 0,
+            "timestamp": "",
+            "title": "",
+            "traceId": "",
+            "type": ""
+          }
+  - name: 5XX Response
+    description: Unexpected server error
+    request:
+      url: "{{baseUrl}}/v1/:lang/devil-fruit-types"
+      method: GET
+      params:
+        - name: lang
+          value: ""
+          type: path
+        - name: page
+          value: "0"
+          type: query
+          description: 0-based page, 0 when missing
+          disabled: true
+        - name: size
+          value: "1"
+          type: query
+          description: "Page size: 20 when missing, at most 100"
+          disabled: true
+        - name: q
+          value: ""
+          type: query
+          description: Text the name or the romaji contains, case-insensitive; 100 characters at most
+          disabled: true
+        - name: sort
+          value: name,asc
+          type: query
+          description: name, romaji or publishedAt, then asc or desc; default name,asc
+    response:
+      headers:
+        - name: Content-Type
+          value: application/problem+json
+      body:
+        type: json
+        data: |-
+          {
+            "detail": "",
+            "errorCode": "",
+            "errors": [
+              {
+                "field": "",
+                "message": ""
+              }
+            ],
+            "instance": "",
+            "status": 0,
+            "timestamp": "",
+            "title": "",
+            "traceId": "",
+            "type": ""
+          }
+
+docs: Lists the Devil Fruit Types online, one page at a time

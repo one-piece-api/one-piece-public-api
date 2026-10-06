@@ -1,0 +1,13 @@
+opencollection: 1.0.0
+
+info:
+  name: public-api
+
+# Written by hand, never regenerated (scripts/generate-bruno-collection.sh only
+# replaces the request folders). The API is anonymous: no auth to configure.
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

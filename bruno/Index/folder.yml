@@ -1,0 +1,6 @@
+info:
+  name: Index
+  type: folder
+
+request:
+  auth: inherit

@@ -7,7 +7,7 @@ database di `one-piece-content-service` con il ruolo di sola lettura `public_api
 - **Piano di implementazione:** `docs/implementation-plan-public-api.md` (repo `one-piece-api`).
 - **Decisioni architetturali di questo servizio:** `docs/adr/`.
 
-Stato: scheletro (step P2) — nessun endpoint ancora, solo health; nessuna rotta esterna.
+Stato: API di lettura `v1` (step P3) — indice, lingue, lista e dettaglio dei Devil Fruit Type; nessuna rotta esterna (step P6). Contratto: `openapi/openapi.yaml`, collezione Bruno in `bruno/`.
 
 ## Sviluppo locale
 
@@ -46,3 +46,15 @@ rollout restart del Deployment). Nel cluster il servizio è raggiungibile solo d
 kubectl port-forward svc/one-piece-public-api -n app 8083:80
 kubectl port-forward deploy/one-piece-public-api -n app 8093:8081   # actuator
 ```
+
+## Contratto API
+
+Dopo una modifica all'API, in quest'ordine, poi si committano entrambi i risultati:
+
+```bash
+./gradlew updateOpenApiSpec               # rigenera openapi/openapi.yaml
+./scripts/generate-bruno-collection.sh    # rigenera bruno/ (serve Node.js)
+```
+
+La CI fallisce se uno dei due è disallineato, e su una PR se la spec introduce una modifica
+incompatibile rispetto a `main` (ADR-0002).
