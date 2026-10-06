@@ -27,14 +27,14 @@ paths:
       description: The languages the content is available in
       operationId: languageList
       responses:
-        "200":
+        "304":
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/LanguageResponse"
-          description: OK
+          description: The caller's ETag is current
         "4XX":
           $ref: "#/components/responses/ClientError"
         "5XX":
@@ -83,12 +83,12 @@ paths:
           type: string
           example: "name,asc"
       responses:
-        "200":
+        "304":
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PageResponseDevilFruitTypeSummaryResponse"
-          description: OK
+          description: The caller's ETag is current
         "4XX":
           $ref: "#/components/responses/ClientError"
         "5XX":
@@ -120,6 +120,12 @@ paths:
         "301":
           description: "An old slug: Location is the current slug, relative to this\
             \ address"
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DevilFruitTypeResponse"
+          description: The caller's ETag is current
         "4XX":
           $ref: "#/components/responses/ClientError"
         "5XX":

@@ -41,8 +41,8 @@ settings:
   forwardAuthorizationHeader: true
 
 examples:
-  - name: 200 Response
-    description: OK
+  - name: 304 Response
+    description: The caller's ETag is current
     request:
       url: "{{baseUrl}}/v1/:lang/devil-fruit-types"
       method: GET
@@ -70,8 +70,8 @@ examples:
           type: query
           description: name, romaji or publishedAt, then asc or desc; default name,asc
     response:
-      status: 200
-      statusText: OK
+      status: 304
+      statusText: Not Modified
       headers:
         - name: Content-Type
           value: application/json

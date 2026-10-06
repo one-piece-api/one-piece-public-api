@@ -75,6 +75,38 @@ examples:
       body:
         type: text
         data: ""
+  - name: 304 Response
+    description: The caller's ETag is current
+    request:
+      url: "{{baseUrl}}/v1/:lang/devil-fruit-types/:idOrSlug"
+      method: GET
+      params:
+        - name: lang
+          value: ""
+          type: path
+        - name: idOrSlug
+          value: ""
+          type: path
+    response:
+      status: 304
+      statusText: Not Modified
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "advantages": "",
+            "description": "",
+            "disadvantages": "",
+            "id": "",
+            "language": "",
+            "name": "",
+            "publishedAt": "",
+            "romaji": "",
+            "slug": ""
+          }
   - name: 4XX Response
     description: Client error - a problem detail, except a 401/403 rejected by the security filter chain before reaching the application, which has no body
     request:
