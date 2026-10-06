@@ -8,6 +8,11 @@ package dev.onepieceapi.publicapi.domain;
  */
 public record DevilFruitTypeSearch(String text, DevilFruitTypeSort sort, int page, int size) {
 
+	/** Whether the list is narrowed by a text; without one, nothing is compared. */
+	public boolean filtered() {
+		return this.text != null;
+	}
+
 	public long offset() {
 		return (long) this.page * this.size;
 	}

@@ -4,6 +4,8 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.7"
 	id("io.spring.javaformat") version "0.0.48"
 	checkstyle
+	// Load tests (plan D16), run by hand: ./gradlew gatlingRun --simulation=<class>
+	id("io.gatling.gradle") version "3.16.0"
 }
 
 group = "dev.onepieceapi"
@@ -83,4 +85,11 @@ tasks.register<Test>("updateOpenApiSpec") {
 	filter { includeTestsMatching("*OpenApiSpecTest") }
 	systemProperty("openapi.update", "true")
 	outputs.upToDateWhen { false }
+}
+
+// The plugin starts the load generator with whatever "java" is first on the PATH, not with the
+// project toolchain. The simulations use nothing newer than Java 17, so they are compiled for
+// it and run on any JDK from there up.
+tasks.named<JavaCompile>("compileGatlingJava") {
+	options.release = 17
 }

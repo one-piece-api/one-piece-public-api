@@ -31,18 +31,23 @@ public class PublishedDevilFruitTypeRepository {
 	private static final String DETAIL_COLUMNS = """
 			id, slug, romaji, language, name, description, advantages, disadvantages, published_at""";
 
-	private static final String FILTER = """
-			language = :language
-			  AND (name ILIKE :pattern OR romaji ILIKE :pattern)""";
+	private static final String LANGUAGE_FILTER = "language = :language";
+
+	/**
+	 * Left out when nobody searches: comparing every row with an empty pattern is pure
+	 * cost.
+	 */
+	private static final String TEXT_FILTER = " AND (name ILIKE :pattern OR romaji ILIKE :pattern)";
 
 	private final JdbcClient jdbc;
 
 	public Page<DevilFruitTypeSummary> search(String language, DevilFruitTypeSearch search) {
-		Map<String, Object> filter = Map.of("language", language, "pattern", containsPattern(search.text()));
+		Map<String, Object> parameters = Map.of("language", language, "pattern", containsPattern(search.text()));
+		String filter = search.filtered() ? LANGUAGE_FILTER + TEXT_FILTER : LANGUAGE_FILTER;
 		var content = this.jdbc
-			.sql("SELECT id, slug, romaji, name FROM published.devil_fruit_type WHERE " + FILTER + " ORDER BY "
+			.sql("SELECT id, slug, romaji, name FROM published.devil_fruit_type WHERE " + filter + " ORDER BY "
 					+ orderBy(search.sort()) + ", id LIMIT :limit OFFSET :offset")
-			.params(filter)
+			.params(parameters)
 			.param("limit", search.size())
 			.param("offset", search.offset())
 			.query(DevilFruitTypeSummaryRow.class)
@@ -50,8 +55,8 @@ public class PublishedDevilFruitTypeRepository {
 			.stream()
 			.map(PublishedRowMapper::toDomain)
 			.toList();
-		long total = this.jdbc.sql("SELECT count(*) FROM published.devil_fruit_type WHERE " + FILTER)
-			.params(filter)
+		long total = this.jdbc.sql("SELECT count(*) FROM published.devil_fruit_type WHERE " + filter)
+			.params(parameters)
 			.query(Long.class)
 			.single();
 		return new Page<>(content, search.page(), search.size(), total);
