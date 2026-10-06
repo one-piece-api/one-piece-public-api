@@ -37,9 +37,10 @@ repositories {
 }
 
 dependencies {
-	implementation("dev.onepieceapi:one-piece-exception:0.4.0")
+	implementation("dev.onepieceapi:one-piece-exception:0.5.0")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-jdbc")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
 	runtimeOnly("org.postgresql:postgresql")
 	compileOnly("org.projectlombok:lombok")

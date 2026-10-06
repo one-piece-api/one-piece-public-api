@@ -6,7 +6,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalManagementPort;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
@@ -48,11 +47,7 @@ class PublicApiApplicationIntegrationTest extends PublishedDatabaseTest {
 
 	@Test
 	void keepsTheActuatorOffThePublicPort() {
-		client(this.serverPort).get()
-			.uri("/actuator/health")
-			.exchange()
-			.expectStatus()
-			.value((status) -> assertThat(HttpStatusCode.valueOf(status).is2xxSuccessful()).isFalse());
+		client(this.serverPort).get().uri("/actuator/health").exchange().expectStatus().isNotFound();
 	}
 
 	private static RestTestClient client(int port) {
