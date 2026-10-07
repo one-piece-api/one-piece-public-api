@@ -1,8 +1,8 @@
 package dev.onepieceapi.publicapi.web.converter;
 
-import dev.onepieceapi.publicapi.domain.DevilFruitTypeSort;
-import dev.onepieceapi.publicapi.domain.DevilFruitTypeSort.Direction;
-import dev.onepieceapi.publicapi.domain.DevilFruitTypeSort.Field;
+import dev.onepieceapi.publicapi.domain.ContentSort;
+import dev.onepieceapi.publicapi.domain.ContentSort.Direction;
+import dev.onepieceapi.publicapi.domain.ContentSort.Field;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -10,19 +10,19 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-class DevilFruitTypeSortConverterTest {
+class ContentSortConverterTest {
 
-	private final DevilFruitTypeSortConverter converter = new DevilFruitTypeSortConverter();
+	private final ContentSortConverter converter = new ContentSortConverter();
 
 	@Test
 	void readsAFieldAloneAsAscending() {
-		assertThat(this.converter.convert("romaji")).isEqualTo(new DevilFruitTypeSort(Field.ROMAJI, Direction.ASC));
+		assertThat(this.converter.convert("romaji")).isEqualTo(new ContentSort(Field.ROMAJI, Direction.ASC));
 	}
 
 	@Test
 	void readsAFieldWithItsDirectionInAnyCase() {
 		assertThat(this.converter.convert("publishedAt,DESC"))
-			.isEqualTo(new DevilFruitTypeSort(Field.PUBLISHED_AT, Direction.DESC));
+			.isEqualTo(new ContentSort(Field.PUBLISHED_AT, Direction.DESC));
 	}
 
 	@ParameterizedTest

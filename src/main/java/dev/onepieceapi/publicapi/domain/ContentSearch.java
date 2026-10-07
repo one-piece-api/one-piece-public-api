@@ -6,7 +6,7 @@ package dev.onepieceapi.publicapi.domain;
  * @param text what the name or the romaji contains; null for no filter
  * @param page 0-based
  */
-public record DevilFruitTypeSearch(String text, DevilFruitTypeSort sort, int page, int size) {
+public record ContentSearch(String text, ContentSort sort, int page, int size) {
 
 	/** Whether the list is narrowed by a text; without one, nothing is compared. */
 	public boolean filtered() {

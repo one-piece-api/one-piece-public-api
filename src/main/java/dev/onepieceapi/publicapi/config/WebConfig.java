@@ -1,6 +1,6 @@
 package dev.onepieceapi.publicapi.config;
 
-import dev.onepieceapi.publicapi.web.converter.DevilFruitTypeSortConverter;
+import dev.onepieceapi.publicapi.web.converter.ContentSortConverter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.HttpHeaders;
@@ -30,7 +30,7 @@ class WebConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addFormatters(FormatterRegistry registry) {
-		registry.addConverter(new DevilFruitTypeSortConverter());
+		registry.addConverter(new ContentSortConverter());
 	}
 
 }
