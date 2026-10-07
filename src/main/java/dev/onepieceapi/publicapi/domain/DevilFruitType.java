@@ -14,6 +14,6 @@ import java.util.UUID;
  */
 @Builder
 public record DevilFruitType(UUID id, String slug, String romaji, String language, String name, String description,
-		String advantages, String disadvantages, Instant publishedAt) {
+		String advantages, String disadvantages, Instant publishedAt) implements PublishedContent {
 
 }

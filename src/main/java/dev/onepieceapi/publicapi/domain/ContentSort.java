@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
  * How the list is ordered: a field of a closed set and a direction, so nothing a caller
  * sends ever reaches the SQL as text.
  */
-public record DevilFruitTypeSort(Field field, Direction direction) {
+public record ContentSort(Field field, Direction direction) {
 
-	public static final DevilFruitTypeSort DEFAULT = new DevilFruitTypeSort(Field.NAME, Direction.ASC);
+	public static final ContentSort DEFAULT = new ContentSort(Field.NAME, Direction.ASC);
 
 	/** What the list can be ordered by; {@code requestName} is the name in the URL. */
 	@Getter

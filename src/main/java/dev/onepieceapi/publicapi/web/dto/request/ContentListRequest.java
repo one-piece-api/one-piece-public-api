@@ -1,6 +1,6 @@
 package dev.onepieceapi.publicapi.web.dto.request;
 
-import dev.onepieceapi.publicapi.domain.DevilFruitTypeSort;
+import dev.onepieceapi.publicapi.domain.ContentSort;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -14,12 +14,12 @@ import jakarta.validation.constraints.Size;
  * @param sort {@code field} or {@code field,direction}
  * @param q what the name or the romaji contains
  */
-public record DevilFruitTypeListRequest(@Parameter(description = "0-based page, 0 when missing") @Min(0) Integer page,
+public record ContentListRequest(@Parameter(description = "0-based page, 0 when missing") @Min(0) Integer page,
 		@Parameter(description = "Page size: 20 when missing, at most 100") @Min(1) Integer size,
-		@Parameter(hidden = true) DevilFruitTypeSort sort,
+		@Parameter(hidden = true) ContentSort sort,
 		@Parameter(
 				description = "Text the name or the romaji contains, case-insensitive; 100 characters at most") @Size(
-						max = DevilFruitTypeListRequest.MAX_QUERY_LENGTH) String q) {
+						max = ContentListRequest.MAX_QUERY_LENGTH) String q) {
 
 	/**
 	 * Longest {@code q} served: a longer one costs the database more than it is worth.
