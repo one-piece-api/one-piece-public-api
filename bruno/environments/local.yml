@@ -1,7 +1,5 @@
 name: local
 variables:
-  # The pod in the kind cluster, through
-  # `kubectl port-forward svc/one-piece-public-api -n app 8084:80`: there is no public
-  # route yet (plan step P6).
   - name: baseUrl
-    value: http://localhost:8084
+    value: http://localhost:8083
+    description: ""
