@@ -29,6 +29,12 @@ slug to `301`, sort, paging, conditional GET - and let the copies drift apart.
 - **Scope:** the Devil Fruit Type moved onto it with the contract unchanged (byte-identical
   `openapi.yaml`, same bodies and headers). Filters by relation and embedded relations
   come with the Devil Fruit (DF8), the first entity that needs them.
+- **Filters and relations (DF8).** A descriptor declares its filters by name:
+  `ContentFilter` is two fixed conditions, by id and by slug (old slugs included, through
+  `published.content_slug`). An embedded list is the same filter run without paging
+  (`listAll`, by name): the type's `devilFruits` is the fruit view filtered by `type`. A
+  summary of a single related content (the fruit's `type`) is plain columns of the view,
+  joined in the database.
 
 ## Alternatives considered
 

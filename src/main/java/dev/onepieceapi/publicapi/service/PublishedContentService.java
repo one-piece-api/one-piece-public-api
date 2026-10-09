@@ -1,5 +1,6 @@
 package dev.onepieceapi.publicapi.service;
 
+import dev.onepieceapi.publicapi.domain.ContentAddress;
 import dev.onepieceapi.publicapi.domain.ContentLookup;
 import dev.onepieceapi.publicapi.domain.ContentSearch;
 import dev.onepieceapi.publicapi.domain.Page;
@@ -12,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 /**
  * The contents of one entity online, in the language of the path. What changes from an
@@ -25,10 +25,6 @@ import java.util.regex.Pattern;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public abstract class PublishedContentService<D extends PublishedContent, S> {
-
-	/** A UUID is recognised by its format; anything else is a slug (plan D4). */
-	private static final Pattern UUID_FORMAT = Pattern
-		.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", Pattern.CASE_INSENSITIVE);
 
 	private final LanguageService languages;
 
@@ -48,7 +44,7 @@ public abstract class PublishedContentService<D extends PublishedContent, S> {
 	public ContentLookup<D> find(String language, String idOrSlug) {
 		this.languages.requireAvailable(language);
 		D found = findOnline(language, idOrSlug).orElseThrow(() -> new ContentNotFoundException(idOrSlug));
-		if (isId(idOrSlug) || idOrSlug.equals(found.slug())) {
+		if (ContentAddress.isId(idOrSlug) || idOrSlug.equals(found.slug())) {
 			return new ContentLookup.Found<>(found);
 		}
 		// An old slug of a content whose romaji now leaves no slug has nowhere to point
@@ -60,12 +56,8 @@ public abstract class PublishedContentService<D extends PublishedContent, S> {
 	}
 
 	private Optional<D> findOnline(String language, String idOrSlug) {
-		return isId(idOrSlug) ? this.repository.findById(this.view, language, UUID.fromString(idOrSlug))
+		return ContentAddress.isId(idOrSlug) ? this.repository.findById(this.view, language, UUID.fromString(idOrSlug))
 				: this.repository.findBySlug(this.view, language, idOrSlug);
-	}
-
-	private static boolean isId(String idOrSlug) {
-		return UUID_FORMAT.matcher(idOrSlug).matches();
 	}
 
 }

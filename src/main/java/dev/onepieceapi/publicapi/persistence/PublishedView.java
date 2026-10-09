@@ -4,6 +4,7 @@ import lombok.Builder;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -17,12 +18,17 @@ import java.util.function.Function;
  * @param summaryColumns the columns of a list row
  * @param detail reads a detail row
  * @param summary reads a list row
+ * @param filters the filters of the list, by name; none when null
  * @param <D> the detail
  * @param <S> the list row
  */
 @Builder
 public record PublishedView<D, S>(String entityType, String view, String detailColumns, String summaryColumns,
-		RowMapper<D> detail, RowMapper<S> summary) {
+		RowMapper<D> detail, RowMapper<S> summary, Map<String, ContentFilter> filters) {
+
+	public PublishedView {
+		filters = filters == null ? Map.of() : Map.copyOf(filters);
+	}
 
 	/**
 	 * A reader of rows shaped as {@code rowType}, turned into the domain by

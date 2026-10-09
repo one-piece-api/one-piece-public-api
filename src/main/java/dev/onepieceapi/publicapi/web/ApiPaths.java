@@ -17,6 +17,13 @@ public final class ApiPaths {
 
 	public static final String DEVIL_FRUIT_TYPE = DEVIL_FRUIT_TYPES + "/{idOrSlug}";
 
+	public static final String DEVIL_FRUITS = V1 + "/{lang}/devil-fruits";
+
+	public static final String DEVIL_FRUIT = DEVIL_FRUITS + "/{idOrSlug}";
+
+	/** No language: an image is the same in all of them (plan D11). */
+	public static final String IMAGE = V1 + "/images/{id}.png";
+
 	private ApiPaths() {
 	}
 

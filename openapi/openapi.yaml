@@ -22,6 +22,30 @@ paths:
           $ref: "#/components/responses/ServerError"
       tags:
       - Index
+  /v1/images/{id}.png:
+    get:
+      description: "An image of a content online, by the id its content gives"
+      operationId: imageGet
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+          description: OK
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Images
   /v1/languages:
     get:
       description: The languages the content is available in
@@ -132,6 +156,104 @@ paths:
           $ref: "#/components/responses/ServerError"
       tags:
       - Devil Fruit Types
+  /v1/{lang}/devil-fruits:
+    get:
+      description: "Lists the Devil Fruits online, one page at a time"
+      operationId: devilFruitList
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - description: "0-based page, 0 when missing"
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - description: "Page size: 20 when missing, at most 100"
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - description: "Text the name or the romaji contains, case-insensitive; 100\
+          \ characters at most"
+        in: query
+        name: q
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+          minLength: 0
+      - description: "Only the fruits of this type: its id or slug, an old slug included;\
+          \ an unknown type lists nothing"
+        in: query
+        name: type
+        required: false
+        schema:
+          type: string
+      - description: "name, romaji or publishedAt, then asc or desc; default name,asc"
+        in: query
+        name: sort
+        schema:
+          type: string
+          example: "name,asc"
+      responses:
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseDevilFruitSummaryResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Devil Fruits
+  /v1/{lang}/devil-fruits/{idOrSlug}:
+    get:
+      description: One Devil Fruit by id or slug
+      operationId: devilFruitGet
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: idOrSlug
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DevilFruitResponse"
+          description: OK
+        "301":
+          description: "An old slug: Location is the current slug, relative to this\
+            \ address"
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DevilFruitResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Devil Fruits
 components:
   responses:
     ClientError:
@@ -149,6 +271,63 @@ components:
             $ref: "#/components/schemas/ProblemDetail"
       description: Unexpected server error
   schemas:
+    DevilFruitOfTypeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        image:
+          type: string
+        name:
+          type: string
+        romaji:
+          type: string
+        slug:
+          type: string
+    DevilFruitResponse:
+      type: object
+      properties:
+        advantages:
+          type: string
+        description:
+          type: string
+        disadvantages:
+          type: string
+        id:
+          type: string
+          format: uuid
+        image:
+          type: string
+        language:
+          type: string
+        name:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+        romaji:
+          type: string
+        slug:
+          type: string
+        type:
+          $ref: "#/components/schemas/DevilFruitTypeSummaryResponse"
+    DevilFruitSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        image:
+          type: string
+        name:
+          type: string
+        romaji:
+          type: string
+        slug:
+          type: string
+        type:
+          $ref: "#/components/schemas/DevilFruitTypeSummaryResponse"
     DevilFruitTypeResponse:
       type: object
       properties:
@@ -156,6 +335,10 @@ components:
           type: string
         description:
           type: string
+        devilFruits:
+          type: array
+          items:
+            $ref: "#/components/schemas/DevilFruitOfTypeResponse"
         disadvantages:
           type: string
         id:
@@ -210,6 +393,25 @@ components:
           type: string
         name:
           type: string
+    PageResponseDevilFruitSummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/DevilFruitSummaryResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
     PageResponseDevilFruitTypeSummaryResponse:
       type: object
       properties:

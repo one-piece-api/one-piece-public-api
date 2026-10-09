@@ -33,9 +33,11 @@ public record PublicApiProperties(@Valid Pagination pagination, @Valid Cache cac
 	 * @param notFoundMaxAge how long a {@code 404} is reused
 	 * @param movedMaxAge how long a {@code 301} is reused: explicit, as browsers keep a
 	 * bare one forever and a romaji changed back would loop
+	 * @param imageMaxAge how long an image is fresh: its address changes with its bytes,
+	 * so it is also immutable
 	 */
 	public record Cache(@NotNull Duration okMaxAge, @NotNull Duration okStaleWhileRevalidate,
-			@NotNull Duration notFoundMaxAge, @NotNull Duration movedMaxAge) {
+			@NotNull Duration notFoundMaxAge, @NotNull Duration movedMaxAge, @NotNull Duration imageMaxAge) {
 
 	}
 

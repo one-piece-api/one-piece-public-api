@@ -16,7 +16,7 @@ class ContentSearchMapperTest {
 	void appliesTheDefaultsToAnEmptyRequest() {
 		ContentSearch search = toSearch(new ContentListRequest(null, null, null, null));
 
-		assertThat(search).isEqualTo(new ContentSearch(null, ContentSort.DEFAULT, 0, 20));
+		assertThat(search).isEqualTo(ContentSearch.builder().sort(ContentSort.DEFAULT).page(0).size(20).build());
 	}
 
 	@Test

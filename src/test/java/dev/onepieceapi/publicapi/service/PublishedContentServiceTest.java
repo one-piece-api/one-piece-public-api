@@ -84,14 +84,15 @@ class PublishedContentServiceTest {
 		doThrow(new LanguageNotAvailableException("xx")).when(this.languages).requireAvailable("xx");
 
 		assertThatThrownBy(() -> this.service.find("xx", "ichi")).isInstanceOf(LanguageNotAvailableException.class);
-		assertThatThrownBy(() -> this.service.search("xx", new ContentSearch(null, ContentSort.DEFAULT, 0, 20)))
+		assertThatThrownBy(() -> this.service.search("xx",
+				ContentSearch.builder().sort(ContentSort.DEFAULT).page(0).size(20).build()))
 			.isInstanceOf(LanguageNotAvailableException.class);
 		verifyNoInteractions(this.repository);
 	}
 
 	@Test
 	void searchesThroughTheRepositoryWithItsView() {
-		ContentSearch search = new ContentSearch("ich", ContentSort.DEFAULT, 0, 20);
+		ContentSearch search = ContentSearch.builder().text("ich").sort(ContentSort.DEFAULT).page(0).size(20).build();
 		Page<String> page = new Page<>(List.of("ichi"), 0, 20, 1);
 		when(this.repository.search(this.view, "en", search)).thenReturn(page);
 

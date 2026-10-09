@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 /** The entry point of the API: where everything else is, relative to the API root. */
 @RestController
@@ -17,8 +18,8 @@ class IndexController {
 	@Operation(description = "The entry point: where the other parts of the API are")
 	@GetMapping(ApiPaths.V1)
 	IndexResponse index() {
-		return new IndexResponse(relative(ApiPaths.LANGUAGES),
-				Map.of("devil-fruit-types", relative(ApiPaths.DEVIL_FRUIT_TYPES)));
+		return new IndexResponse(relative(ApiPaths.LANGUAGES), new TreeMap<>(Map.of("devil-fruit-types",
+				relative(ApiPaths.DEVIL_FRUIT_TYPES), "devil-fruits", relative(ApiPaths.DEVIL_FRUITS))));
 	}
 
 	/** A path as a template relative to the API root: no leading slash. */
