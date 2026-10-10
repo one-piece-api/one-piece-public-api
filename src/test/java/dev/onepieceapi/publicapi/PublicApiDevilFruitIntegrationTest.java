@@ -86,6 +86,82 @@ class PublicApiDevilFruitIntegrationTest extends PublishedDatabaseTest {
 	}
 
 	@Test
+	void showsTheSubcategoryOfAFruitInTheLanguageOfThePath() {
+		UUID mythical = this.fixture.subcategory(this.zoan, 1, Translation.of("it", "Mitico"),
+				Translation.of("en", "Mythical"));
+		this.fixture.subcategory(this.zoan, 0, Translation.of("it", "Antico"), Translation.of("en", "Ancient"));
+		this.fixture.publishFruitOfSubcategory("Inu Inu no Mi", this.zoan, mythical, Translation.of("it", "Cane Cane"),
+				Translation.of("en", "Dog-Dog"));
+
+		get("/v1/it/devil-fruits/inu-inu-no-mi").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.subcategory.id")
+			.isEqualTo(mythical.toString())
+			.jsonPath("$.subcategory.name")
+			.isEqualTo("Mitico")
+			.jsonPath("$.subcategory.description")
+			.isEqualTo("Description of Mitico");
+		get("/v1/en/devil-fruits").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.content[0].subcategory.id")
+			.isEqualTo(mythical.toString())
+			.jsonPath("$.content[0].subcategory.name")
+			.isEqualTo("Mythical")
+			.jsonPath("$.content[0].subcategory.description")
+			.doesNotExist();
+	}
+
+	@Test
+	void showsNoSubcategoryForAFruitWithoutOrWithoutTextInThatLanguage() {
+		UUID englishOnly = this.fixture.subcategory(this.zoan, 0, Translation.of("en", "Artificial"));
+		this.fixture.publishFruit("Mera Mera no Mi", this.logia, null, Translation.of("en", "Flame-Flame"));
+		this.fixture.publishFruitOfSubcategory("Inu Inu no Mi", this.zoan, englishOnly, Translation.of("it", "Cane"),
+				Translation.of("en", "Dog-Dog"));
+
+		get("/v1/en/devil-fruits/mera-mera-no-mi").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.subcategory")
+			.isEmpty();
+		get("/v1/it/devil-fruits/inu-inu-no-mi").expectStatus().isOk().expectBody().jsonPath("$.subcategory").isEmpty();
+		get("/v1/en/devil-fruits/inu-inu-no-mi").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.subcategory.name")
+			.isEqualTo("Artificial");
+	}
+
+	@Test
+	void aTypeListsItsSubcategoriesInOrderAndEmptyWhenItHasNone() {
+		this.fixture.subcategory(this.zoan, 1, Translation.of("en", "Mythical"));
+		this.fixture.subcategory(this.zoan, 0, Translation.of("en", "Ancient"));
+
+		get("/v1/en/devil-fruit-types/zoan").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.subcategories.length()")
+			.isEqualTo(2)
+			.jsonPath("$.subcategories[0].name")
+			.isEqualTo("Ancient")
+			.jsonPath("$.subcategories[1].name")
+			.isEqualTo("Mythical")
+			.jsonPath("$.subcategories[1].description")
+			.isEqualTo("Description of Mythical");
+		get("/v1/en/devil-fruit-types/logia").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.subcategories.length()")
+			.isEqualTo(0);
+		get("/v1/it/devil-fruit-types/zoan").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.subcategories.length()")
+			.isEqualTo(0);
+	}
+
+	@Test
 	void showsNoImageForAFruitWithout() {
 		this.fixture.publishFruit("Gomu Gomu no Mi", this.zoan, null, Translation.of("it", "Gom Gom"),
 				Translation.of("en", "Gum-Gum"));

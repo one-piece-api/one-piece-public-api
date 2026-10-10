@@ -9,6 +9,7 @@ import java.util.UUID;
 @Builder
 public record DevilFruitRow(UUID id, String slug, String romaji, String language, String name, String description,
 		String advantages, String disadvantages, UUID typeId, String typeSlug, String typeRomaji, String typeName,
-		String imageId, OffsetDateTime publishedAt) {
+		String imageId, OffsetDateTime publishedAt, UUID subcategoryId, String subcategoryName,
+		String subcategoryDescription) {
 
 }

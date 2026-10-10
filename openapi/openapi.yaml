@@ -310,8 +310,28 @@ components:
           type: string
         slug:
           type: string
+        subcategory:
+          $ref: "#/components/schemas/DevilFruitSubcategoryResponse"
         type:
           $ref: "#/components/schemas/DevilFruitTypeSummaryResponse"
+    DevilFruitSubcategoryResponse:
+      type: object
+      properties:
+        description:
+          type: string
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    DevilFruitSubcategorySummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
     DevilFruitSummaryResponse:
       type: object
       properties:
@@ -326,6 +346,8 @@ components:
           type: string
         slug:
           type: string
+        subcategory:
+          $ref: "#/components/schemas/DevilFruitSubcategorySummaryResponse"
         type:
           $ref: "#/components/schemas/DevilFruitTypeSummaryResponse"
     DevilFruitTypeResponse:
@@ -355,6 +377,10 @@ components:
           type: string
         slug:
           type: string
+        subcategories:
+          type: array
+          items:
+            $ref: "#/components/schemas/DevilFruitSubcategoryResponse"
     DevilFruitTypeSummaryResponse:
       type: object
       properties:

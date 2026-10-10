@@ -54,6 +54,48 @@ public class PublishedContentFixture {
 		return contentId;
 	}
 
+	/**
+	 * A subcategory of a type online, written in the given languages; returns its id.
+	 * Positions are the order the type shows them in.
+	 */
+	public UUID subcategory(UUID typeId, int position, Translation... translations) {
+		UUID subcategoryId = UUID.randomUUID();
+		UUID rowId = UUID.randomUUID();
+		this.owner.sql("""
+				INSERT INTO devil_fruit_type_version_subcategory (id, version_id, subcategory_id, position)
+				VALUES (:row, (SELECT id FROM content_version WHERE content_id = :type AND status = 'PUBLISHED'),
+				        :subcategory, :position)""")
+			.param("row", rowId)
+			.param("type", typeId)
+			.param("subcategory", subcategoryId)
+			.param("position", position)
+			.update();
+		for (Translation translation : translations) {
+			this.owner.sql("""
+					INSERT INTO devil_fruit_type_version_subcategory_translation
+					       (subcategory_row_id, language_code, name, description)
+					VALUES (:row, :language, :name, :description)""")
+				.param("row", rowId)
+				.param("language", translation.language())
+				.param("name", translation.name())
+				.param("description", translation.description())
+				.update();
+		}
+		return subcategoryId;
+	}
+
+	/** A Devil Fruit online that names a subcategory of its type. */
+	public UUID publishFruitOfSubcategory(String romaji, UUID typeId, UUID subcategoryId, Translation... translations) {
+		UUID contentId = publishFruit(romaji, typeId, null, translations);
+		this.owner
+			.sql("UPDATE devil_fruit_version SET subcategory_id = :subcategory WHERE version_id ="
+					+ " (SELECT id FROM content_version WHERE content_id = :id AND status = 'PUBLISHED')")
+			.param("subcategory", subcategoryId)
+			.param("id", contentId)
+			.update();
+		return contentId;
+	}
+
 	/** A Devil Fruit still in draft: never online, nor its image. */
 	public void draftFruit(String romaji, UUID typeId, String imageId, Translation... translations) {
 		UUID versionId = insertVersion(FRUIT, insertContent(FRUIT), 1, "DRAFT", romaji, translations);

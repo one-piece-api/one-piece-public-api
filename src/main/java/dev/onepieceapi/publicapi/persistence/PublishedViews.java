@@ -36,8 +36,10 @@ public final class PublishedViews {
 		.entityType("DEVIL_FRUIT")
 		.view("published.devil_fruit")
 		.detailColumns("id, slug, romaji, language, name, description, advantages, disadvantages,"
-				+ " type_id, type_slug, type_romaji, type_name, image_id, published_at")
-		.summaryColumns("id, slug, romaji, name, type_id, type_slug, type_romaji, type_name, image_id")
+				+ " type_id, type_slug, type_romaji, type_name, image_id, published_at,"
+				+ " subcategory_id, subcategory_name, subcategory_description")
+		.summaryColumns("id, slug, romaji, name, type_id, type_slug, type_romaji, type_name, image_id,"
+				+ " subcategory_id, subcategory_name")
 		.detail(PublishedView.reading(DevilFruitRow.class, PublishedRowMapper::toDomain))
 		.summary(PublishedView.reading(DevilFruitSummaryRow.class, PublishedRowMapper::toDomain))
 		.filters(Map.of(TYPE_FILTER, ContentFilter.onContent("type_id", "DEVIL_FRUIT_TYPE")))

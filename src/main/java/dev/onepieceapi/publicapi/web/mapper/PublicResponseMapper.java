@@ -1,6 +1,8 @@
 package dev.onepieceapi.publicapi.web.mapper;
 
 import dev.onepieceapi.publicapi.domain.DevilFruit;
+import dev.onepieceapi.publicapi.domain.DevilFruitSubcategory;
+import dev.onepieceapi.publicapi.domain.DevilFruitSubcategorySummary;
 import dev.onepieceapi.publicapi.domain.DevilFruitSummary;
 import dev.onepieceapi.publicapi.domain.DevilFruitType;
 import dev.onepieceapi.publicapi.domain.DevilFruitTypeSummary;
@@ -9,6 +11,8 @@ import dev.onepieceapi.publicapi.domain.Page;
 import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitOfTypeResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitResponse;
+import dev.onepieceapi.publicapi.web.dto.response.DevilFruitSubcategoryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.DevilFruitSubcategorySummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitTypeResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitTypeSummaryResponse;
@@ -41,6 +45,7 @@ public class PublicResponseMapper {
 			.advantages(devilFruitType.advantages())
 			.disadvantages(devilFruitType.disadvantages())
 			.publishedAt(devilFruitType.publishedAt())
+			.subcategories(devilFruitType.subcategories().stream().map(PublicResponseMapper::toResponse).toList())
 			.devilFruits(devilFruitType.devilFruits().stream().map(PublicResponseMapper::toTypeFruitResponse).toList())
 			.build();
 	}
@@ -60,9 +65,22 @@ public class PublicResponseMapper {
 			.advantages(devilFruit.advantages())
 			.disadvantages(devilFruit.disadvantages())
 			.type(toResponse(devilFruit.type()))
+			.subcategory(toResponse(devilFruit.subcategory()))
 			.image(imagePath(devilFruit.imageId()))
 			.publishedAt(devilFruit.publishedAt())
 			.build();
+	}
+
+	/** {@code null} when the fruit names none. */
+	public DevilFruitSubcategoryResponse toResponse(DevilFruitSubcategory subcategory) {
+		return subcategory == null ? null
+				: new DevilFruitSubcategoryResponse(subcategory.id(), subcategory.name(), subcategory.description());
+	}
+
+	/** {@code null} when the fruit names none. */
+	public DevilFruitSubcategorySummaryResponse toResponse(DevilFruitSubcategorySummary subcategory) {
+		return subcategory == null ? null
+				: new DevilFruitSubcategorySummaryResponse(subcategory.id(), subcategory.name());
 	}
 
 	public DevilFruitSummaryResponse toResponse(DevilFruitSummary summary) {
@@ -72,6 +90,7 @@ public class PublicResponseMapper {
 			.romaji(summary.romaji())
 			.name(summary.name())
 			.type(toResponse(summary.type()))
+			.subcategory(toResponse(summary.subcategory()))
 			.image(imagePath(summary.imageId()))
 			.build();
 	}
