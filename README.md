@@ -47,6 +47,18 @@ kubectl port-forward svc/one-piece-public-api -n app 8083:80
 kubectl port-forward deploy/one-piece-public-api -n app 8093:8081   # actuator
 ```
 
+Bruno: environment `dev` (IntelliJ, `localhost:8083`), `local` (cluster via Envoy, rotta
+`api.localhost` come in remoto) o `remote` (`api.onepieceapi.dev`). Per `local`:
+
+```bash
+kubectl port-forward -n envoy-gateway-system \
+  "$(kubectl get svc -n envoy-gateway-system -l app.kubernetes.io/component=proxy -o name)" 8090:80
+```
+
+e una volta per macchina `127.0.0.1 api.localhost` nel file hosts
+(`C:\Windows\System32\drivers\etc\hosts`, da amministratore): Node, usato da Bruno, non
+risolve da sé i sottodomini di `localhost`.
+
 ## Contratto API
 
 Dopo una modifica all'API, in quest'ordine, poi si committano entrambi i risultati:

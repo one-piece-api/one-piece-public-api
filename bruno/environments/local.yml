@@ -1,5 +1,7 @@
 name: local
 variables:
+  # Through Envoy on the host route, like remote (onepiece-infrastructure ADR-0024):
+  # needs the Envoy port-forward on 8090 and "127.0.0.1 api.localhost" in the hosts
+  # file - see README.md.
   - name: baseUrl
-    value: http://localhost:8083
-    description: ""
+    value: http://api.localhost:8090
