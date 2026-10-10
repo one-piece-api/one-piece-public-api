@@ -1,0 +1,5 @@
+name: remote
+variables:
+  # The deployed dev environment's public host (onepiece-infrastructure ADR-0024).
+  - name: baseUrl
+    value: https://api.onepieceapi.dev
