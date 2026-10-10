@@ -64,7 +64,14 @@ examples:
             "name": "",
             "publishedAt": "",
             "romaji": "",
-            "slug": ""
+            "slug": "",
+            "subcategories": [
+              {
+                "description": "",
+                "id": "",
+                "name": ""
+              }
+            ]
           }
   - name: 301 Response
     description: "An old slug: Location is the current slug, relative to this address"
@@ -123,7 +130,14 @@ examples:
             "name": "",
             "publishedAt": "",
             "romaji": "",
-            "slug": ""
+            "slug": "",
+            "subcategories": [
+              {
+                "description": "",
+                "id": "",
+                "name": ""
+              }
+            ]
           }
   - name: 4XX Response
     description: Client error - a problem detail, except a 401/403 rejected by the security filter chain before reaching the application, which has no body

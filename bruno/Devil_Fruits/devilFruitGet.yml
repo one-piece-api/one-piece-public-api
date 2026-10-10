@@ -57,6 +57,11 @@ examples:
             "publishedAt": "",
             "romaji": "",
             "slug": "",
+            "subcategory": {
+              "description": "",
+              "id": "",
+              "name": ""
+            },
             "type": {
               "id": "",
               "name": "",
@@ -114,6 +119,11 @@ examples:
             "publishedAt": "",
             "romaji": "",
             "slug": "",
+            "subcategory": {
+              "description": "",
+              "id": "",
+              "name": ""
+            },
             "type": {
               "id": "",
               "name": "",

@@ -96,6 +96,10 @@ examples:
                 "name": "",
                 "romaji": "",
                 "slug": "",
+                "subcategory": {
+                  "id": "",
+                  "name": ""
+                },
                 "type": {
                   "id": "",
                   "name": "",
