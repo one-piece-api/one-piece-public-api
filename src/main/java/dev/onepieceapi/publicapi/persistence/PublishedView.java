@@ -16,6 +16,9 @@ import java.util.function.Function;
  * @param view the view of the entity, with its schema
  * @param detailColumns the columns of the detail
  * @param summaryColumns the columns of a list row
+ * @param naturalKey the column of the natural key the entity declares (the romaji, a
+ * number): searched as text with the name, ordered by {@code sort=romaji}, source of the
+ * slug
  * @param detail reads a detail row
  * @param summary reads a list row
  * @param filters the filters of the list, by name; none when null
@@ -24,7 +27,7 @@ import java.util.function.Function;
  */
 @Builder
 public record PublishedView<D, S>(String entityType, String view, String detailColumns, String summaryColumns,
-		RowMapper<D> detail, RowMapper<S> summary, Map<String, ContentFilter> filters) {
+		String naturalKey, RowMapper<D> detail, RowMapper<S> summary, Map<String, ContentFilter> filters) {
 
 	public PublishedView {
 		filters = filters == null ? Map.of() : Map.copyOf(filters);

@@ -31,7 +31,7 @@ public class PublishedContentRepository {
 	 * Left out when nobody searches: comparing every row with an empty pattern is pure
 	 * cost.
 	 */
-	private static final String TEXT_FILTER = " AND (name ILIKE :pattern OR romaji ILIKE :pattern)";
+	private static final String TEXT_FILTER = " AND (name ILIKE :pattern OR CAST(%s AS text) ILIKE :pattern)";
 
 	private static final String FILTER_PARAMETER = "filter";
 
@@ -42,12 +42,12 @@ public class PublishedContentRepository {
 				Map.of("language", language, "pattern", containsPattern(search.text())));
 		StringBuilder where = new StringBuilder(LANGUAGE_FILTER);
 		if (search.filtered()) {
-			where.append(TEXT_FILTER);
+			where.append(TEXT_FILTER.formatted(view.naturalKey()));
 		}
 		appendFilters(view, search.filters(), where, parameters);
 		var content = this.jdbc
 			.sql("SELECT " + view.summaryColumns() + " FROM " + view.view() + " WHERE " + where + " ORDER BY "
-					+ orderBy(search.sort()) + ", id LIMIT :limit OFFSET :offset")
+					+ orderBy(view, search.sort()) + ", id LIMIT :limit OFFSET :offset")
 			.params(parameters)
 			.param("limit", search.size())
 			.param("offset", search.offset())
@@ -117,10 +117,10 @@ public class PublishedContentRepository {
 		}
 	}
 
-	private static String orderBy(ContentSort sort) {
+	private static String orderBy(PublishedView<?, ?> view, ContentSort sort) {
 		String column = switch (sort.field()) {
 			case NAME -> "name";
-			case ROMAJI -> "romaji";
+			case ROMAJI -> view.naturalKey();
 			case PUBLISHED_AT -> "published_at";
 		};
 		return column + " " + sort.direction().name();

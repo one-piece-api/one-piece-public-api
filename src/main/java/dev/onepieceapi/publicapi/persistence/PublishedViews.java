@@ -27,6 +27,7 @@ public final class PublishedViews {
 		.view("published.devil_fruit_type")
 		.detailColumns("id, slug, romaji, language, name, description, advantages, disadvantages, published_at")
 		.summaryColumns("id, slug, romaji, name")
+		.naturalKey("romaji")
 		.detail(PublishedView.reading(DevilFruitTypeRow.class, PublishedRowMapper::toDomain))
 		.summary(PublishedView.reading(DevilFruitTypeSummaryRow.class, PublishedRowMapper::toDomain))
 		.build();
@@ -40,6 +41,7 @@ public final class PublishedViews {
 				+ " subcategory_id, subcategory_name, subcategory_description")
 		.summaryColumns("id, slug, romaji, name, type_id, type_slug, type_romaji, type_name, image_id,"
 				+ " subcategory_id, subcategory_name")
+		.naturalKey("romaji")
 		.detail(PublishedView.reading(DevilFruitRow.class, PublishedRowMapper::toDomain))
 		.summary(PublishedView.reading(DevilFruitSummaryRow.class, PublishedRowMapper::toDomain))
 		.filters(Map.of(TYPE_FILTER, ContentFilter.onContent("type_id", "DEVIL_FRUIT_TYPE")))
