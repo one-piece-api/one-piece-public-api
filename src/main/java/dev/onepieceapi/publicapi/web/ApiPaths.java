@@ -21,6 +21,26 @@ public final class ApiPaths {
 
 	public static final String DEVIL_FRUIT = DEVIL_FRUITS + "/{idOrSlug}";
 
+	public static final String SAGAS = V1 + "/{lang}/sagas";
+
+	public static final String SAGA = SAGAS + "/{idOrSlug}";
+
+	public static final String ARCS = V1 + "/{lang}/arcs";
+
+	public static final String ARC = ARCS + "/{idOrSlug}";
+
+	public static final String VOLUMES = V1 + "/{lang}/volumes";
+
+	public static final String VOLUME = VOLUMES + "/{idOrSlug}";
+
+	public static final String CHAPTERS = V1 + "/{lang}/chapters";
+
+	public static final String CHAPTER = CHAPTERS + "/{idOrSlug}";
+
+	public static final String EPISODES = V1 + "/{lang}/episodes";
+
+	public static final String EPISODE = EPISODES + "/{idOrSlug}";
+
 	/** No language: an image is the same in all of them (plan D11). */
 	public static final String IMAGE = V1 + "/images/{id}.png";
 

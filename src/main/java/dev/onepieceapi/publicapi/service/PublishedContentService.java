@@ -45,7 +45,7 @@ public abstract class PublishedContentService<D extends PublishedContent, S> {
 		this.languages.requireAvailable(language);
 		D found = findOnline(language, idOrSlug).orElseThrow(() -> new ContentNotFoundException(idOrSlug));
 		if (ContentAddress.isId(idOrSlug) || idOrSlug.equals(found.slug())) {
-			return new ContentLookup.Found<>(found);
+			return new ContentLookup.Found<>(complete(found));
 		}
 		// An old slug of a content whose romaji now leaves no slug has nowhere to point
 		// to.
@@ -53,6 +53,15 @@ public abstract class PublishedContentService<D extends PublishedContent, S> {
 			throw new ContentNotFoundException(idOrSlug);
 		}
 		return new ContentLookup.Moved<>(found.slug());
+	}
+
+	/**
+	 * What an entity adds to its detail from other views, such as the contents it holds
+	 * or its release days; the content itself when it adds nothing (hook of the
+	 * template).
+	 */
+	protected D complete(D content) {
+		return content;
 	}
 
 	private Optional<D> findOnline(String language, String idOrSlug) {

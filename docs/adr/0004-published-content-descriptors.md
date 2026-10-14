@@ -54,3 +54,19 @@ slug to `301`, sort, paging, conditional GET - and let the copies drift apart.
   view, not by a test-only view.
 - A sort field not common to every entity will need the sort to become part of the
   descriptor.
+
+## Addendum - story structure (plan SS6)
+
+- Saga, Arc, Volume, Chapter and Episode are five more descriptors (`naturalKey("number")`,
+  slug = number) on the same repository and template; `sort=number` (default for them) maps
+  to the natural key as `romaji` does.
+- **Derived values** come from the span views of content-service (ADR-0003 addendum) as
+  `chapters` / `episodes` spans on the detail: counts and ranges, never the list of children,
+  which are reached through the `arc=` / `saga=` / `volume=` filters.
+- **Embedded lists** keep using `listAll`, now ordered by the descriptor's `embeddedOrder`
+  (number for arcs); a filter declared only for embedding (`volume` on arcs: arcs of the
+  chapters online of a volume) is not exposed as a query parameter.
+- **Template hook** `complete(detail)` on `PublishedContentService`: what a detail adds from
+  other views (embedded arcs, release days per country read by `PublishedReleaseRepository`).
+  `DevilFruitTypeService` keeps its own override.
+- The cover of a volume is served by the same `v1/images/{id}.png` (PNG only today).

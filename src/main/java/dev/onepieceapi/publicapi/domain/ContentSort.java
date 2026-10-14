@@ -11,12 +11,15 @@ public record ContentSort(Field field, Direction direction) {
 
 	public static final ContentSort DEFAULT = new ContentSort(Field.NAME, Direction.ASC);
 
+	/** The default of the entities keyed by a number: story order. */
+	public static final ContentSort BY_NUMBER = new ContentSort(Field.NUMBER, Direction.ASC);
+
 	/** What the list can be ordered by; {@code requestName} is the name in the URL. */
 	@Getter
 	@RequiredArgsConstructor
 	public enum Field {
 
-		NAME("name"), ROMAJI("romaji"), PUBLISHED_AT("publishedAt");
+		NAME("name"), ROMAJI("romaji"), NUMBER("number"), PUBLISHED_AT("publishedAt");
 
 		private final String requestName;
 

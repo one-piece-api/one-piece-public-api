@@ -65,6 +65,211 @@ paths:
           $ref: "#/components/responses/ServerError"
       tags:
       - Languages
+  /v1/{lang}/arcs:
+    get:
+      description: "Lists the arcs online, one page at a time"
+      operationId: arcList
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - description: "0-based page, 0 when missing"
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - description: "Page size: 20 when missing, at most 100"
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - description: "Text the name or the romaji or number contains, case-insensitive;\
+          \ 100 characters at most"
+        in: query
+        name: q
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+          minLength: 0
+      - description: "Only the arcs of this saga: its id or number, an old slug included;\
+          \ an unknown saga lists nothing"
+        in: query
+        name: saga
+        required: false
+        schema:
+          type: string
+      - description: "name, number or publishedAt, then asc or desc; default number,asc"
+        in: query
+        name: sort
+        schema:
+          type: string
+          example: "number,asc"
+      responses:
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseArcSummaryResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Arcs
+  /v1/{lang}/arcs/{idOrSlug}:
+    get:
+      description: "One arc by id or number, with its saga and what its chapters and\
+        \ episodes amount to"
+      operationId: arcGet
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: idOrSlug
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArcResponse"
+          description: OK
+        "301":
+          description: "An old slug: Location is the current slug, relative to this\
+            \ address"
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArcResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Arcs
+  /v1/{lang}/chapters:
+    get:
+      description: "Lists the chapters online, one page at a time"
+      operationId: chapterList
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - description: "0-based page, 0 when missing"
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - description: "Page size: 20 when missing, at most 100"
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - description: "Text the name or the romaji or number contains, case-insensitive;\
+          \ 100 characters at most"
+        in: query
+        name: q
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+          minLength: 0
+      - description: "Only the chapters of this arc: its id or number, an old slug\
+          \ included; an unknown arc lists nothing"
+        in: query
+        name: arc
+        required: false
+        schema:
+          type: string
+      - description: "Only the chapters of this volume: its id or number, an old slug\
+          \ included; an unknown volume lists nothing"
+        in: query
+        name: volume
+        required: false
+        schema:
+          type: string
+      - description: "name, number or publishedAt, then asc or desc; default number,asc"
+        in: query
+        name: sort
+        schema:
+          type: string
+          example: "number,asc"
+      responses:
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseChapterSummaryResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Chapters
+  /v1/{lang}/chapters/{idOrSlug}:
+    get:
+      description: "One chapter by id or number, with its arc, volume and release\
+        \ days"
+      operationId: chapterGet
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: idOrSlug
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChapterResponse"
+          description: OK
+        "301":
+          description: "An old slug: Location is the current slug, relative to this\
+            \ address"
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChapterResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Chapters
   /v1/{lang}/devil-fruit-types:
     get:
       description: "Lists the Devil Fruit Types online, one page at a time"
@@ -91,8 +296,8 @@ paths:
           type: integer
           format: int32
           minimum: 1
-      - description: "Text the name or the romaji contains, case-insensitive; 100\
-          \ characters at most"
+      - description: "Text the name or the romaji or number contains, case-insensitive;\
+          \ 100 characters at most"
         in: query
         name: q
         required: false
@@ -182,8 +387,8 @@ paths:
           type: integer
           format: int32
           minimum: 1
-      - description: "Text the name or the romaji contains, case-insensitive; 100\
-          \ characters at most"
+      - description: "Text the name or the romaji or number contains, case-insensitive;\
+          \ 100 characters at most"
         in: query
         name: q
         required: false
@@ -254,6 +459,288 @@ paths:
           $ref: "#/components/responses/ServerError"
       tags:
       - Devil Fruits
+  /v1/{lang}/episodes:
+    get:
+      description: "Lists the episodes online, one page at a time"
+      operationId: episodeList
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - description: "0-based page, 0 when missing"
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - description: "Page size: 20 when missing, at most 100"
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - description: "Text the name or the romaji or number contains, case-insensitive;\
+          \ 100 characters at most"
+        in: query
+        name: q
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+          minLength: 0
+      - description: "Only the episodes of this arc: its id or number, an old slug\
+          \ included; an unknown arc lists nothing"
+        in: query
+        name: arc
+        required: false
+        schema:
+          type: string
+      - description: "name, number or publishedAt, then asc or desc; default number,asc"
+        in: query
+        name: sort
+        schema:
+          type: string
+          example: "number,asc"
+      responses:
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseEpisodeSummaryResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Episodes
+  /v1/{lang}/episodes/{idOrSlug}:
+    get:
+      description: "One episode by id or number, with its arc and broadcast days"
+      operationId: episodeGet
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: idOrSlug
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EpisodeResponse"
+          description: OK
+        "301":
+          description: "An old slug: Location is the current slug, relative to this\
+            \ address"
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EpisodeResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Episodes
+  /v1/{lang}/sagas:
+    get:
+      description: "Lists the sagas online, one page at a time"
+      operationId: sagaList
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - description: "0-based page, 0 when missing"
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - description: "Page size: 20 when missing, at most 100"
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - description: "Text the name or the romaji or number contains, case-insensitive;\
+          \ 100 characters at most"
+        in: query
+        name: q
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+          minLength: 0
+      - description: "name, number or publishedAt, then asc or desc; default number,asc"
+        in: query
+        name: sort
+        schema:
+          type: string
+          example: "number,asc"
+      responses:
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseSagaSummaryResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Sagas
+  /v1/{lang}/sagas/{idOrSlug}:
+    get:
+      description: "One saga by id or number, with its arcs and what its chapters\
+        \ and episodes amount to"
+      operationId: sagaGet
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: idOrSlug
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SagaResponse"
+          description: OK
+        "301":
+          description: "An old slug: Location is the current slug, relative to this\
+            \ address"
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SagaResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Sagas
+  /v1/{lang}/volumes:
+    get:
+      description: "Lists the volumes online, one page at a time"
+      operationId: volumeList
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - description: "0-based page, 0 when missing"
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - description: "Page size: 20 when missing, at most 100"
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - description: "Text the name or the romaji or number contains, case-insensitive;\
+          \ 100 characters at most"
+        in: query
+        name: q
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+          minLength: 0
+      - description: "name, number or publishedAt, then asc or desc; default number,asc"
+        in: query
+        name: sort
+        schema:
+          type: string
+          example: "number,asc"
+      responses:
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseVolumeSummaryResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Volumes
+  /v1/{lang}/volumes/{idOrSlug}:
+    get:
+      description: "One volume by id or number, with its cover, release days, the\
+        \ arcs of its chapters and what its chapters amount to"
+      operationId: volumeGet
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: idOrSlug
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VolumeResponse"
+          description: OK
+        "301":
+          description: "An old slug: Location is the current slug, relative to this\
+            \ address"
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VolumeResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Volumes
 components:
   responses:
     ClientError:
@@ -271,6 +758,110 @@ components:
             $ref: "#/components/schemas/ProblemDetail"
       description: Unexpected server error
   schemas:
+    ArcReferenceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: integer
+          format: int32
+        slug:
+          type: string
+        title:
+          type: string
+    ArcResponse:
+      type: object
+      properties:
+        chapters:
+          $ref: "#/components/schemas/StorySpanResponse"
+        description:
+          type: string
+        episodes:
+          $ref: "#/components/schemas/StorySpanResponse"
+        id:
+          type: string
+          format: uuid
+        language:
+          type: string
+        number:
+          type: integer
+          format: int32
+        publishedAt:
+          type: string
+          format: date-time
+        saga:
+          $ref: "#/components/schemas/SagaSummaryResponse"
+        slug:
+          type: string
+        title:
+          type: string
+    ArcSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: integer
+          format: int32
+        saga:
+          $ref: "#/components/schemas/SagaSummaryResponse"
+        slug:
+          type: string
+        title:
+          type: string
+    ChapterResponse:
+      type: object
+      properties:
+        arc:
+          $ref: "#/components/schemas/ArcReferenceResponse"
+        description:
+          type: string
+        id:
+          type: string
+          format: uuid
+        japaneseTitle:
+          type: string
+        language:
+          type: string
+        number:
+          type: integer
+          format: int32
+        pageCount:
+          type: integer
+          format: int32
+        publishedAt:
+          type: string
+          format: date-time
+        releases:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReleaseResponse"
+        slug:
+          type: string
+        title:
+          type: string
+        volume:
+          $ref: "#/components/schemas/VolumeSummaryResponse"
+    ChapterSummaryResponse:
+      type: object
+      properties:
+        arc:
+          $ref: "#/components/schemas/ArcReferenceResponse"
+        id:
+          type: string
+          format: uuid
+        number:
+          type: integer
+          format: int32
+        slug:
+          type: string
+        title:
+          type: string
+        volume:
+          $ref: "#/components/schemas/VolumeSummaryResponse"
     DevilFruitOfTypeResponse:
       type: object
       properties:
@@ -393,6 +984,49 @@ components:
           type: string
         slug:
           type: string
+    EpisodeResponse:
+      type: object
+      properties:
+        arc:
+          $ref: "#/components/schemas/ArcReferenceResponse"
+        broadcasts:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReleaseResponse"
+        description:
+          type: string
+        id:
+          type: string
+          format: uuid
+        japaneseTitle:
+          type: string
+        language:
+          type: string
+        number:
+          type: integer
+          format: int32
+        publishedAt:
+          type: string
+          format: date-time
+        slug:
+          type: string
+        title:
+          type: string
+    EpisodeSummaryResponse:
+      type: object
+      properties:
+        arc:
+          $ref: "#/components/schemas/ArcReferenceResponse"
+        id:
+          type: string
+          format: uuid
+        number:
+          type: integer
+          format: int32
+        slug:
+          type: string
+        title:
+          type: string
     FieldViolation:
       type: object
       properties:
@@ -419,6 +1053,44 @@ components:
           type: string
         name:
           type: string
+    PageResponseArcSummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArcSummaryResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    PageResponseChapterSummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChapterSummaryResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
     PageResponseDevilFruitSummaryResponse:
       type: object
       properties:
@@ -445,6 +1117,63 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DevilFruitTypeSummaryResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    PageResponseEpisodeSummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/EpisodeSummaryResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    PageResponseSagaSummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/SagaSummaryResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    PageResponseVolumeSummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/VolumeSummaryResponse"
         page:
           type: integer
           format: int32
@@ -492,3 +1221,117 @@ components:
       - status
       - title
       - type
+    ReleaseResponse:
+      type: object
+      properties:
+        country:
+          type: string
+        date:
+          type: string
+          format: date
+    SagaResponse:
+      type: object
+      properties:
+        arcs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArcReferenceResponse"
+        chapters:
+          $ref: "#/components/schemas/StorySpanResponse"
+        description:
+          type: string
+        episodes:
+          $ref: "#/components/schemas/StorySpanResponse"
+        id:
+          type: string
+          format: uuid
+        language:
+          type: string
+        number:
+          type: integer
+          format: int32
+        publishedAt:
+          type: string
+          format: date-time
+        slug:
+          type: string
+        title:
+          type: string
+    SagaSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: integer
+          format: int32
+        slug:
+          type: string
+        title:
+          type: string
+    StorySpanResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int32
+        firstDate:
+          type: string
+          format: date
+        firstNumber:
+          type: integer
+          format: int32
+        lastDate:
+          type: string
+          format: date
+        lastNumber:
+          type: integer
+          format: int32
+    VolumeResponse:
+      type: object
+      properties:
+        arcs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArcReferenceResponse"
+        chapters:
+          $ref: "#/components/schemas/StorySpanResponse"
+        cover:
+          type: string
+        id:
+          type: string
+          format: uuid
+        japaneseTitle:
+          type: string
+        language:
+          type: string
+        number:
+          type: integer
+          format: int32
+        publishedAt:
+          type: string
+          format: date-time
+        releases:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReleaseResponse"
+        slug:
+          type: string
+        title:
+          type: string
+    VolumeSummaryResponse:
+      type: object
+      properties:
+        cover:
+          type: string
+        id:
+          type: string
+          format: uuid
+        number:
+          type: integer
+          format: int32
+        slug:
+          type: string
+        title:
+          type: string

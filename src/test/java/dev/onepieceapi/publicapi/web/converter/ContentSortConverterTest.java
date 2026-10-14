@@ -25,6 +25,12 @@ class ContentSortConverterTest {
 			.isEqualTo(new ContentSort(Field.PUBLISHED_AT, Direction.DESC));
 	}
 
+	@Test
+	void readsNumberWithItsDirection() {
+		assertThat(this.converter.convert("number")).isEqualTo(new ContentSort(Field.NUMBER, Direction.ASC));
+		assertThat(this.converter.convert("number,desc")).isEqualTo(new ContentSort(Field.NUMBER, Direction.DESC));
+	}
+
 	@ParameterizedTest
 	@ValueSource(strings = { "", "password", "NAME", "name,", "name,sideways", "name,asc,asc" })
 	void refusesAnythingOutsideTheClosedSet(String source) {

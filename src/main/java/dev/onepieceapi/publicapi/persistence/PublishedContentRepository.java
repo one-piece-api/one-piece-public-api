@@ -61,15 +61,17 @@ public class PublishedContentRepository {
 	}
 
 	/**
-	 * Every row matching one filter, by name then id: for a relation embedded in another
-	 * content, bounded by nature and so not paginated (plan D12).
+	 * Every row matching one filter, in the order the entity declares for it, then by id:
+	 * for a relation embedded in another content, bounded by nature and so not paginated
+	 * (plan D12).
 	 */
 	public <D, S> List<S> listAll(PublishedView<D, S> view, String language, ContentFilterValue filter) {
 		Map<String, Object> parameters = new HashMap<>(Map.of("language", language));
 		StringBuilder where = new StringBuilder(LANGUAGE_FILTER);
 		appendFilters(view, List.of(filter), where, parameters);
 		return this.jdbc
-			.sql("SELECT " + view.summaryColumns() + " FROM " + view.view() + " WHERE " + where + " ORDER BY name, id")
+			.sql("SELECT " + view.summaryColumns() + " FROM " + view.view() + " WHERE " + where + " ORDER BY "
+					+ view.embeddedOrder() + ", id")
 			.params(parameters)
 			.query(view.summary())
 			.list();
@@ -120,7 +122,7 @@ public class PublishedContentRepository {
 	private static String orderBy(PublishedView<?, ?> view, ContentSort sort) {
 		String column = switch (sort.field()) {
 			case NAME -> "name";
-			case ROMAJI -> view.naturalKey();
+			case ROMAJI, NUMBER -> view.naturalKey();
 			case PUBLISHED_AT -> "published_at";
 		};
 		return column + " " + sort.direction().name();

@@ -12,13 +12,13 @@ import jakarta.validation.constraints.Size;
  * @param page 0-based, 0 when missing
  * @param size the default size when missing, capped to the configured maximum when larger
  * @param sort {@code field} or {@code field,direction}
- * @param q what the name or the romaji contains
+ * @param q what the name or the natural key (romaji, number) contains
  */
 public record ContentListRequest(@Parameter(description = "0-based page, 0 when missing") @Min(0) Integer page,
 		@Parameter(description = "Page size: 20 when missing, at most 100") @Min(1) Integer size,
 		@Parameter(hidden = true) ContentSort sort,
 		@Parameter(
-				description = "Text the name or the romaji contains, case-insensitive; 100 characters at most") @Size(
+				description = "Text the name or the romaji or number contains, case-insensitive; 100 characters at most") @Size(
 						max = ContentListRequest.MAX_QUERY_LENGTH) String q) {
 
 	/**

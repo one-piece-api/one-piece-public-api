@@ -1,7 +1,7 @@
 # one-piece-public-api
 
 API HTTP pubblica, anonima e in sola lettura, sui contenuti **pubblicati** del workflow
-editoriale (Devil Fruit Type, Devil Fruit e le loro immagini). Legge le viste dello schema `published` del
+editoriale (Devil Fruit Type, Devil Fruit e le loro immagini; Saga, Arco, Volume, Capitolo, Episodio). Legge le viste dello schema `published` del
 database di `one-piece-content-service` con il ruolo di sola lettura `public_api_reader`.
 
 - **Piano di implementazione:** `docs/implementation-plan-public-api.md` (repo `one-piece-api`).

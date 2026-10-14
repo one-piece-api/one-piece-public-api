@@ -18,8 +18,11 @@ class IndexController {
 	@Operation(description = "The entry point: where the other parts of the API are")
 	@GetMapping(ApiPaths.V1)
 	IndexResponse index() {
-		return new IndexResponse(relative(ApiPaths.LANGUAGES), new TreeMap<>(Map.of("devil-fruit-types",
-				relative(ApiPaths.DEVIL_FRUIT_TYPES), "devil-fruits", relative(ApiPaths.DEVIL_FRUITS))));
+		return new IndexResponse(relative(ApiPaths.LANGUAGES),
+				new TreeMap<>(Map.of("devil-fruit-types", relative(ApiPaths.DEVIL_FRUIT_TYPES), "devil-fruits",
+						relative(ApiPaths.DEVIL_FRUITS), "sagas", relative(ApiPaths.SAGAS), "arcs",
+						relative(ApiPaths.ARCS), "volumes", relative(ApiPaths.VOLUMES), "chapters",
+						relative(ApiPaths.CHAPTERS), "episodes", relative(ApiPaths.EPISODES))));
 	}
 
 	/** A path as a template relative to the API root: no leading slash. */

@@ -1,14 +1,32 @@
 package dev.onepieceapi.publicapi.web.mapper;
 
+import dev.onepieceapi.publicapi.domain.Arc;
+import dev.onepieceapi.publicapi.domain.ArcReference;
+import dev.onepieceapi.publicapi.domain.ArcSummary;
+import dev.onepieceapi.publicapi.domain.Chapter;
+import dev.onepieceapi.publicapi.domain.ChapterSummary;
 import dev.onepieceapi.publicapi.domain.DevilFruit;
 import dev.onepieceapi.publicapi.domain.DevilFruitSubcategory;
 import dev.onepieceapi.publicapi.domain.DevilFruitSubcategorySummary;
 import dev.onepieceapi.publicapi.domain.DevilFruitSummary;
 import dev.onepieceapi.publicapi.domain.DevilFruitType;
 import dev.onepieceapi.publicapi.domain.DevilFruitTypeSummary;
+import dev.onepieceapi.publicapi.domain.Episode;
+import dev.onepieceapi.publicapi.domain.EpisodeSummary;
 import dev.onepieceapi.publicapi.domain.Language;
 import dev.onepieceapi.publicapi.domain.Page;
+import dev.onepieceapi.publicapi.domain.Release;
+import dev.onepieceapi.publicapi.domain.Saga;
+import dev.onepieceapi.publicapi.domain.SagaSummary;
+import dev.onepieceapi.publicapi.domain.StorySpan;
+import dev.onepieceapi.publicapi.domain.Volume;
+import dev.onepieceapi.publicapi.domain.VolumeSummary;
 import dev.onepieceapi.publicapi.web.ApiPaths;
+import dev.onepieceapi.publicapi.web.dto.response.ArcReferenceResponse;
+import dev.onepieceapi.publicapi.web.dto.response.ArcResponse;
+import dev.onepieceapi.publicapi.web.dto.response.ArcSummaryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.ChapterResponse;
+import dev.onepieceapi.publicapi.web.dto.response.ChapterSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitOfTypeResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitSubcategoryResponse;
@@ -16,8 +34,16 @@ import dev.onepieceapi.publicapi.web.dto.response.DevilFruitSubcategorySummaryRe
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitTypeResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitTypeSummaryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.EpisodeResponse;
+import dev.onepieceapi.publicapi.web.dto.response.EpisodeSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.LanguageResponse;
 import dev.onepieceapi.publicapi.web.dto.response.PageResponse;
+import dev.onepieceapi.publicapi.web.dto.response.ReleaseResponse;
+import dev.onepieceapi.publicapi.web.dto.response.SagaResponse;
+import dev.onepieceapi.publicapi.web.dto.response.SagaSummaryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.StorySpanResponse;
+import dev.onepieceapi.publicapi.web.dto.response.VolumeResponse;
+import dev.onepieceapi.publicapi.web.dto.response.VolumeSummaryResponse;
 import lombok.experimental.UtilityClass;
 
 import java.util.function.Function;
@@ -99,6 +125,128 @@ public class PublicResponseMapper {
 	public DevilFruitOfTypeResponse toTypeFruitResponse(DevilFruitSummary summary) {
 		return new DevilFruitOfTypeResponse(summary.id(), summary.slug(), summary.romaji(), summary.name(),
 				imagePath(summary.imageId()));
+	}
+
+	public SagaResponse toResponse(Saga saga) {
+		return SagaResponse.builder()
+			.id(saga.id())
+			.slug(saga.slug())
+			.number(saga.number())
+			.language(saga.language())
+			.title(saga.title())
+			.description(saga.description())
+			.chapters(toResponse(saga.chapters()))
+			.episodes(toResponse(saga.episodes()))
+			.arcs(saga.arcs().stream().map(PublicResponseMapper::toArcReferenceResponse).toList())
+			.publishedAt(saga.publishedAt())
+			.build();
+	}
+
+	public SagaSummaryResponse toResponse(SagaSummary summary) {
+		return new SagaSummaryResponse(summary.id(), summary.slug(), summary.number(), summary.title());
+	}
+
+	public ArcResponse toResponse(Arc arc) {
+		return ArcResponse.builder()
+			.id(arc.id())
+			.slug(arc.slug())
+			.number(arc.number())
+			.language(arc.language())
+			.title(arc.title())
+			.description(arc.description())
+			.saga(toResponse(arc.saga()))
+			.chapters(toResponse(arc.chapters()))
+			.episodes(toResponse(arc.episodes()))
+			.publishedAt(arc.publishedAt())
+			.build();
+	}
+
+	public ArcSummaryResponse toResponse(ArcSummary summary) {
+		return new ArcSummaryResponse(summary.id(), summary.slug(), summary.number(), summary.title(),
+				toResponse(summary.saga()));
+	}
+
+	/** An arc inside the content that relates to it: its saga is left out. */
+	public ArcReferenceResponse toArcReferenceResponse(ArcSummary summary) {
+		return new ArcReferenceResponse(summary.id(), summary.slug(), summary.number(), summary.title());
+	}
+
+	/** {@code null} when the content names none (a filler episode). */
+	public ArcReferenceResponse toResponse(ArcReference arc) {
+		return arc == null ? null : new ArcReferenceResponse(arc.id(), arc.slug(), arc.number(), arc.title());
+	}
+
+	public VolumeResponse toResponse(Volume volume) {
+		return VolumeResponse.builder()
+			.id(volume.id())
+			.slug(volume.slug())
+			.number(volume.number())
+			.language(volume.language())
+			.title(volume.title())
+			.japaneseTitle(volume.japaneseTitle())
+			.cover(imagePath(volume.coverImageId()))
+			.chapters(toResponse(volume.chapters()))
+			.arcs(volume.arcs().stream().map(PublicResponseMapper::toArcReferenceResponse).toList())
+			.releases(volume.releases().stream().map(PublicResponseMapper::toResponse).toList())
+			.publishedAt(volume.publishedAt())
+			.build();
+	}
+
+	/** {@code null} when the content names none (a chapter not collected in a volume). */
+	public VolumeSummaryResponse toResponse(VolumeSummary summary) {
+		return summary == null ? null : new VolumeSummaryResponse(summary.id(), summary.slug(), summary.number(),
+				summary.title(), imagePath(summary.coverImageId()));
+	}
+
+	public ChapterResponse toResponse(Chapter chapter) {
+		return ChapterResponse.builder()
+			.id(chapter.id())
+			.slug(chapter.slug())
+			.number(chapter.number())
+			.language(chapter.language())
+			.title(chapter.title())
+			.description(chapter.description())
+			.japaneseTitle(chapter.japaneseTitle())
+			.pageCount(chapter.pageCount())
+			.arc(toResponse(chapter.arc()))
+			.volume(toResponse(chapter.volume()))
+			.releases(chapter.releases().stream().map(PublicResponseMapper::toResponse).toList())
+			.publishedAt(chapter.publishedAt())
+			.build();
+	}
+
+	public ChapterSummaryResponse toResponse(ChapterSummary summary) {
+		return new ChapterSummaryResponse(summary.id(), summary.slug(), summary.number(), summary.title(),
+				toResponse(summary.arc()), toResponse(summary.volume()));
+	}
+
+	public EpisodeResponse toResponse(Episode episode) {
+		return EpisodeResponse.builder()
+			.id(episode.id())
+			.slug(episode.slug())
+			.number(episode.number())
+			.language(episode.language())
+			.title(episode.title())
+			.description(episode.description())
+			.japaneseTitle(episode.japaneseTitle())
+			.arc(toResponse(episode.arc()))
+			.broadcasts(episode.broadcasts().stream().map(PublicResponseMapper::toResponse).toList())
+			.publishedAt(episode.publishedAt())
+			.build();
+	}
+
+	public EpisodeSummaryResponse toResponse(EpisodeSummary summary) {
+		return new EpisodeSummaryResponse(summary.id(), summary.slug(), summary.number(), summary.title(),
+				toResponse(summary.arc()));
+	}
+
+	public StorySpanResponse toResponse(StorySpan span) {
+		return new StorySpanResponse(span.count(), span.firstNumber(), span.lastNumber(), span.firstDate(),
+				span.lastDate());
+	}
+
+	public ReleaseResponse toResponse(Release release) {
+		return new ReleaseResponse(release.country(), release.date());
 	}
 
 	public <T, R> PageResponse<R> toResponse(Page<T> page, Function<T, R> itemMapper) {

@@ -22,14 +22,18 @@ import java.util.function.Function;
  * @param detail reads a detail row
  * @param summary reads a list row
  * @param filters the filters of the list, by name; none when null
+ * @param embeddedOrder the column the entity is ordered by when embedded in another
+ * content (a list of them, not paginated); the name when null
  * @param <D> the detail
  * @param <S> the list row
  */
 @Builder
 public record PublishedView<D, S>(String entityType, String view, String detailColumns, String summaryColumns,
-		String naturalKey, RowMapper<D> detail, RowMapper<S> summary, Map<String, ContentFilter> filters) {
+		String naturalKey, RowMapper<D> detail, RowMapper<S> summary, Map<String, ContentFilter> filters,
+		String embeddedOrder) {
 
 	public PublishedView {
+		embeddedOrder = embeddedOrder == null ? "name" : embeddedOrder;
 		filters = filters == null ? Map.of() : Map.copyOf(filters);
 	}
 

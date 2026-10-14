@@ -25,7 +25,7 @@ http:
     - name: q
       value: ""
       type: query
-      description: Text the name or the romaji contains, case-insensitive; 100 characters at most
+      description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
       disabled: true
     - name: sort
       value: name,asc
@@ -63,7 +63,7 @@ examples:
         - name: q
           value: ""
           type: query
-          description: Text the name or the romaji contains, case-insensitive; 100 characters at most
+          description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
           disabled: true
         - name: sort
           value: name,asc
@@ -114,7 +114,7 @@ examples:
         - name: q
           value: ""
           type: query
-          description: Text the name or the romaji contains, case-insensitive; 100 characters at most
+          description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
           disabled: true
         - name: sort
           value: name,asc
@@ -165,7 +165,7 @@ examples:
         - name: q
           value: ""
           type: query
-          description: Text the name or the romaji contains, case-insensitive; 100 characters at most
+          description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
           disabled: true
         - name: sort
           value: name,asc
