@@ -4,15 +4,19 @@ import dev.onepieceapi.publicapi.domain.Arc;
 import dev.onepieceapi.publicapi.domain.ArcReference;
 import dev.onepieceapi.publicapi.domain.ArcSummary;
 import dev.onepieceapi.publicapi.domain.Chapter;
+import dev.onepieceapi.publicapi.domain.StoryItemReference;
 import dev.onepieceapi.publicapi.domain.ChapterSummary;
 import dev.onepieceapi.publicapi.domain.DevilFruit;
 import dev.onepieceapi.publicapi.domain.DevilFruitSubcategory;
+import dev.onepieceapi.publicapi.domain.DevilFruitSubcategoryReference;
 import dev.onepieceapi.publicapi.domain.DevilFruitSubcategorySummary;
 import dev.onepieceapi.publicapi.domain.DevilFruitSummary;
 import dev.onepieceapi.publicapi.domain.DevilFruitType;
+import dev.onepieceapi.publicapi.domain.DevilFruitTypeReference;
 import dev.onepieceapi.publicapi.domain.DevilFruitTypeSummary;
 import dev.onepieceapi.publicapi.domain.Episode;
 import dev.onepieceapi.publicapi.domain.EpisodeSummary;
+import dev.onepieceapi.publicapi.domain.FirstAppearance;
 import dev.onepieceapi.publicapi.domain.Language;
 import dev.onepieceapi.publicapi.domain.Page;
 import dev.onepieceapi.publicapi.domain.Release;
@@ -25,17 +29,21 @@ import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.dto.response.ArcReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ArcResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ArcSummaryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.StoryItemReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ChapterResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ChapterSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitOfTypeResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitResponse;
+import dev.onepieceapi.publicapi.web.dto.response.DevilFruitSubcategoryReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitSubcategoryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitSubcategorySummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitSummaryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.DevilFruitTypeReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitTypeResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitTypeSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.EpisodeResponse;
 import dev.onepieceapi.publicapi.web.dto.response.EpisodeSummaryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.FirstAppearanceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.LanguageResponse;
 import dev.onepieceapi.publicapi.web.dto.response.PageResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ReleaseResponse;
@@ -73,11 +81,33 @@ public class PublicResponseMapper {
 			.publishedAt(devilFruitType.publishedAt())
 			.subcategories(devilFruitType.subcategories().stream().map(PublicResponseMapper::toResponse).toList())
 			.devilFruits(devilFruitType.devilFruits().stream().map(PublicResponseMapper::toTypeFruitResponse).toList())
+			.firstAppearance(toResponse(devilFruitType.firstAppearance()))
 			.build();
 	}
 
 	public DevilFruitTypeSummaryResponse toResponse(DevilFruitTypeSummary summary) {
-		return new DevilFruitTypeSummaryResponse(summary.id(), summary.slug(), summary.romaji(), summary.name());
+		return DevilFruitTypeSummaryResponse.builder()
+			.id(summary.id())
+			.slug(summary.slug())
+			.romaji(summary.romaji())
+			.name(summary.name())
+			.firstAppearance(toResponse(summary.firstAppearance()))
+			.build();
+	}
+
+	public DevilFruitTypeReferenceResponse toResponse(DevilFruitTypeReference type) {
+		return new DevilFruitTypeReferenceResponse(type.id(), type.slug(), type.romaji(), type.name());
+	}
+
+	/** {@code null} when the content has none (a subcategory's is optional). */
+	public FirstAppearanceResponse toResponse(FirstAppearance firstAppearance) {
+		return firstAppearance == null ? null : new FirstAppearanceResponse(toResponse(firstAppearance.chapter()),
+				toResponse(firstAppearance.episode()));
+	}
+
+	public StoryItemReferenceResponse toResponse(StoryItemReference item) {
+		return item == null ? null
+				: new StoryItemReferenceResponse(item.id(), item.slug(), item.number(), item.title());
 	}
 
 	public DevilFruitResponse toResponse(DevilFruit devilFruit) {
@@ -94,13 +124,19 @@ public class PublicResponseMapper {
 			.subcategory(toResponse(devilFruit.subcategory()))
 			.image(imagePath(devilFruit.imageId()))
 			.publishedAt(devilFruit.publishedAt())
+			.firstAppearance(toResponse(devilFruit.firstAppearance()))
 			.build();
 	}
 
-	/** {@code null} when the fruit names none. */
 	public DevilFruitSubcategoryResponse toResponse(DevilFruitSubcategory subcategory) {
-		return subcategory == null ? null
-				: new DevilFruitSubcategoryResponse(subcategory.id(), subcategory.name(), subcategory.description());
+		return new DevilFruitSubcategoryResponse(subcategory.id(), subcategory.name(), subcategory.description(),
+				toResponse(subcategory.firstAppearance()));
+	}
+
+	/** {@code null} when the fruit names none. */
+	public DevilFruitSubcategoryReferenceResponse toResponse(DevilFruitSubcategoryReference subcategory) {
+		return subcategory == null ? null : new DevilFruitSubcategoryReferenceResponse(subcategory.id(),
+				subcategory.name(), subcategory.description());
 	}
 
 	/** {@code null} when the fruit names none. */
@@ -118,6 +154,7 @@ public class PublicResponseMapper {
 			.type(toResponse(summary.type()))
 			.subcategory(toResponse(summary.subcategory()))
 			.image(imagePath(summary.imageId()))
+			.firstAppearance(toResponse(summary.firstAppearance()))
 			.build();
 	}
 

@@ -1,11 +1,15 @@
 package dev.onepieceapi.publicapi.persistence.mapper;
 
+import dev.onepieceapi.publicapi.domain.StoryItemReference;
 import dev.onepieceapi.publicapi.domain.DevilFruit;
 import dev.onepieceapi.publicapi.domain.DevilFruitSubcategory;
+import dev.onepieceapi.publicapi.domain.DevilFruitSubcategoryReference;
 import dev.onepieceapi.publicapi.domain.DevilFruitSubcategorySummary;
 import dev.onepieceapi.publicapi.domain.DevilFruitSummary;
 import dev.onepieceapi.publicapi.domain.DevilFruitType;
+import dev.onepieceapi.publicapi.domain.DevilFruitTypeReference;
 import dev.onepieceapi.publicapi.domain.DevilFruitTypeSummary;
+import dev.onepieceapi.publicapi.domain.FirstAppearance;
 import dev.onepieceapi.publicapi.domain.Language;
 import dev.onepieceapi.publicapi.persistence.row.DevilFruitRow;
 import dev.onepieceapi.publicapi.persistence.row.DevilFruitSubcategoryRow;
@@ -36,11 +40,26 @@ public class PublishedRowMapper {
 			.advantages(row.advantages())
 			.disadvantages(row.disadvantages())
 			.publishedAt(row.publishedAt().toInstant().truncatedTo(ChronoUnit.SECONDS))
+			.firstAppearance(FirstAppearance.of(
+					StoryItemReference.of(row.firstAppearanceChapterId(), row.firstAppearanceChapterSlug(),
+							row.firstAppearanceChapterNumber(), row.firstAppearanceChapterTitle()),
+					StoryItemReference.of(row.firstAppearanceEpisodeId(), row.firstAppearanceEpisodeSlug(),
+							row.firstAppearanceEpisodeNumber(), row.firstAppearanceEpisodeTitle())))
 			.build();
 	}
 
 	public DevilFruitTypeSummary toDomain(DevilFruitTypeSummaryRow row) {
-		return new DevilFruitTypeSummary(row.id(), row.slug(), row.romaji(), row.name());
+		return DevilFruitTypeSummary.builder()
+			.id(row.id())
+			.slug(row.slug())
+			.romaji(row.romaji())
+			.name(row.name())
+			.firstAppearance(FirstAppearance.of(
+					StoryItemReference.of(row.firstAppearanceChapterId(), row.firstAppearanceChapterSlug(),
+							row.firstAppearanceChapterNumber(), row.firstAppearanceChapterTitle()),
+					StoryItemReference.of(row.firstAppearanceEpisodeId(), row.firstAppearanceEpisodeSlug(),
+							row.firstAppearanceEpisodeNumber(), row.firstAppearanceEpisodeTitle())))
+			.build();
 	}
 
 	public DevilFruit toDomain(DevilFruitRow row) {
@@ -53,10 +72,15 @@ public class PublishedRowMapper {
 			.description(row.description())
 			.advantages(row.advantages())
 			.disadvantages(row.disadvantages())
-			.type(new DevilFruitTypeSummary(row.typeId(), row.typeSlug(), row.typeRomaji(), row.typeName()))
+			.type(new DevilFruitTypeReference(row.typeId(), row.typeSlug(), row.typeRomaji(), row.typeName()))
 			.subcategory(subcategoryOf(row))
 			.imageId(row.imageId())
 			.publishedAt(row.publishedAt().toInstant().truncatedTo(ChronoUnit.SECONDS))
+			.firstAppearance(FirstAppearance.of(
+					StoryItemReference.of(row.firstAppearanceChapterId(), row.firstAppearanceChapterSlug(),
+							row.firstAppearanceChapterNumber(), row.firstAppearanceChapterTitle()),
+					StoryItemReference.of(row.firstAppearanceEpisodeId(), row.firstAppearanceEpisodeSlug(),
+							row.firstAppearanceEpisodeNumber(), row.firstAppearanceEpisodeTitle())))
 			.build();
 	}
 
@@ -66,20 +90,30 @@ public class PublishedRowMapper {
 			.slug(row.slug())
 			.romaji(row.romaji())
 			.name(row.name())
-			.type(new DevilFruitTypeSummary(row.typeId(), row.typeSlug(), row.typeRomaji(), row.typeName()))
+			.type(new DevilFruitTypeReference(row.typeId(), row.typeSlug(), row.typeRomaji(), row.typeName()))
 			.subcategory(subcategoryOf(row))
 			.imageId(row.imageId())
+			.firstAppearance(FirstAppearance.of(
+					StoryItemReference.of(row.firstAppearanceChapterId(), row.firstAppearanceChapterSlug(),
+							row.firstAppearanceChapterNumber(), row.firstAppearanceChapterTitle()),
+					StoryItemReference.of(row.firstAppearanceEpisodeId(), row.firstAppearanceEpisodeSlug(),
+							row.firstAppearanceEpisodeNumber(), row.firstAppearanceEpisodeTitle())))
 			.build();
 	}
 
 	public DevilFruitSubcategory toDomain(DevilFruitSubcategoryRow row) {
-		return new DevilFruitSubcategory(row.id(), row.name(), row.description());
+		return new DevilFruitSubcategory(row.id(), row.name(), row.description(),
+				FirstAppearance.of(
+						StoryItemReference.of(row.firstAppearanceChapterId(), row.firstAppearanceChapterSlug(),
+								row.firstAppearanceChapterNumber(), row.firstAppearanceChapterTitle()),
+						StoryItemReference.of(row.firstAppearanceEpisodeId(), row.firstAppearanceEpisodeSlug(),
+								row.firstAppearanceEpisodeNumber(), row.firstAppearanceEpisodeTitle())));
 	}
 
 	/** The view leaves these null for a fruit with no subcategory (or no text for it). */
-	private DevilFruitSubcategory subcategoryOf(DevilFruitRow row) {
-		return row.subcategoryId() == null ? null
-				: new DevilFruitSubcategory(row.subcategoryId(), row.subcategoryName(), row.subcategoryDescription());
+	private DevilFruitSubcategoryReference subcategoryOf(DevilFruitRow row) {
+		return row.subcategoryId() == null ? null : new DevilFruitSubcategoryReference(row.subcategoryId(),
+				row.subcategoryName(), row.subcategoryDescription());
 	}
 
 	private DevilFruitSubcategorySummary subcategoryOf(DevilFruitSummaryRow row) {

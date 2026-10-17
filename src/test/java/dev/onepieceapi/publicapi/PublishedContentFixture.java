@@ -43,12 +43,13 @@ public class PublishedContentFixture {
 	/**
 	 * Removes every content and image, leaving the language catalog as migrated. The
 	 * fruits go first: a type with fruits linked cannot be deleted, nor an image in use;
-	 * likewise the chapters and episodes before their arcs and volumes, and those before
-	 * the sagas.
+	 * then the types, which may point to the chapter of their first appearance; likewise
+	 * the chapters and episodes before their arcs and volumes, and those before the
+	 * sagas.
 	 */
 	public void clear() {
 		this.owner.sql("DELETE FROM content WHERE entity_type = :type").param("type", FRUIT.type()).update();
-		for (Entity entity : new Entity[] { CHAPTER, EPISODE, ARC, VOLUME, SAGA }) {
+		for (Entity entity : new Entity[] { TYPE, CHAPTER, EPISODE, ARC, VOLUME, SAGA }) {
 			this.owner.sql("DELETE FROM content WHERE entity_type = :type").param("type", entity.type()).update();
 		}
 		this.owner.sql("DELETE FROM content").update();
@@ -113,6 +114,46 @@ public class PublishedContentFixture {
 			.param("id", contentId)
 			.update();
 		return contentId;
+	}
+
+	/** The chapter of the first appearance of the version online of a fruit or a type. */
+	public void firstAppearance(UUID contentId, UUID chapterId) {
+		firstAppearanceIn("first_appearance_chapter_id", contentId, chapterId);
+	}
+
+	/** The episode of the first appearance of the version online of a fruit or a type. */
+	public void firstAppearanceEpisode(UUID contentId, UUID episodeId) {
+		firstAppearanceIn("first_appearance_episode_id", contentId, episodeId);
+	}
+
+	private void firstAppearanceIn(String column, UUID contentId, UUID storyItemId) {
+		for (String table : new String[] { "devil_fruit_version", "devil_fruit_type_version" }) {
+			this.owner
+				.sql("UPDATE " + table + " SET " + column + " = :item WHERE version_id ="
+						+ " (SELECT id FROM content_version WHERE content_id = :id AND status = 'PUBLISHED')")
+				.param("item", storyItemId)
+				.param("id", contentId)
+				.update();
+		}
+	}
+
+	/** The chapter of the first appearance of a subcategory of a type online. */
+	public void subcategoryFirstAppearance(UUID subcategoryId, UUID chapterId) {
+		subcategoryFirstAppearanceIn("first_appearance_chapter_id", subcategoryId, chapterId);
+	}
+
+	/** The episode of the first appearance of a subcategory of a type online. */
+	public void subcategoryFirstAppearanceEpisode(UUID subcategoryId, UUID episodeId) {
+		subcategoryFirstAppearanceIn("first_appearance_episode_id", subcategoryId, episodeId);
+	}
+
+	private void subcategoryFirstAppearanceIn(String column, UUID subcategoryId, UUID storyItemId) {
+		this.owner
+			.sql("UPDATE devil_fruit_type_version_subcategory SET " + column + " = :item"
+					+ " WHERE subcategory_id = :subcategory")
+			.param("item", storyItemId)
+			.param("subcategory", subcategoryId)
+			.update();
 	}
 
 	/** A Devil Fruit still in draft: never online, nor its image. */

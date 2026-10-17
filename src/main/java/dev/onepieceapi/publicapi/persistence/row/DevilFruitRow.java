@@ -10,6 +10,8 @@ import java.util.UUID;
 public record DevilFruitRow(UUID id, String slug, String romaji, String language, String name, String description,
 		String advantages, String disadvantages, UUID typeId, String typeSlug, String typeRomaji, String typeName,
 		String imageId, OffsetDateTime publishedAt, UUID subcategoryId, String subcategoryName,
-		String subcategoryDescription) {
+		String subcategoryDescription, UUID firstAppearanceChapterId, String firstAppearanceChapterSlug,
+		Integer firstAppearanceChapterNumber, String firstAppearanceChapterTitle, UUID firstAppearanceEpisodeId,
+		String firstAppearanceEpisodeSlug, Integer firstAppearanceEpisodeNumber, String firstAppearanceEpisodeTitle) {
 
 }

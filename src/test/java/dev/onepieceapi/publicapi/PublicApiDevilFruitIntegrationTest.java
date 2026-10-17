@@ -289,6 +289,102 @@ class PublicApiDevilFruitIntegrationTest extends PublishedDatabaseTest {
 		}
 	}
 
+	@Test
+	void showsTheChapterOfTheFirstAppearanceOnFruitsTypesAndSubcategories() {
+		UUID arc = this.fixture.publishArc(1, this.fixture.publishSaga(1, Translation.of("it", "Mare Orientale")),
+				Translation.of("it", "Romance Dawn"));
+		UUID chapter1 = this.fixture.publishChapter(1, arc, null, null, null, Translation.of("it", "Alba"));
+		UUID chapter4 = this.fixture.publishChapter(4, arc, null, null, null, Translation.of("it", "Il capitano"));
+		UUID mythical = this.fixture.subcategory(this.zoan, 0, Translation.of("it", "Mitico"));
+		UUID ancient = this.fixture.subcategory(this.zoan, 1, Translation.of("it", "Antico"));
+		this.fixture.subcategoryFirstAppearance(mythical, chapter4);
+		this.fixture.firstAppearance(this.zoan, chapter1);
+		this.fixture.firstAppearance(this.fixture.publishFruitOfSubcategory("Inu Inu no Mi", this.zoan, mythical,
+				Translation.of("it", "Cane Cane")), chapter4);
+
+		get("/v1/it/devil-fruits/inu-inu-no-mi").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.firstAppearance.chapter.id")
+			.isEqualTo(chapter4.toString())
+			.jsonPath("$.firstAppearance.chapter.slug")
+			.isEqualTo("4")
+			.jsonPath("$.firstAppearance.chapter.number")
+			.isEqualTo(4)
+			.jsonPath("$.firstAppearance.chapter.title")
+			.isEqualTo("Il capitano")
+			.jsonPath("$.type.firstAppearance")
+			.doesNotExist()
+			.jsonPath("$.subcategory.firstAppearance")
+			.doesNotExist();
+		get("/v1/it/devil-fruits").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.content[0].firstAppearance.chapter.number")
+			.isEqualTo(4);
+		get("/v1/it/devil-fruit-types/zoan").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.firstAppearance.chapter.number")
+			.isEqualTo(1)
+			.jsonPath("$.subcategories[0].id")
+			.isEqualTo(mythical.toString())
+			.jsonPath("$.subcategories[0].firstAppearance.chapter.number")
+			.isEqualTo(4)
+			.jsonPath("$.subcategories[1].id")
+			.isEqualTo(ancient.toString())
+			.jsonPath("$.subcategories[1].firstAppearance")
+			.isEmpty();
+		get("/v1/it/devil-fruit-types?sort=romaji").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.content[0].slug")
+			.isEqualTo("logia")
+			.jsonPath("$.content[0].firstAppearance")
+			.isEmpty()
+			.jsonPath("$.content[1].firstAppearance.chapter.title")
+			.isEqualTo("Alba");
+	}
+
+	@Test
+	void showsTheEpisodeOfTheFirstAppearanceAloneOrBesideTheChapter() {
+		UUID arc = this.fixture.publishArc(1, this.fixture.publishSaga(1, Translation.of("it", "Mare Orientale")),
+				Translation.of("it", "Romance Dawn"));
+		UUID chapter1 = this.fixture.publishChapter(1, arc, null, null, null, Translation.of("it", "Alba"));
+		UUID episode4 = this.fixture.publishEpisode(4, arc, null, Translation.of("it", "Il passato di Rufy"));
+		UUID mythical = this.fixture.subcategory(this.zoan, 0, Translation.of("it", "Mitico"));
+		this.fixture.subcategoryFirstAppearanceEpisode(mythical, episode4);
+		this.fixture.firstAppearance(this.zoan, chapter1);
+		this.fixture.firstAppearanceEpisode(this.zoan, episode4);
+		this.fixture.firstAppearanceEpisode(this.fixture.publishFruitOfSubcategory("Inu Inu no Mi", this.zoan, mythical,
+				Translation.of("it", "Cane Cane")), episode4);
+
+		get("/v1/it/devil-fruits/inu-inu-no-mi").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.firstAppearance.chapter")
+			.isEmpty()
+			.jsonPath("$.firstAppearance.episode.id")
+			.isEqualTo(episode4.toString())
+			.jsonPath("$.firstAppearance.episode.slug")
+			.isEqualTo("4")
+			.jsonPath("$.firstAppearance.episode.number")
+			.isEqualTo(4)
+			.jsonPath("$.firstAppearance.episode.title")
+			.isEqualTo("Il passato di Rufy");
+		get("/v1/it/devil-fruit-types/zoan").expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.firstAppearance.chapter.number")
+			.isEqualTo(1)
+			.jsonPath("$.firstAppearance.episode.number")
+			.isEqualTo(4)
+			.jsonPath("$.subcategories[0].firstAppearance.chapter")
+			.isEmpty()
+			.jsonPath("$.subcategories[0].firstAppearance.episode.number")
+			.isEqualTo(4);
+	}
+
 	private RestTestClient.ResponseSpec get(String uri) {
 		return this.client.get().uri(uri).exchange();
 	}

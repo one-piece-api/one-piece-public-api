@@ -50,6 +50,20 @@ examples:
             "advantages": "",
             "description": "",
             "disadvantages": "",
+            "firstAppearance": {
+              "chapter": {
+                "id": "",
+                "number": 0,
+                "slug": "",
+                "title": ""
+              },
+              "episode": {
+                "id": "",
+                "number": 0,
+                "slug": "",
+                "title": ""
+              }
+            },
             "id": "",
             "image": "",
             "language": "",
@@ -112,6 +126,20 @@ examples:
             "advantages": "",
             "description": "",
             "disadvantages": "",
+            "firstAppearance": {
+              "chapter": {
+                "id": "",
+                "number": 0,
+                "slug": "",
+                "title": ""
+              },
+              "episode": {
+                "id": "",
+                "number": 0,
+                "slug": "",
+                "title": ""
+              }
+            },
             "id": "",
             "image": "",
             "language": "",

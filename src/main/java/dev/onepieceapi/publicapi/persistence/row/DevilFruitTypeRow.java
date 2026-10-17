@@ -8,6 +8,9 @@ import java.util.UUID;
 /** A row of {@code published.devil_fruit_type}. */
 @Builder
 public record DevilFruitTypeRow(UUID id, String slug, String romaji, String language, String name, String description,
-		String advantages, String disadvantages, OffsetDateTime publishedAt) {
+		String advantages, String disadvantages, OffsetDateTime publishedAt, UUID firstAppearanceChapterId,
+		String firstAppearanceChapterSlug, Integer firstAppearanceChapterNumber, String firstAppearanceChapterTitle,
+		UUID firstAppearanceEpisodeId, String firstAppearanceEpisodeSlug, Integer firstAppearanceEpisodeNumber,
+		String firstAppearanceEpisodeTitle) {
 
 }
