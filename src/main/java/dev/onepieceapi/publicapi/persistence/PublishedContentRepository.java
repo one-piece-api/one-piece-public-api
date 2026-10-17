@@ -52,14 +52,14 @@ public class PublishedContentRepository {
 		appendFilters(view, search.filters(), where, parameters);
 		appendVisibility(view, search.asOfChapter(), where, parameters);
 		var content = this.jdbc
-			.sql("SELECT " + view.summaryColumns() + " FROM " + view.view() + " WHERE " + where + " ORDER BY "
-					+ orderBy(view, search.sort()) + ", id LIMIT :limit OFFSET :offset")
+			.sql("SELECT " + view.summaryColumns() + " FROM " + view.source(search.asOfChapter()) + " WHERE " + where
+					+ " ORDER BY " + orderBy(view, search.sort()) + ", id LIMIT :limit OFFSET :offset")
 			.params(parameters)
 			.param("limit", search.size())
 			.param("offset", search.offset())
 			.query(view.summary())
 			.list();
-		long total = this.jdbc.sql("SELECT count(*) FROM " + view.view() + " WHERE " + where)
+		long total = this.jdbc.sql("SELECT count(*) FROM " + view.source(search.asOfChapter()) + " WHERE " + where)
 			.params(parameters)
 			.query(Long.class)
 			.single();
@@ -78,8 +78,8 @@ public class PublishedContentRepository {
 		appendFilters(view, List.of(filter), where, parameters);
 		appendVisibility(view, asOfChapter, where, parameters);
 		return this.jdbc
-			.sql("SELECT " + view.summaryColumns() + " FROM " + view.view() + " WHERE " + where + " ORDER BY "
-					+ view.embeddedOrder() + ", id")
+			.sql("SELECT " + view.summaryColumns() + " FROM " + view.source(asOfChapter) + " WHERE " + where
+					+ " ORDER BY " + view.embeddedOrder() + ", id")
 			.params(parameters)
 			.query(view.summary())
 			.list();
@@ -104,7 +104,7 @@ public class PublishedContentRepository {
 		parameters.put("language", language);
 		StringBuilder where = new StringBuilder(LANGUAGE_FILTER).append(" AND ").append(condition);
 		appendVisibility(view, asOfChapter, where, parameters);
-		return this.jdbc.sql("SELECT " + view.detailColumns() + " FROM " + view.view() + " WHERE " + where)
+		return this.jdbc.sql("SELECT " + view.detailColumns() + " FROM " + view.source(asOfChapter) + " WHERE " + where)
 			.params(parameters)
 			.query(view.detail())
 			.optional();

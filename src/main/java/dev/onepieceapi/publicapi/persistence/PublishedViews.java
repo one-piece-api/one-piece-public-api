@@ -54,6 +54,14 @@ public final class PublishedViews {
 	public static final String FIRST_APPEARED = "first_appearance_chapter_id IN"
 			+ " (SELECT id FROM published.chapter WHERE number <= :asOfChapter)";
 
+	/**
+	 * A subcategory met by chapter {@code :asOfChapter}, its type being met (plan of the
+	 * timeline, TL6): first appeared up to it, or with no first appearance (optional),
+	 * met with its type.
+	 */
+	public static final String SUBCATEGORY_MET = "(first_appearance_chapter_id IS NULL OR first_appearance_chapter_id IN"
+			+ " (SELECT id FROM published.chapter WHERE number <= :asOfChapter))";
+
 	/** The name of the filter of the fruits by their type (plan D11). */
 	public static final String TYPE_FILTER = "type";
 
@@ -81,6 +89,7 @@ public final class PublishedViews {
 				+ " subcategory_id, subcategory_name" + FIRST_APPEARANCE_COLUMNS)
 		.naturalKey("romaji")
 		.visibleAsOf(FIRST_APPEARED)
+		.knownAsOf(DevilFruitAsOfChapter.SOURCE)
 		.detail(PublishedView.reading(DevilFruitRow.class, PublishedRowMapper::toDomain))
 		.summary(PublishedView.reading(DevilFruitSummaryRow.class, PublishedRowMapper::toDomain))
 		.filters(Map.of(TYPE_FILTER, ContentFilter.onContent("type_id", "DEVIL_FRUIT_TYPE")))

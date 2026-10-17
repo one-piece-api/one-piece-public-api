@@ -95,8 +95,10 @@ public class PublicResponseMapper {
 			.build();
 	}
 
+	/** {@code null} when the spoiler filter hides it (plan of the timeline, TL6). */
 	public DevilFruitTypeReferenceResponse toResponse(DevilFruitTypeReference type) {
-		return new DevilFruitTypeReferenceResponse(type.id(), type.slug(), type.romaji(), type.name());
+		return type == null ? null
+				: new DevilFruitTypeReferenceResponse(type.id(), type.slug(), type.romaji(), type.name());
 	}
 
 	/** {@code null} when the content has none (a subcategory's is optional). */

@@ -67,7 +67,7 @@ public class PublishedRowMapper {
 			.description(row.description())
 			.advantages(row.advantages())
 			.disadvantages(row.disadvantages())
-			.type(new DevilFruitTypeReference(row.typeId(), row.typeSlug(), row.typeRomaji(), row.typeName()))
+			.type(typeOf(row.typeId(), row.typeSlug(), row.typeRomaji(), row.typeName()))
 			.subcategory(subcategoryOf(row))
 			.imageId(row.imageId())
 			.publishedAt(row.publishedAt().toInstant().truncatedTo(ChronoUnit.SECONDS))
@@ -82,7 +82,7 @@ public class PublishedRowMapper {
 			.slug(row.slug())
 			.romaji(row.romaji())
 			.name(row.name())
-			.type(new DevilFruitTypeReference(row.typeId(), row.typeSlug(), row.typeRomaji(), row.typeName()))
+			.type(typeOf(row.typeId(), row.typeSlug(), row.typeRomaji(), row.typeName()))
 			.subcategory(subcategoryOf(row))
 			.imageId(row.imageId())
 			.firstAppearance(firstAppearanceOf(row.firstAppearanceChapterId(), row.firstAppearanceChapterSlug(),
@@ -97,6 +97,11 @@ public class PublishedRowMapper {
 	}
 
 	/** The view leaves these null for a fruit with no subcategory (or no text for it). */
+	/** None when the spoiler filter hides it (plan of the timeline, TL6). */
+	private DevilFruitTypeReference typeOf(UUID id, String slug, String romaji, String name) {
+		return id == null ? null : new DevilFruitTypeReference(id, slug, romaji, name);
+	}
+
 	private DevilFruitSubcategoryReference subcategoryOf(DevilFruitRow row) {
 		return row.subcategoryId() == null ? null : new DevilFruitSubcategoryReference(row.subcategoryId(),
 				row.subcategoryName(), row.subcategoryDescription());

@@ -1,5 +1,6 @@
 package dev.onepieceapi.publicapi.persistence;
 
+import dev.onepieceapi.publicapi.domain.AsOfChapter;
 import lombok.Builder;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.RowMapper;
@@ -8,9 +9,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * What the generic repository needs to read one entity: data only, no behaviour. The
- * strings are fixed SQL fragments written next to the entity; nothing a caller sends ever
- * becomes one (plan D3).
+ * What the generic repository needs to read one entity: data, and only which source to
+ * read. The strings are fixed SQL fragments written next to the entity; nothing a caller
+ * sends ever becomes one (plan D3).
  *
  * @param entityType the entity type of {@code published.content_slug}
  * @param view the view of the entity, with its schema
@@ -27,17 +28,25 @@ import java.util.function.Function;
  * @param visibleAsOf the condition of the spoiler filter (plan of the timeline, T8): a
  * row the reader has met by chapter {@code :asOfChapter}; null when the entity is not
  * filtered
+ * @param knownAsOf the entity as the reader knows it by chapter {@code :asOfChapter}
+ * (plan of the timeline, TL6): a source with the columns of the view, read in its place
+ * when the spoiler filter applies; null when the view is read as it is
  * @param <D> the detail
  * @param <S> the list row
  */
 @Builder
 public record PublishedView<D, S>(String entityType, String view, String detailColumns, String summaryColumns,
 		String naturalKey, RowMapper<D> detail, RowMapper<S> summary, Map<String, ContentFilter> filters,
-		String embeddedOrder, String visibleAsOf) {
+		String embeddedOrder, String visibleAsOf, String knownAsOf) {
 
 	public PublishedView {
 		embeddedOrder = embeddedOrder == null ? "name" : embeddedOrder;
 		filters = filters == null ? Map.of() : Map.copyOf(filters);
+	}
+
+	/** What the queries read from: as known by then when the filter applies. */
+	public String source(AsOfChapter asOfChapter) {
+		return asOfChapter.applies() && this.knownAsOf != null ? this.knownAsOf : this.view;
 	}
 
 	/**

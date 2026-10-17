@@ -5,6 +5,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 
@@ -139,6 +140,72 @@ public class PublishedContentFixture {
 			.param("chapter", chapterId)
 			.param("subcategory", subcategoryId)
 			.update();
+	}
+
+	/**
+	 * What the reader knows of a fruit online at its first appearance (plan of the
+	 * timeline, T13): the values not given are unknown.
+	 */
+	public void initialKnowledge(UUID fruitId, String romaji, UUID typeId, Translation... translations) {
+		this.owner.sql("""
+				INSERT INTO devil_fruit_version_initial_knowledge (version_id, romaji, type_content_id)
+				VALUES (:version, :romaji, :type)""")
+			.param("version", onlineVersion(fruitId))
+			.param("romaji", romaji)
+			.param("type", typeId)
+			.update();
+		for (Translation translation : translations) {
+			this.owner.sql("""
+					INSERT INTO devil_fruit_version_initial_knowledge_translation
+					       (version_id, language_code, name, description, advantages, disadvantages)
+					VALUES (:version, :language, :name, :description, :advantages, :disadvantages)""")
+				.param("version", onlineVersion(fruitId))
+				.param("language", translation.language())
+				.param("name", translation.name())
+				.param("description", translation.description())
+				.param("advantages", translation.advantages())
+				.param("disadvantages", translation.disadvantages())
+				.update();
+		}
+	}
+
+	/**
+	 * A reveal of a fruit online at a chapter, naming the fields the reader learns there
+	 * with the values learned (none on a field's last mention: the truth).
+	 */
+	public void reveal(UUID fruitId, int position, UUID chapterId, List<String> fields, String romaji, UUID typeId,
+			Translation... translations) {
+		UUID revealId = UUID.randomUUID();
+		this.owner.sql("""
+				INSERT INTO devil_fruit_version_reveal (id, version_id, position, revealed_at_chapter_id, romaji,
+				                                        type_content_id)
+				VALUES (:id, :version, :position, :chapter, :romaji, :type)""")
+			.param("id", revealId)
+			.param("version", onlineVersion(fruitId))
+			.param("position", position)
+			.param("chapter", chapterId)
+			.param("romaji", romaji)
+			.param("type", typeId)
+			.update();
+		fields.forEach(field -> this.owner
+			.sql("INSERT INTO devil_fruit_version_reveal_field (reveal_id, field) VALUES (:id, :field)")
+			.param("id", revealId)
+			.param("field", field)
+			.update());
+		for (Translation translation : translations) {
+			this.owner.sql("""
+					INSERT INTO devil_fruit_version_reveal_translation
+					       (reveal_id, language_code, title, name, description, advantages, disadvantages)
+					VALUES (:id, :language, :title, :name, :description, :advantages, :disadvantages)""")
+				.param("id", revealId)
+				.param("language", translation.language())
+				.param("title", "Reveal " + position)
+				.param("name", translation.name())
+				.param("description", translation.description())
+				.param("advantages", translation.advantages())
+				.param("disadvantages", translation.disadvantages())
+				.update();
+		}
 	}
 
 	/** A Devil Fruit still in draft: never online, nor its image. */
@@ -311,6 +378,13 @@ public class PublishedContentFixture {
 			.param("title", translation.name())
 			.param("description", translation.description())
 			.update();
+	}
+
+	private UUID onlineVersion(UUID contentId) {
+		return this.owner.sql("SELECT id FROM content_version WHERE content_id = :id AND status = 'PUBLISHED'")
+			.param("id", contentId)
+			.query(UUID.class)
+			.single();
 	}
 
 	private UUID insertContent(Entity entity) {

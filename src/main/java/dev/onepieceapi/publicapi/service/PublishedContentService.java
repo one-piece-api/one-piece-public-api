@@ -45,7 +45,10 @@ public abstract class PublishedContentService<D extends PublishedContent, S> {
 	public ContentLookup<D> find(String language, String idOrSlug, AsOfChapter asOfChapter) {
 		this.languages.requireAvailable(language);
 		D found = findOnline(language, idOrSlug, asOfChapter).orElseThrow(() -> new ContentNotFoundException(idOrSlug));
-		if (ContentAddress.isId(idOrSlug) || idOrSlug.equals(found.slug())) {
+		// A slug the spoiler filter hides (plan of the timeline, TL6): any address of the
+		// content answers there, a 301 would reveal it.
+		boolean slugHidden = found.slug() == null && asOfChapter.applies();
+		if (ContentAddress.isId(idOrSlug) || idOrSlug.equals(found.slug()) || slugHidden) {
 			return new ContentLookup.Found<>(complete(found, asOfChapter));
 		}
 		// An old slug of a content whose romaji now leaves no slug has nowhere to point
