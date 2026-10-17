@@ -31,7 +31,7 @@ public class DevilFruitTypeService extends PublishedContentService<DevilFruitTyp
 	@Override
 	protected DevilFruitType complete(DevilFruitType type, AsOfChapter asOfChapter) {
 		var ofThisType = new ContentFilterValue(PublishedViews.TYPE_FILTER, type.id().toString());
-		return type.withSubcategories(this.subcategories.findOfType(type.id(), type.language()))
+		return type.withSubcategories(this.subcategories.findOfType(type.id(), type.language(), asOfChapter))
 			.withDevilFruits(
 					this.repository.listAll(PublishedViews.DEVIL_FRUIT, type.language(), ofThisType, asOfChapter));
 	}

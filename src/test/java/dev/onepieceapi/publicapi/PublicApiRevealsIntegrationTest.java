@@ -172,6 +172,19 @@ class PublicApiRevealsIntegrationTest extends PublishedDatabaseTest {
 			.isEqualTo(2);
 	}
 
+	@Test
+	void aTypeListsOnlyTheSubcategoriesMetByThen() {
+		get("/v1/it/devil-fruit-types/zoan?asOfChapter=100").expectBody()
+			.jsonPath("$.subcategories.length()")
+			.isEqualTo(1)
+			.jsonPath("$.subcategories[0].name")
+			.isEqualTo("Mitologico");
+		get("/v1/it/devil-fruit-types/zoan?asOfChapter=101").expectBody()
+			.jsonPath("$.subcategories.length()")
+			.isEqualTo(2);
+		get("/v1/it/devil-fruit-types/zoan").expectBody().jsonPath("$.subcategories.length()").isEqualTo(2);
+	}
+
 	private UUID chapter(int number, UUID arc) {
 		return this.fixture.publishChapter(number, arc, null, null, null, Translation.of("it", "Capitolo " + number));
 	}
