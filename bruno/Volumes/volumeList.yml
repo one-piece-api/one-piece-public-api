@@ -30,7 +30,7 @@ http:
     - name: asOfChapter
       value: "0"
       type: query
-      description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
+      description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. What is shown reads as known then: a value or a relation not known yet is null, searches, filters and sorting use the values known then. Missing: nothing is hidden, the truth"
       disabled: true
     - name: sort
       value: number,asc
@@ -73,7 +73,7 @@ examples:
         - name: asOfChapter
           value: "0"
           type: query
-          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
+          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. What is shown reads as known then: a value or a relation not known yet is null, searches, filters and sorting use the values known then. Missing: nothing is hidden, the truth"
           disabled: true
         - name: sort
           value: number,asc
@@ -130,7 +130,7 @@ examples:
         - name: asOfChapter
           value: "0"
           type: query
-          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
+          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. What is shown reads as known then: a value or a relation not known yet is null, searches, filters and sorting use the values known then. Missing: nothing is hidden, the truth"
           disabled: true
         - name: sort
           value: number,asc
@@ -186,7 +186,7 @@ examples:
         - name: asOfChapter
           value: "0"
           type: query
-          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
+          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. What is shown reads as known then: a value or a relation not known yet is null, searches, filters and sorting use the values known then. Missing: nothing is hidden, the truth"
           disabled: true
         - name: sort
           value: number,asc

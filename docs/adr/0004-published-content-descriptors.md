@@ -90,5 +90,25 @@ slug to `301`, sort, paging, conditional GET - and let the copies drift apart.
   following an old slug never drops the filter.
 - `AsOfChapterRequest` (`@Min(0)`) is a separate `@ParameterObject`, declared only by the
   controllers whose entity honours it.
-- Not yet: the values as known at N (reveals), `null` for a hidden relation, hidden subcategories
-  inside a type (TL6).
+
+## Addendum - values as known at chapter N (plan of the timeline T13, TL6)
+
+- **Resolved source:** `PublishedView.knownAsOf`, a fixed SQL source with the view's columns,
+  read in place of the view only when `asOfChapter` is sent. Devil Fruit only
+  (`DevilFruitAsOfChapter`), over the V23 views `devil_fruit_initial_knowledge` and
+  `devil_fruit_reveal`: per field, the latest reveal up to N naming it, else the initial
+  knowledge if a later reveal names it, else the truth. No new migration.
+- Search, `type=`, sorting, counts and the fruits embedded in a type read the same source, so
+  they all see the values known at N (at chapter 500 "Nika" finds nothing).
+- **Not known yet = `null`:** an unknown value; a type not first appeared by N, with its
+  subcategory; a subcategory first appeared later; the slug, when the romaji known is not the
+  true one (`id` always present). A slug hidden this way answers `200` at any of the content's
+  slugs: a `301` would reveal it.
+- Subcategory: met once first appeared up to N; with none (optional), with its type
+  (`PublishedViews.SUBCATEGORY_MET`), also inside the type detail.
+- **ETag unchanged:** it is the published revision; caches key on the full URL, query included,
+  so each `asOfChapter` is its own resource.
+- *Alternatives:* a SQL function in content-service (a second repo and deploy for one query);
+  resolving in Java after reading (search, sort and counts on the truth: spoilers).
+- *Consequence:* the T13 rule lives in SQL here and in TypeScript in the back-office (frontend
+  ADR-0007); both are tested on the Gomu Gomu case.
