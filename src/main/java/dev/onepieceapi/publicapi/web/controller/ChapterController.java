@@ -7,13 +7,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import dev.onepieceapi.publicapi.domain.AsOfChapter;
 import dev.onepieceapi.publicapi.config.PublicApiProperties;
 import dev.onepieceapi.publicapi.domain.ContentSort;
 import dev.onepieceapi.publicapi.persistence.PublishedViews;
 import dev.onepieceapi.publicapi.service.ChapterService;
 import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.ContentResponses;
+import dev.onepieceapi.publicapi.web.dto.request.AsOfChapterRequest;
 import dev.onepieceapi.publicapi.web.dto.request.ContentListRequest;
 import dev.onepieceapi.publicapi.web.dto.response.ChapterResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ChapterSummaryResponse;
@@ -53,7 +53,7 @@ class ChapterController {
 	@Operation(description = "Lists the chapters online, one page at a time")
 	@GetMapping(ApiPaths.CHAPTERS)
 	ResponseEntity<PageResponse<ChapterSummaryResponse>> list(@PathVariable String lang,
-			@ParameterObject @Valid ContentListRequest request,
+			@ParameterObject @Valid ContentListRequest request, @ParameterObject @Valid AsOfChapterRequest asOf,
 			@Parameter(description = "Only the chapters of this arc: its id or number, an old slug included;"
 					+ " an unknown arc lists nothing") @RequestParam Optional<String> arc,
 			@Parameter(description = "Only the chapters of this volume: its id or number, an old slug included;"
@@ -61,8 +61,8 @@ class ChapterController {
 			WebRequest webRequest) {
 		var filters = ContentSearchMapper
 			.toFilters(Map.of(PublishedViews.ARC_FILTER, arc, PublishedViews.VOLUME_FILTER, volume));
-		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters,
-				ContentSort.BY_NUMBER);
+		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters, ContentSort.BY_NUMBER)
+			.withAsOfChapter(ContentSearchMapper.toAsOfChapter(asOf));
 		return this.responses.page(webRequest, () -> this.service.search(lang, search),
 				PublicResponseMapper::toResponse);
 	}
@@ -78,8 +78,9 @@ class ChapterController {
 			description = "An old slug: Location is the current slug, relative to this address", content = @Content)
 	@GetMapping(ApiPaths.CHAPTER)
 	ResponseEntity<ChapterResponse> get(@PathVariable String lang, @PathVariable String idOrSlug,
-			WebRequest webRequest) {
-		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug, AsOfChapter.NONE),
+			@ParameterObject @Valid AsOfChapterRequest asOf, WebRequest webRequest) {
+		return this.responses.lookup(webRequest,
+				() -> this.service.find(lang, idOrSlug, ContentSearchMapper.toAsOfChapter(asOf)),
 				PublicResponseMapper::toResponse);
 	}
 

@@ -15,6 +15,11 @@ http:
     - name: idOrSlug
       value: ""
       type: path
+    - name: asOfChapter
+      value: "0"
+      type: query
+      description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
+      disabled: true
   auth: inherit
 
 settings:
@@ -37,6 +42,11 @@ examples:
         - name: idOrSlug
           value: ""
           type: path
+        - name: asOfChapter
+          value: "0"
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
+          disabled: true
     response:
       status: 200
       statusText: OK
@@ -89,6 +99,11 @@ examples:
         - name: idOrSlug
           value: ""
           type: path
+        - name: asOfChapter
+          value: "0"
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
+          disabled: true
     response:
       status: 301
       statusText: Moved Permanently
@@ -107,6 +122,11 @@ examples:
         - name: idOrSlug
           value: ""
           type: path
+        - name: asOfChapter
+          value: "0"
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
+          disabled: true
     response:
       status: 304
       statusText: Not Modified
@@ -159,6 +179,11 @@ examples:
         - name: idOrSlug
           value: ""
           type: path
+        - name: asOfChapter
+          value: "0"
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
+          disabled: true
     response:
       headers:
         - name: Content-Type
@@ -194,6 +219,11 @@ examples:
         - name: idOrSlug
           value: ""
           type: path
+        - name: asOfChapter
+          value: "0"
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
+          disabled: true
     response:
       headers:
         - name: Content-Type

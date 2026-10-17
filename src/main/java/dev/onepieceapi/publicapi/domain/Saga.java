@@ -19,7 +19,7 @@ import java.util.UUID;
  */
 @Builder
 public record Saga(UUID id, String slug, int number, String language, String title, String description,
-		StorySpan chapters, StorySpan episodes, @With List<ArcSummary> arcs,
+		@With StorySpan chapters, StorySpan episodes, @With List<ArcSummary> arcs,
 		Instant publishedAt) implements PublishedContent {
 
 	public Saga {

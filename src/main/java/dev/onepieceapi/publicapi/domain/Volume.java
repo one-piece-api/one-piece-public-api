@@ -22,7 +22,7 @@ import java.util.UUID;
  */
 @Builder
 public record Volume(UUID id, String slug, int number, String language, String title, String japaneseTitle,
-		String coverImageId, StorySpan chapters, @With List<ArcSummary> arcs, @With List<Release> releases,
+		String coverImageId, @With StorySpan chapters, @With List<ArcSummary> arcs, @With List<Release> releases,
 		Instant publishedAt) implements PublishedContent {
 
 	public Volume {

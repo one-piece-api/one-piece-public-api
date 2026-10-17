@@ -7,12 +7,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import dev.onepieceapi.publicapi.domain.AsOfChapter;
 import dev.onepieceapi.publicapi.config.PublicApiProperties;
 import dev.onepieceapi.publicapi.domain.ContentSort;
 import dev.onepieceapi.publicapi.service.SagaService;
 import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.ContentResponses;
+import dev.onepieceapi.publicapi.web.dto.request.AsOfChapterRequest;
 import dev.onepieceapi.publicapi.web.dto.request.ContentListRequest;
 import dev.onepieceapi.publicapi.web.dto.response.PageResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SagaResponse;
@@ -50,9 +50,11 @@ class SagaController {
 	@Operation(description = "Lists the sagas online, one page at a time")
 	@GetMapping(ApiPaths.SAGAS)
 	ResponseEntity<PageResponse<SagaSummaryResponse>> list(@PathVariable String lang,
-			@ParameterObject @Valid ContentListRequest request, WebRequest webRequest) {
-		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), List.of(),
-				ContentSort.BY_NUMBER);
+			@ParameterObject @Valid ContentListRequest request, @ParameterObject @Valid AsOfChapterRequest asOf,
+			WebRequest webRequest) {
+		var search = ContentSearchMapper
+			.toSearch(request, this.properties.pagination(), List.of(), ContentSort.BY_NUMBER)
+			.withAsOfChapter(ContentSearchMapper.toAsOfChapter(asOf));
 		return this.responses.page(webRequest, () -> this.service.search(lang, search),
 				PublicResponseMapper::toResponse);
 	}
@@ -67,8 +69,10 @@ class SagaController {
 	@ApiResponse(responseCode = "301",
 			description = "An old slug: Location is the current slug, relative to this address", content = @Content)
 	@GetMapping(ApiPaths.SAGA)
-	ResponseEntity<SagaResponse> get(@PathVariable String lang, @PathVariable String idOrSlug, WebRequest webRequest) {
-		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug, AsOfChapter.NONE),
+	ResponseEntity<SagaResponse> get(@PathVariable String lang, @PathVariable String idOrSlug,
+			@ParameterObject @Valid AsOfChapterRequest asOf, WebRequest webRequest) {
+		return this.responses.lookup(webRequest,
+				() -> this.service.find(lang, idOrSlug, ContentSearchMapper.toAsOfChapter(asOf)),
 				PublicResponseMapper::toResponse);
 	}
 

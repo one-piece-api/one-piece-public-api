@@ -79,6 +79,11 @@ slug to `301`, sort, paging, conditional GET - and let the copies drift apart.
 - Devil Fruit and Type: `PublishedViews.FIRST_APPEARED`, the first appearance is a chapter online
   numbered up to N, matched by id so a chapter untranslated in the language still counts. No first
   appearance: hidden.
+- Story structure: saga, arc, volume visible once their first chapter online is <= N
+  (`BEGUN`); a chapter by its number; an episode by its arc (`OF_A_BEGUN_ARC`), so a filler with
+  no arc is hidden. The chapter span of a saga, arc or volume detail is cut at N
+  (`PublishedChapterSpanRepository`, computed on the published views, no new migration); the
+  episode span stays whole.
 - **Hidden = not found:** a hidden detail answers `404`, as if it did not exist (a `403` would
   confirm it does). `complete(detail, asOfChapter)` passes the filter to what a detail embeds.
 - **A `301` keeps the query:** the relative `Location` carries the request's query string, so
@@ -86,4 +91,4 @@ slug to `301`, sort, paging, conditional GET - and let the copies drift apart.
 - `AsOfChapterRequest` (`@Min(0)`) is a separate `@ParameterObject`, declared only by the
   controllers whose entity honours it.
 - Not yet: the values as known at N (reveals), `null` for a hidden relation, hidden subcategories
-  inside a type (TL6); story structure (next sub-step).
+  inside a type (TL6).

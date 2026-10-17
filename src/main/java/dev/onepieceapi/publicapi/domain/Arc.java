@@ -1,6 +1,7 @@
 package dev.onepieceapi.publicapi.domain;
 
 import lombok.Builder;
+import lombok.With;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -17,6 +18,6 @@ import java.util.UUID;
  */
 @Builder
 public record Arc(UUID id, String slug, int number, String language, String title, String description, SagaSummary saga,
-		StorySpan chapters, StorySpan episodes, Instant publishedAt) implements PublishedContent {
+		@With StorySpan chapters, StorySpan episodes, Instant publishedAt) implements PublishedContent {
 
 }

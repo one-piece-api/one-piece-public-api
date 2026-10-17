@@ -1,5 +1,6 @@
 package dev.onepieceapi.publicapi.persistence.mapper;
 
+import dev.onepieceapi.publicapi.persistence.row.StorySpanRow;
 import dev.onepieceapi.publicapi.domain.Arc;
 import dev.onepieceapi.publicapi.domain.ArcReference;
 import dev.onepieceapi.publicapi.domain.ArcSummary;
@@ -144,6 +145,10 @@ public class StoryRowMapper {
 
 	public Release toDomain(ReleaseRow row) {
 		return new Release(row.country(), row.date());
+	}
+
+	public StorySpan toDomain(StorySpanRow row) {
+		return new StorySpan(row.count(), row.firstNumber(), row.lastNumber(), row.firstDate(), row.lastDate());
 	}
 
 	/** The view leaves these null for a chapter with no volume (or no text for it). */

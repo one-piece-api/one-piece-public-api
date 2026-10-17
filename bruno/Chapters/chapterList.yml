@@ -27,6 +27,11 @@ http:
       type: query
       description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
       disabled: true
+    - name: asOfChapter
+      value: "0"
+      type: query
+      description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
+      disabled: true
     - name: arc
       value: ""
       type: query
@@ -74,6 +79,11 @@ examples:
           value: ""
           type: query
           description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
+          disabled: true
+        - name: asOfChapter
+          value: "0"
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
           disabled: true
         - name: arc
           value: ""
@@ -149,6 +159,11 @@ examples:
           type: query
           description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
           disabled: true
+        - name: asOfChapter
+          value: "0"
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
+          disabled: true
         - name: arc
           value: ""
           type: query
@@ -209,6 +224,11 @@ examples:
           value: ""
           type: query
           description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
+          disabled: true
+        - name: asOfChapter
+          value: "0"
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive. What the reader meets after it is left out of lists, searches and counts, and its detail answers 404. Missing: nothing is hidden"
           disabled: true
         - name: arc
           value: ""

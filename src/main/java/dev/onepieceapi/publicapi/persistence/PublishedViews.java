@@ -86,6 +86,16 @@ public final class PublishedViews {
 		.filters(Map.of(TYPE_FILTER, ContentFilter.onContent("type_id", "DEVIL_FRUIT_TYPE")))
 		.build();
 
+	/**
+	 * Begun by chapter {@code :asOfChapter} (plan of the timeline, T8): a saga, arc or
+	 * volume whose first chapter online is numbered up to it.
+	 */
+	public static final String BEGUN = "first_chapter_number <= :asOfChapter";
+
+	/** An episode of an arc begun by then; a filler with no arc is hidden. */
+	public static final String OF_A_BEGUN_ARC = "arc_id IN"
+			+ " (SELECT id FROM published.arc WHERE first_chapter_number <= :asOfChapter)";
+
 	/** The names of the filters of the story entities by what they belong to. */
 	public static final String SAGA_FILTER = "saga";
 
@@ -101,6 +111,7 @@ public final class PublishedViews {
 				+ " first_episode_number, last_episode_number, first_episode_date, last_episode_date")
 		.summaryColumns("id, slug, number, name")
 		.naturalKey("number")
+		.visibleAsOf(BEGUN)
 		.detail(PublishedView.reading(SagaRow.class, StoryRowMapper::toDomain))
 		.summary(PublishedView.reading(SagaSummaryRow.class, StoryRowMapper::toDomain))
 		.build();
@@ -114,6 +125,7 @@ public final class PublishedViews {
 				+ " last_episode_date")
 		.summaryColumns("id, slug, number, name, saga_id, saga_slug, saga_number, saga_title")
 		.naturalKey("number")
+		.visibleAsOf(BEGUN)
 		.detail(PublishedView.reading(ArcRow.class, StoryRowMapper::toDomain))
 		.summary(PublishedView.reading(ArcSummaryRow.class, StoryRowMapper::toDomain))
 		.filters(Map.of(SAGA_FILTER, ContentFilter.onContent("saga_id", "SAGA"), VOLUME_FILTER, arcsOfVolume()))
@@ -127,6 +139,7 @@ public final class PublishedViews {
 				+ " first_chapter_number, last_chapter_number, first_chapter_date, last_chapter_date")
 		.summaryColumns("id, slug, number, name, cover_image_id")
 		.naturalKey("number")
+		.visibleAsOf(BEGUN)
 		.detail(PublishedView.reading(VolumeRow.class, StoryRowMapper::toDomain))
 		.summary(PublishedView.reading(VolumeSummaryRow.class, StoryRowMapper::toDomain))
 		.build();
@@ -141,6 +154,7 @@ public final class PublishedViews {
 		.summaryColumns("id, slug, number, name, arc_id, arc_slug, arc_number, arc_title, volume_id, volume_slug,"
 				+ " volume_number, volume_title, volume_cover_image_id")
 		.naturalKey("number")
+		.visibleAsOf("number <= :asOfChapter")
 		.detail(PublishedView.reading(ChapterRow.class, StoryRowMapper::toDomain))
 		.summary(PublishedView.reading(ChapterSummaryRow.class, StoryRowMapper::toDomain))
 		.filters(Map.of(ARC_FILTER, ContentFilter.onContent("arc_id", "ARC"), VOLUME_FILTER,
@@ -155,6 +169,7 @@ public final class PublishedViews {
 				+ " arc_title, published_at")
 		.summaryColumns("id, slug, number, name, arc_id, arc_slug, arc_number, arc_title")
 		.naturalKey("number")
+		.visibleAsOf(OF_A_BEGUN_ARC)
 		.detail(PublishedView.reading(EpisodeRow.class, StoryRowMapper::toDomain))
 		.summary(PublishedView.reading(EpisodeSummaryRow.class, StoryRowMapper::toDomain))
 		.filters(Map.of(ARC_FILTER, ContentFilter.onContent("arc_id", "ARC")))

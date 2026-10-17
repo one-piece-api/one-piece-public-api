@@ -1,5 +1,7 @@
 package dev.onepieceapi.publicapi.service;
 
+import dev.onepieceapi.publicapi.persistence.PublishedChapterSpanRepository.Parent;
+import dev.onepieceapi.publicapi.persistence.PublishedChapterSpanRepository;
 import dev.onepieceapi.publicapi.domain.AsOfChapter;
 import dev.onepieceapi.publicapi.domain.ContentFilterValue;
 import dev.onepieceapi.publicapi.domain.Volume;
@@ -21,18 +23,23 @@ public class VolumeService extends PublishedContentService<Volume, VolumeSummary
 
 	private final PublishedReleaseRepository releases;
 
-	VolumeService(LanguageService languages, PublishedContentRepository repository,
-			PublishedReleaseRepository releases) {
+	private final PublishedChapterSpanRepository spans;
+
+	VolumeService(LanguageService languages, PublishedContentRepository repository, PublishedReleaseRepository releases,
+			PublishedChapterSpanRepository spans) {
 		super(languages, repository, PublishedViews.VOLUME);
 		this.repository = repository;
 		this.releases = releases;
+		this.spans = spans;
 	}
 
 	@Override
 	protected Volume complete(Volume volume, AsOfChapter asOfChapter) {
 		var ofThisVolume = new ContentFilterValue(PublishedViews.VOLUME_FILTER, volume.id().toString());
-		return volume
-			.withArcs(this.repository.listAll(PublishedViews.ARC, volume.language(), ofThisVolume, asOfChapter))
+		var known = asOfChapter.applies()
+				? volume.withChapters(this.spans.chaptersUpTo(Parent.VOLUME, volume.id(), asOfChapter.number()))
+				: volume;
+		return known.withArcs(this.repository.listAll(PublishedViews.ARC, volume.language(), ofThisVolume, asOfChapter))
 			.withReleases(this.releases.findOf(PublishedViews.VOLUME_RELEASES, volume.id()));
 	}
 
