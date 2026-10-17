@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import dev.onepieceapi.publicapi.domain.AsOfChapter;
 import dev.onepieceapi.publicapi.config.PublicApiProperties;
 import dev.onepieceapi.publicapi.domain.ContentSort;
 import dev.onepieceapi.publicapi.service.VolumeService;
@@ -69,7 +70,7 @@ class VolumeController {
 	@GetMapping(ApiPaths.VOLUME)
 	ResponseEntity<VolumeResponse> get(@PathVariable String lang, @PathVariable String idOrSlug,
 			WebRequest webRequest) {
-		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug),
+		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug, AsOfChapter.NONE),
 				PublicResponseMapper::toResponse);
 	}
 

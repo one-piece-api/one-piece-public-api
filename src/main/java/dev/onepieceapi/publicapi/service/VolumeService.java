@@ -1,5 +1,6 @@
 package dev.onepieceapi.publicapi.service;
 
+import dev.onepieceapi.publicapi.domain.AsOfChapter;
 import dev.onepieceapi.publicapi.domain.ContentFilterValue;
 import dev.onepieceapi.publicapi.domain.Volume;
 import dev.onepieceapi.publicapi.domain.VolumeSummary;
@@ -28,9 +29,10 @@ public class VolumeService extends PublishedContentService<Volume, VolumeSummary
 	}
 
 	@Override
-	protected Volume complete(Volume volume) {
+	protected Volume complete(Volume volume, AsOfChapter asOfChapter) {
 		var ofThisVolume = new ContentFilterValue(PublishedViews.VOLUME_FILTER, volume.id().toString());
-		return volume.withArcs(this.repository.listAll(PublishedViews.ARC, volume.language(), ofThisVolume))
+		return volume
+			.withArcs(this.repository.listAll(PublishedViews.ARC, volume.language(), ofThisVolume, asOfChapter))
 			.withReleases(this.releases.findOf(PublishedViews.VOLUME_RELEASES, volume.id()));
 	}
 

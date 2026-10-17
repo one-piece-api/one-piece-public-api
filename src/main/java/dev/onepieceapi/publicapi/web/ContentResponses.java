@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.function.Function;
@@ -42,9 +43,19 @@ public class ContentResponses {
 		return this.conditionalGet.get(request, query, (lookup, eTag) -> switch (lookup) {
 			case ContentLookup.Found<D> found -> ResponseEntity.ok().eTag(eTag).body(toResponse.apply(found.content()));
 			case ContentLookup.Moved<D> moved -> ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
-				.header(HttpHeaders.LOCATION, moved.currentSlug())
+				.header(HttpHeaders.LOCATION, withQueryOf(request, moved.currentSlug()))
 				.build();
 		});
+	}
+
+	/**
+	 * The location keeps the query of the request, so a spoiler filter is not lost on the
+	 * way (plan of the timeline, T8). The servlet container refuses a query with control
+	 * characters before it gets here.
+	 */
+	private static String withQueryOf(WebRequest request, String location) {
+		String query = request instanceof ServletWebRequest servlet ? servlet.getRequest().getQueryString() : null;
+		return query == null || query.isEmpty() ? location : location + '?' + query;
 	}
 
 }

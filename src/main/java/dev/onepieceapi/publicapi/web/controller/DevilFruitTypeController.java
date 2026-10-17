@@ -11,6 +11,7 @@ import dev.onepieceapi.publicapi.config.PublicApiProperties;
 import dev.onepieceapi.publicapi.service.DevilFruitTypeService;
 import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.ContentResponses;
+import dev.onepieceapi.publicapi.web.dto.request.AsOfChapterRequest;
 import dev.onepieceapi.publicapi.web.dto.request.ContentListRequest;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitTypeResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitTypeSummaryResponse;
@@ -46,8 +47,10 @@ class DevilFruitTypeController {
 	@Operation(description = "Lists the Devil Fruit Types online, one page at a time")
 	@GetMapping(ApiPaths.DEVIL_FRUIT_TYPES)
 	ResponseEntity<PageResponse<DevilFruitTypeSummaryResponse>> list(@PathVariable String lang,
-			@ParameterObject @Valid ContentListRequest request, WebRequest webRequest) {
-		var search = ContentSearchMapper.toSearch(request, this.properties.pagination());
+			@ParameterObject @Valid ContentListRequest request, @ParameterObject @Valid AsOfChapterRequest asOf,
+			WebRequest webRequest) {
+		var search = ContentSearchMapper.toSearch(request, this.properties.pagination())
+			.withAsOfChapter(ContentSearchMapper.toAsOfChapter(asOf));
 		return this.responses.page(webRequest, () -> this.service.search(lang, search),
 				PublicResponseMapper::toResponse);
 	}
@@ -60,8 +63,9 @@ class DevilFruitTypeController {
 			description = "An old slug: Location is the current slug, relative to this address", content = @Content)
 	@GetMapping(ApiPaths.DEVIL_FRUIT_TYPE)
 	ResponseEntity<DevilFruitTypeResponse> get(@PathVariable String lang, @PathVariable String idOrSlug,
-			WebRequest webRequest) {
-		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug),
+			@ParameterObject @Valid AsOfChapterRequest asOf, WebRequest webRequest) {
+		return this.responses.lookup(webRequest,
+				() -> this.service.find(lang, idOrSlug, ContentSearchMapper.toAsOfChapter(asOf)),
 				PublicResponseMapper::toResponse);
 	}
 

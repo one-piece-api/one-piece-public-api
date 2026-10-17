@@ -1,5 +1,6 @@
 package dev.onepieceapi.publicapi.service;
 
+import dev.onepieceapi.publicapi.domain.AsOfChapter;
 import dev.onepieceapi.publicapi.domain.ContentFilterValue;
 import dev.onepieceapi.publicapi.domain.Saga;
 import dev.onepieceapi.publicapi.domain.SagaSummary;
@@ -23,9 +24,9 @@ public class SagaService extends PublishedContentService<Saga, SagaSummary> {
 	}
 
 	@Override
-	protected Saga complete(Saga saga) {
+	protected Saga complete(Saga saga, AsOfChapter asOfChapter) {
 		var ofThisSaga = new ContentFilterValue(PublishedViews.SAGA_FILTER, saga.id().toString());
-		return saga.withArcs(this.repository.listAll(PublishedViews.ARC, saga.language(), ofThisSaga));
+		return saga.withArcs(this.repository.listAll(PublishedViews.ARC, saga.language(), ofThisSaga, asOfChapter));
 	}
 
 }

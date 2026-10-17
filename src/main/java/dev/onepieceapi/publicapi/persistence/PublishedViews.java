@@ -46,6 +46,14 @@ public final class PublishedViews {
 	public static final String FIRST_APPEARANCE_COLUMNS = ", first_appearance_chapter_id, first_appearance_chapter_slug,"
 			+ " first_appearance_chapter_number, first_appearance_chapter_title";
 
+	/**
+	 * Met by the reader by chapter {@code :asOfChapter} (plan of the timeline, T8): the
+	 * first appearance is a chapter online numbered up to it. Matched by id, so a chapter
+	 * with no text in the language still counts; no first appearance, no chapter: hidden.
+	 */
+	public static final String FIRST_APPEARED = "first_appearance_chapter_id IN"
+			+ " (SELECT id FROM published.chapter WHERE number <= :asOfChapter)";
+
 	/** The name of the filter of the fruits by their type (plan D11). */
 	public static final String TYPE_FILTER = "type";
 
@@ -57,6 +65,7 @@ public final class PublishedViews {
 				+ FIRST_APPEARANCE_COLUMNS)
 		.summaryColumns("id, slug, romaji, name" + FIRST_APPEARANCE_COLUMNS)
 		.naturalKey("romaji")
+		.visibleAsOf(FIRST_APPEARED)
 		.detail(PublishedView.reading(DevilFruitTypeRow.class, PublishedRowMapper::toDomain))
 		.summary(PublishedView.reading(DevilFruitTypeSummaryRow.class, PublishedRowMapper::toDomain))
 		.build();
@@ -71,6 +80,7 @@ public final class PublishedViews {
 		.summaryColumns("id, slug, romaji, name, type_id, type_slug, type_romaji, type_name, image_id,"
 				+ " subcategory_id, subcategory_name" + FIRST_APPEARANCE_COLUMNS)
 		.naturalKey("romaji")
+		.visibleAsOf(FIRST_APPEARED)
 		.detail(PublishedView.reading(DevilFruitRow.class, PublishedRowMapper::toDomain))
 		.summary(PublishedView.reading(DevilFruitSummaryRow.class, PublishedRowMapper::toDomain))
 		.filters(Map.of(TYPE_FILTER, ContentFilter.onContent("type_id", "DEVIL_FRUIT_TYPE")))

@@ -305,6 +305,16 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive. What the reader\
+          \ meets after it is left out of lists, searches and counts, and its detail\
+          \ answers 404. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
       - description: "name, romaji or publishedAt, then asc or desc; default name,asc"
         in: query
         name: sort
@@ -339,6 +349,16 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive. What the reader\
+          \ meets after it is left out of lists, searches and counts, and its detail\
+          \ answers 404. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
       responses:
         "200":
           content:
@@ -396,6 +416,16 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive. What the reader\
+          \ meets after it is left out of lists, searches and counts, and its detail\
+          \ answers 404. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
       - description: "Only the fruits of this type: its id or slug, an old slug included;\
           \ an unknown type lists nothing"
         in: query
@@ -437,6 +467,16 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive. What the reader\
+          \ meets after it is left out of lists, searches and counts, and its detail\
+          \ answers 404. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
       responses:
         "200":
           content:

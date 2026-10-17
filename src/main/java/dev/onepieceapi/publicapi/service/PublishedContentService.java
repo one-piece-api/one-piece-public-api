@@ -1,5 +1,6 @@
 package dev.onepieceapi.publicapi.service;
 
+import dev.onepieceapi.publicapi.domain.AsOfChapter;
 import dev.onepieceapi.publicapi.domain.ContentAddress;
 import dev.onepieceapi.publicapi.domain.ContentLookup;
 import dev.onepieceapi.publicapi.domain.ContentSearch;
@@ -41,11 +42,11 @@ public abstract class PublishedContentService<D extends PublishedContent, S> {
 	 * The content at an address, or where it moved: an old slug names the same content as
 	 * its current one, which is where the caller is sent (plan D5).
 	 */
-	public ContentLookup<D> find(String language, String idOrSlug) {
+	public ContentLookup<D> find(String language, String idOrSlug, AsOfChapter asOfChapter) {
 		this.languages.requireAvailable(language);
-		D found = findOnline(language, idOrSlug).orElseThrow(() -> new ContentNotFoundException(idOrSlug));
+		D found = findOnline(language, idOrSlug, asOfChapter).orElseThrow(() -> new ContentNotFoundException(idOrSlug));
 		if (ContentAddress.isId(idOrSlug) || idOrSlug.equals(found.slug())) {
-			return new ContentLookup.Found<>(complete(found));
+			return new ContentLookup.Found<>(complete(found, asOfChapter));
 		}
 		// An old slug of a content whose romaji now leaves no slug has nowhere to point
 		// to.
@@ -60,13 +61,14 @@ public abstract class PublishedContentService<D extends PublishedContent, S> {
 	 * or its release days; the content itself when it adds nothing (hook of the
 	 * template).
 	 */
-	protected D complete(D content) {
+	protected D complete(D content, AsOfChapter asOfChapter) {
 		return content;
 	}
 
-	private Optional<D> findOnline(String language, String idOrSlug) {
-		return ContentAddress.isId(idOrSlug) ? this.repository.findById(this.view, language, UUID.fromString(idOrSlug))
-				: this.repository.findBySlug(this.view, language, idOrSlug);
+	private Optional<D> findOnline(String language, String idOrSlug, AsOfChapter asOfChapter) {
+		return ContentAddress.isId(idOrSlug)
+				? this.repository.findById(this.view, language, UUID.fromString(idOrSlug), asOfChapter)
+				: this.repository.findBySlug(this.view, language, idOrSlug, asOfChapter);
 	}
 
 }

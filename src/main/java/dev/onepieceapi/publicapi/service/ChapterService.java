@@ -1,5 +1,6 @@
 package dev.onepieceapi.publicapi.service;
 
+import dev.onepieceapi.publicapi.domain.AsOfChapter;
 import dev.onepieceapi.publicapi.domain.Chapter;
 import dev.onepieceapi.publicapi.domain.ChapterSummary;
 import dev.onepieceapi.publicapi.persistence.PublishedContentRepository;
@@ -23,7 +24,7 @@ public class ChapterService extends PublishedContentService<Chapter, ChapterSumm
 	}
 
 	@Override
-	protected Chapter complete(Chapter chapter) {
+	protected Chapter complete(Chapter chapter, AsOfChapter asOfChapter) {
 		return chapter.withReleases(this.releases.findOf(PublishedViews.CHAPTER_RELEASES, chapter.id()));
 	}
 

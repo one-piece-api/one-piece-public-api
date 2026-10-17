@@ -24,13 +24,16 @@ import java.util.function.Function;
  * @param filters the filters of the list, by name; none when null
  * @param embeddedOrder the column the entity is ordered by when embedded in another
  * content (a list of them, not paginated); the name when null
+ * @param visibleAsOf the condition of the spoiler filter (plan of the timeline, T8): a
+ * row the reader has met by chapter {@code :asOfChapter}; null when the entity is not
+ * filtered
  * @param <D> the detail
  * @param <S> the list row
  */
 @Builder
 public record PublishedView<D, S>(String entityType, String view, String detailColumns, String summaryColumns,
 		String naturalKey, RowMapper<D> detail, RowMapper<S> summary, Map<String, ContentFilter> filters,
-		String embeddedOrder) {
+		String embeddedOrder, String visibleAsOf) {
 
 	public PublishedView {
 		embeddedOrder = embeddedOrder == null ? "name" : embeddedOrder;

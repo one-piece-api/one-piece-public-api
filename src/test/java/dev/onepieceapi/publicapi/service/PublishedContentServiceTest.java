@@ -1,5 +1,6 @@
 package dev.onepieceapi.publicapi.service;
 
+import dev.onepieceapi.publicapi.domain.AsOfChapter;
 import dev.onepieceapi.publicapi.domain.ContentLookup;
 import dev.onepieceapi.publicapi.domain.ContentSearch;
 import dev.onepieceapi.publicapi.domain.ContentSort;
@@ -43,47 +44,54 @@ class PublishedContentServiceTest {
 	@Test
 	void findsByIdWithoutLookingAtTheSlug() {
 		Note note = new Note(ID, null);
-		when(this.repository.findById(this.view, "en", ID)).thenReturn(Optional.of(note));
+		when(this.repository.findById(this.view, "en", ID, AsOfChapter.NONE)).thenReturn(Optional.of(note));
 
-		assertThat(this.service.find("en", ID.toString().toUpperCase())).isEqualTo(new ContentLookup.Found<>(note));
+		assertThat(this.service.find("en", ID.toString().toUpperCase(), AsOfChapter.NONE))
+			.isEqualTo(new ContentLookup.Found<>(note));
 	}
 
 	@Test
 	void findsBySlugWhenItIsTheCurrentOne() {
 		Note note = new Note(ID, "ichi");
-		when(this.repository.findBySlug(this.view, "en", "ichi")).thenReturn(Optional.of(note));
+		when(this.repository.findBySlug(this.view, "en", "ichi", AsOfChapter.NONE)).thenReturn(Optional.of(note));
 
-		assertThat(this.service.find("en", "ichi")).isEqualTo(new ContentLookup.Found<>(note));
+		assertThat(this.service.find("en", "ichi", AsOfChapter.NONE)).isEqualTo(new ContentLookup.Found<>(note));
 	}
 
 	@Test
 	void sendsAnOldSlugToTheCurrentOne() {
-		when(this.repository.findBySlug(this.view, "en", "old")).thenReturn(Optional.of(new Note(ID, "ichi")));
+		when(this.repository.findBySlug(this.view, "en", "old", AsOfChapter.NONE))
+			.thenReturn(Optional.of(new Note(ID, "ichi")));
 
-		assertThat(this.service.find("en", "old")).isEqualTo(new ContentLookup.Moved<Note>("ichi"));
+		assertThat(this.service.find("en", "old", AsOfChapter.NONE)).isEqualTo(new ContentLookup.Moved<Note>("ichi"));
 	}
 
 	@Test
 	void answersNotFoundForAnOldSlugOfAContentWithNoSlugNow() {
-		when(this.repository.findBySlug(this.view, "en", "old")).thenReturn(Optional.of(new Note(ID, null)));
+		when(this.repository.findBySlug(this.view, "en", "old", AsOfChapter.NONE))
+			.thenReturn(Optional.of(new Note(ID, null)));
 
-		assertThatThrownBy(() -> this.service.find("en", "old")).isInstanceOf(ContentNotFoundException.class);
+		assertThatThrownBy(() -> this.service.find("en", "old", AsOfChapter.NONE))
+			.isInstanceOf(ContentNotFoundException.class);
 	}
 
 	@Test
 	void answersNotFoundForWhatIsNotOnline() {
-		when(this.repository.findById(this.view, "en", ID)).thenReturn(Optional.empty());
-		when(this.repository.findBySlug(this.view, "en", "missing")).thenReturn(Optional.empty());
+		when(this.repository.findById(this.view, "en", ID, AsOfChapter.NONE)).thenReturn(Optional.empty());
+		when(this.repository.findBySlug(this.view, "en", "missing", AsOfChapter.NONE)).thenReturn(Optional.empty());
 
-		assertThatThrownBy(() -> this.service.find("en", ID.toString())).isInstanceOf(ContentNotFoundException.class);
-		assertThatThrownBy(() -> this.service.find("en", "missing")).isInstanceOf(ContentNotFoundException.class);
+		assertThatThrownBy(() -> this.service.find("en", ID.toString(), AsOfChapter.NONE))
+			.isInstanceOf(ContentNotFoundException.class);
+		assertThatThrownBy(() -> this.service.find("en", "missing", AsOfChapter.NONE))
+			.isInstanceOf(ContentNotFoundException.class);
 	}
 
 	@Test
 	void checksTheLanguageBeforeReadingAnything() {
 		doThrow(new LanguageNotAvailableException("xx")).when(this.languages).requireAvailable("xx");
 
-		assertThatThrownBy(() -> this.service.find("xx", "ichi")).isInstanceOf(LanguageNotAvailableException.class);
+		assertThatThrownBy(() -> this.service.find("xx", "ichi", AsOfChapter.NONE))
+			.isInstanceOf(LanguageNotAvailableException.class);
 		assertThatThrownBy(() -> this.service.search("xx",
 				ContentSearch.builder().sort(ContentSort.DEFAULT).page(0).size(20).build()))
 			.isInstanceOf(LanguageNotAvailableException.class);

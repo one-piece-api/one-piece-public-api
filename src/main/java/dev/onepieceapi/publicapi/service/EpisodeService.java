@@ -1,5 +1,6 @@
 package dev.onepieceapi.publicapi.service;
 
+import dev.onepieceapi.publicapi.domain.AsOfChapter;
 import dev.onepieceapi.publicapi.domain.Episode;
 import dev.onepieceapi.publicapi.domain.EpisodeSummary;
 import dev.onepieceapi.publicapi.persistence.PublishedContentRepository;
@@ -23,7 +24,7 @@ public class EpisodeService extends PublishedContentService<Episode, EpisodeSumm
 	}
 
 	@Override
-	protected Episode complete(Episode episode) {
+	protected Episode complete(Episode episode, AsOfChapter asOfChapter) {
 		return episode.withBroadcasts(this.releases.findOf(PublishedViews.EPISODE_BROADCASTS, episode.id()));
 	}
 

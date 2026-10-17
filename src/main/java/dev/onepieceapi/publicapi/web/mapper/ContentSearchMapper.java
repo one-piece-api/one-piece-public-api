@@ -1,5 +1,7 @@
 package dev.onepieceapi.publicapi.web.mapper;
 
+import dev.onepieceapi.publicapi.domain.AsOfChapter;
+import dev.onepieceapi.publicapi.web.dto.request.AsOfChapterRequest;
 import dev.onepieceapi.publicapi.config.PublicApiProperties.Pagination;
 import dev.onepieceapi.publicapi.domain.ContentFilterValue;
 import dev.onepieceapi.publicapi.domain.ContentSearch;
@@ -26,6 +28,14 @@ public class ContentSearchMapper {
 			.filter(entry -> entry.getValue().filter(value -> !value.isBlank()).isPresent())
 			.map(entry -> new ContentFilterValue(entry.getKey(), entry.getValue().get().strip()))
 			.toList();
+	}
+
+	/**
+	 * The spoiler filter a caller asked for; none when missing (plan of the timeline,
+	 * T8).
+	 */
+	public AsOfChapter toAsOfChapter(AsOfChapterRequest request) {
+		return new AsOfChapter(request.asOfChapter());
 	}
 
 	/** Applies the defaults and the page size cap (plan D8). */

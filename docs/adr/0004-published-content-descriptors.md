@@ -70,3 +70,20 @@ slug to `301`, sort, paging, conditional GET - and let the copies drift apart.
   other views (embedded arcs, release days per country read by `PublishedReleaseRepository`).
   `DevilFruitTypeService` keeps its own override.
 - The cover of a volume is served by the same `v1/images/{id}.png` (PNG only today).
+
+## Addendum - spoiler filter (plan of the timeline T8, TL5)
+
+- **Specification per descriptor:** `PublishedView.visibleAsOf`, one fixed SQL condition with the
+  chapter as `:asOfChapter`. The repository appends it to lists, counts, searches, embedded lists
+  and details, only when the caller sends `asOfChapter`; without it every query is unchanged.
+- Devil Fruit and Type: `PublishedViews.FIRST_APPEARED`, the first appearance is a chapter online
+  numbered up to N, matched by id so a chapter untranslated in the language still counts. No first
+  appearance: hidden.
+- **Hidden = not found:** a hidden detail answers `404`, as if it did not exist (a `403` would
+  confirm it does). `complete(detail, asOfChapter)` passes the filter to what a detail embeds.
+- **A `301` keeps the query:** the relative `Location` carries the request's query string, so
+  following an old slug never drops the filter.
+- `AsOfChapterRequest` (`@Min(0)`) is a separate `@ParameterObject`, declared only by the
+  controllers whose entity honours it.
+- Not yet: the values as known at N (reveals), `null` for a hidden relation, hidden subcategories
+  inside a type (TL6); story structure (next sub-step).

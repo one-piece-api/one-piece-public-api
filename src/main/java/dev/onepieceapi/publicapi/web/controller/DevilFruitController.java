@@ -1,5 +1,6 @@
 package dev.onepieceapi.publicapi.web.controller;
 
+import dev.onepieceapi.publicapi.web.dto.request.AsOfChapterRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -52,7 +53,7 @@ class DevilFruitController {
 	@Operation(description = "Lists the Devil Fruits online, one page at a time")
 	@GetMapping(ApiPaths.DEVIL_FRUITS)
 	ResponseEntity<PageResponse<DevilFruitSummaryResponse>> list(@PathVariable String lang,
-			@ParameterObject @Valid ContentListRequest request,
+			@ParameterObject @Valid ContentListRequest request, @ParameterObject @Valid AsOfChapterRequest asOf,
 			@Parameter(description = "Only the fruits of this type: its id or slug, an old slug included;"
 					+ " an unknown type lists nothing") @RequestParam Optional<String> type,
 			WebRequest webRequest) {
@@ -60,7 +61,8 @@ class DevilFruitController {
 			.map(value -> new ContentFilterValue(PublishedViews.TYPE_FILTER, value.strip()))
 			.stream()
 			.toList();
-		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters);
+		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters)
+			.withAsOfChapter(ContentSearchMapper.toAsOfChapter(asOf));
 		return this.responses.page(webRequest, () -> this.service.search(lang, search),
 				PublicResponseMapper::toResponse);
 	}
@@ -73,8 +75,9 @@ class DevilFruitController {
 			description = "An old slug: Location is the current slug, relative to this address", content = @Content)
 	@GetMapping(ApiPaths.DEVIL_FRUIT)
 	ResponseEntity<DevilFruitResponse> get(@PathVariable String lang, @PathVariable String idOrSlug,
-			WebRequest webRequest) {
-		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug),
+			@ParameterObject @Valid AsOfChapterRequest asOf, WebRequest webRequest) {
+		return this.responses.lookup(webRequest,
+				() -> this.service.find(lang, idOrSlug, ContentSearchMapper.toAsOfChapter(asOf)),
 				PublicResponseMapper::toResponse);
 	}
 
