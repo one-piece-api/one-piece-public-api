@@ -14,6 +14,10 @@ import java.util.stream.Collectors;
  * what the reader has not met yet is null: a type not first appeared by then, with its
  * subcategory; a subcategory first appeared later (with none, it is met with its type);
  * the slug, when the romaji known is not the true one it comes from.
+ * <p>
+ * Each published view is read once per fruit (one join for the reveals, one for the type
+ * met, one for the subcategory met): inlining the views once per column made the query
+ * plan explode past the reader role's statement timeout.
  */
 final class DevilFruitAsOfChapter {
 
@@ -28,23 +32,26 @@ final class DevilFruitAsOfChapter {
 			new RevealedField("DESCRIPTION", "description"), new RevealedField("ADVANTAGES", "advantages"),
 			new RevealedField("DISADVANTAGES", "disadvantages"));
 
-	/**
-	 * Met by then: a type first appeared up to the chapter; a subcategory of a met type,
-	 * first appeared up to it or with no first appearance.
-	 */
-	private static final String TYPE_MET = "EXISTS (SELECT 1 FROM published.devil_fruit_type ty WHERE ty.id = r.type_id"
-			+ " AND ty.first_appearance_chapter_id IN " + CHAPTERS_READ + ")";
+	/** Met by then: the type known, first appeared up to the chapter. */
+	private static final String TYPE_MET = "LEFT JOIN LATERAL (SELECT true AS met FROM published.devil_fruit_type ty"
+			+ " WHERE ty.id = r.type_id AND ty.first_appearance_chapter_id IN " + CHAPTERS_READ
+			+ " LIMIT 1) tm ON true";
 
-	private static final String SUBCATEGORY_MET = TYPE_MET
-			+ " AND EXISTS (SELECT 1 FROM published.devil_fruit_type_subcategory WHERE type_id = r.type_id"
-			+ " AND id = r.subcategory_id AND " + PublishedViews.SUBCATEGORY_MET + ")";
+	/**
+	 * Met by then: the subcategory known, of a met type, first appeared up to the chapter
+	 * or with no first appearance.
+	 */
+	private static final String SUBCATEGORY_MET = "LEFT JOIN LATERAL (SELECT true AS met"
+			+ " FROM published.devil_fruit_type_subcategory WHERE tm.met AND type_id = r.type_id"
+			+ " AND id = r.subcategory_id AND " + PublishedViews.SUBCATEGORY_MET + " LIMIT 1) sm ON true";
 
 	static final String SOURCE = "(SELECT r.id, CASE WHEN r.romaji = r.true_romaji THEN r.slug END AS slug, r.romaji,"
 			+ " r.language, r.name, r.description, r.advantages, r.disadvantages,"
-			+ met(TYPE_MET, "type_id", "type_slug", "type_romaji", "type_name") + ", r.image_id, r.published_at, "
-			+ met(SUBCATEGORY_MET, "subcategory_id", "subcategory_name", "subcategory_description")
+			+ met("tm", "type_id", "type_slug", "type_romaji", "type_name") + ", r.image_id, r.published_at, "
+			+ met("sm", "subcategory_id", "subcategory_name", "subcategory_description")
 			+ ", r.first_appearance_chapter_id, r.first_appearance_chapter_slug, r.first_appearance_chapter_number,"
-			+ " r.first_appearance_chapter_title FROM (" + resolved() + ") r) AS devil_fruit";
+			+ " r.first_appearance_chapter_title FROM (" + resolved() + ") r " + TYPE_MET + " " + SUBCATEGORY_MET
+			+ ") AS devil_fruit";
 
 	private DevilFruitAsOfChapter() {
 	}
@@ -52,19 +59,29 @@ final class DevilFruitAsOfChapter {
 	/** The fruit with each revealed field as known by then, and its true romaji. */
 	private static String resolved() {
 		String values = FIELDS.stream()
-			.flatMap(field -> field.columns().stream().map(column -> field.resolve(column)))
+			.flatMap(field -> field.columns().stream().map(field::resolve))
 			.collect(Collectors.joining(", "));
-		String latest = FIELDS.stream().map(RevealedField::latestJoin).collect(Collectors.joining(" "));
 		return "SELECT f.id, f.slug, f.romaji AS true_romaji, f.language, f.image_id, f.published_at,"
 				+ " f.first_appearance_chapter_id, f.first_appearance_chapter_slug,"
 				+ " f.first_appearance_chapter_number, f.first_appearance_chapter_title, " + values
 				+ " FROM published.devil_fruit f LEFT JOIN published.devil_fruit_initial_knowledge k"
-				+ " ON k.devil_fruit_id = f.id AND k.language = f.language " + latest;
+				+ " ON k.devil_fruit_id = f.id AND k.language = f.language " + latestReveals();
 	}
 
-	private static String met(String condition, String... columns) {
+	/**
+	 * The reveals up to the chapter read, in one pass: per field, whether one names it
+	 * and the value of the latest that does.
+	 */
+	private static String latestReveals() {
+		String latest = FIELDS.stream().map(RevealedField::latest).collect(Collectors.joining(", "));
+		return "LEFT JOIN LATERAL (SELECT " + latest + " FROM published.devil_fruit_reveal x"
+				+ " WHERE x.devil_fruit_id = f.id AND x.language = f.language AND x.chapter_id IN " + CHAPTERS_READ
+				+ ") x ON true";
+	}
+
+	private static String met(String alias, String... columns) {
 		return Arrays.stream(columns)
-			.map(column -> "CASE WHEN " + condition + " THEN r." + column + " END AS " + column)
+			.map(column -> "CASE WHEN " + alias + ".met THEN r." + column + " END AS " + column)
 			.collect(Collectors.joining(", "));
 	}
 
@@ -79,20 +96,25 @@ final class DevilFruitAsOfChapter {
 			this(field, List.of(columns));
 		}
 
-		private String alias() {
-			return "r_" + this.field.toLowerCase();
+		private String found() {
+			return this.field.toLowerCase() + "_found";
 		}
 
-		/** The latest reveal naming the field up to the chapter read, if any. */
-		String latestJoin() {
-			return "LEFT JOIN LATERAL (SELECT true AS found, " + String.join(", ", this.columns)
-					+ " FROM published.devil_fruit_reveal x WHERE x.devil_fruit_id = f.id AND x.language = f.language"
-					+ " AND '" + this.field + "' = ANY (x.fields) AND x.chapter_id IN " + CHAPTERS_READ
-					+ " ORDER BY x.position DESC LIMIT 1) " + alias() + " ON true";
+		private String named() {
+			return "'" + this.field + "' = ANY (x.fields)";
+		}
+
+		/** Whether a reveal names the field, and each column of the latest that does. */
+		String latest() {
+			String values = this.columns.stream()
+				.map(column -> "(array_agg(x." + column + " ORDER BY x.position DESC) FILTER (WHERE " + named()
+						+ "))[1] AS " + column)
+				.collect(Collectors.joining(", "));
+			return "bool_or(" + named() + ") AS " + found() + ", " + values;
 		}
 
 		String resolve(String column) {
-			return "CASE WHEN " + alias() + ".found THEN " + alias() + "." + column + " WHEN '" + this.field
+			return "CASE WHEN x." + found() + " THEN x." + column + " WHEN '" + this.field
 					+ "' = ANY (k.fields) THEN k." + column + " ELSE f." + column + " END AS " + column;
 		}
 
