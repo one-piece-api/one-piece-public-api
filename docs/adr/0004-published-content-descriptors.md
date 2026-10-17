@@ -112,3 +112,7 @@ slug to `301`, sort, paging, conditional GET - and let the copies drift apart.
   resolving in Java after reading (search, sort and counts on the truth: spoilers).
 - *Consequence:* the T13 rule lives in SQL here and in TypeScript in the back-office (frontend
   ADR-0007); both are tested on the Gomu Gomu case.
+- *Consequence (TL7 fix):* each view is read once per fruit - one aggregated join over the
+  reveals (`bool_or`, `array_agg ... FILTER`), one join each for the type and subcategory met.
+  Inlining the views once per column made planning alone exceed the reader role's 2 s
+  `statement_timeout` (infra ADR-0018); the e2e `spoiler-loop` spec guards it.

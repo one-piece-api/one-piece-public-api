@@ -7,7 +7,7 @@ database di `one-piece-content-service` con il ruolo di sola lettura `public_api
 - **Piano di implementazione:** `docs/implementation-plan-public-api.md` (repo `one-piece-api`).
 - **Decisioni architetturali di questo servizio:** `docs/adr/`.
 
-Stato: API di lettura `v1` (step P3) con cache HTTP e richieste condizionali (P4), baseline di prestazioni (P5); Devil Fruit, filtro per tipo e immagini `v1/images/{id}.png` immutabili (Devil Fruit plan, DF8). Contratto: `openapi/openapi.yaml`, collezione Bruno in `bruno/`.
+Stato: API di lettura `v1` (step P3) con cache HTTP e richieste condizionali (P4), baseline di prestazioni (P5); Devil Fruit, filtro per tipo e immagini `v1/images/{id}.png` immutabili (Devil Fruit plan, DF8); prima apparizione e filtro spoiler `asOfChapter=N` su ogni risorsa: si vede solo ciò che il lettore ha incontrato entro il capitolo N, e i frutti come li conosce a quel capitolo (piano della timeline T8, T13; ADR-0004, addendum TL5 e TL6). Contratto: `openapi/openapi.yaml`, collezione Bruno in `bruno/`.
 
 ## Sviluppo locale
 
