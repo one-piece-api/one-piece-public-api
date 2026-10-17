@@ -812,6 +812,19 @@ components:
           type: string
         title:
           type: string
+    ChapterReferenceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: integer
+          format: int32
+        slug:
+          type: string
+        title:
+          type: string
     ChapterResponse:
       type: object
       properties:
@@ -885,6 +898,8 @@ components:
           type: string
         disadvantages:
           type: string
+        firstAppearance:
+          $ref: "#/components/schemas/FirstAppearanceResponse"
         id:
           type: string
           format: uuid
@@ -902,14 +917,26 @@ components:
         slug:
           type: string
         subcategory:
-          $ref: "#/components/schemas/DevilFruitSubcategoryResponse"
+          $ref: "#/components/schemas/DevilFruitSubcategoryReferenceResponse"
         type:
-          $ref: "#/components/schemas/DevilFruitTypeSummaryResponse"
+          $ref: "#/components/schemas/DevilFruitTypeReferenceResponse"
+    DevilFruitSubcategoryReferenceResponse:
+      type: object
+      properties:
+        description:
+          type: string
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
     DevilFruitSubcategoryResponse:
       type: object
       properties:
         description:
           type: string
+        firstAppearance:
+          $ref: "#/components/schemas/FirstAppearanceResponse"
         id:
           type: string
           format: uuid
@@ -926,6 +953,8 @@ components:
     DevilFruitSummaryResponse:
       type: object
       properties:
+        firstAppearance:
+          $ref: "#/components/schemas/FirstAppearanceResponse"
         id:
           type: string
           format: uuid
@@ -940,7 +969,19 @@ components:
         subcategory:
           $ref: "#/components/schemas/DevilFruitSubcategorySummaryResponse"
         type:
-          $ref: "#/components/schemas/DevilFruitTypeSummaryResponse"
+          $ref: "#/components/schemas/DevilFruitTypeReferenceResponse"
+    DevilFruitTypeReferenceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        romaji:
+          type: string
+        slug:
+          type: string
     DevilFruitTypeResponse:
       type: object
       properties:
@@ -954,6 +995,8 @@ components:
             $ref: "#/components/schemas/DevilFruitOfTypeResponse"
         disadvantages:
           type: string
+        firstAppearance:
+          $ref: "#/components/schemas/FirstAppearanceResponse"
         id:
           type: string
           format: uuid
@@ -975,6 +1018,8 @@ components:
     DevilFruitTypeSummaryResponse:
       type: object
       properties:
+        firstAppearance:
+          $ref: "#/components/schemas/FirstAppearanceResponse"
         id:
           type: string
           format: uuid
@@ -1037,6 +1082,11 @@ components:
       required:
       - field
       - message
+    FirstAppearanceResponse:
+      type: object
+      properties:
+        chapter:
+          $ref: "#/components/schemas/ChapterReferenceResponse"
     IndexResponse:
       type: object
       properties:

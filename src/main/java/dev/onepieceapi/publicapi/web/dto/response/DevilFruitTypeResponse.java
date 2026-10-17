@@ -12,10 +12,12 @@ import java.util.UUID;
  *
  * @param subcategories its subcategories, in order; empty when it has none
  * @param devilFruits all its fruits online, by name (Devil Fruit plan D12)
+ * @param firstAppearance where the reader first meets it
  */
 @Builder
 public record DevilFruitTypeResponse(UUID id, String slug, String romaji, String language, String name,
 		String description, String advantages, String disadvantages, Instant publishedAt,
-		List<DevilFruitSubcategoryResponse> subcategories, List<DevilFruitOfTypeResponse> devilFruits) {
+		List<DevilFruitSubcategoryResponse> subcategories, List<DevilFruitOfTypeResponse> devilFruits,
+		FirstAppearanceResponse firstAppearance) {
 
 }

@@ -91,6 +91,14 @@ examples:
           {
             "content": [
               {
+                "firstAppearance": {
+                  "chapter": {
+                    "id": "",
+                    "number": 0,
+                    "slug": "",
+                    "title": ""
+                  }
+                },
                 "id": "",
                 "image": "",
                 "name": "",

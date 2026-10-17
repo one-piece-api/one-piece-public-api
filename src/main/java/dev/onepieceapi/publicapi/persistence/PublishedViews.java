@@ -39,6 +39,13 @@ import java.util.Map;
  */
 public final class PublishedViews {
 
+	/**
+	 * The chapter of the first appearance (plan of the timeline, T7), on the fruit, the
+	 * type and the subcategory views; appended to their columns, comma first.
+	 */
+	public static final String FIRST_APPEARANCE_COLUMNS = ", first_appearance_chapter_id, first_appearance_chapter_slug,"
+			+ " first_appearance_chapter_number, first_appearance_chapter_title";
+
 	/** The name of the filter of the fruits by their type (plan D11). */
 	public static final String TYPE_FILTER = "type";
 
@@ -46,8 +53,9 @@ public final class PublishedViews {
 		.<DevilFruitType, DevilFruitTypeSummary>builder()
 		.entityType("DEVIL_FRUIT_TYPE")
 		.view("published.devil_fruit_type")
-		.detailColumns("id, slug, romaji, language, name, description, advantages, disadvantages, published_at")
-		.summaryColumns("id, slug, romaji, name")
+		.detailColumns("id, slug, romaji, language, name, description, advantages, disadvantages, published_at"
+				+ FIRST_APPEARANCE_COLUMNS)
+		.summaryColumns("id, slug, romaji, name" + FIRST_APPEARANCE_COLUMNS)
 		.naturalKey("romaji")
 		.detail(PublishedView.reading(DevilFruitTypeRow.class, PublishedRowMapper::toDomain))
 		.summary(PublishedView.reading(DevilFruitTypeSummaryRow.class, PublishedRowMapper::toDomain))
@@ -59,9 +67,9 @@ public final class PublishedViews {
 		.view("published.devil_fruit")
 		.detailColumns("id, slug, romaji, language, name, description, advantages, disadvantages,"
 				+ " type_id, type_slug, type_romaji, type_name, image_id, published_at,"
-				+ " subcategory_id, subcategory_name, subcategory_description")
+				+ " subcategory_id, subcategory_name, subcategory_description" + FIRST_APPEARANCE_COLUMNS)
 		.summaryColumns("id, slug, romaji, name, type_id, type_slug, type_romaji, type_name, image_id,"
-				+ " subcategory_id, subcategory_name")
+				+ " subcategory_id, subcategory_name" + FIRST_APPEARANCE_COLUMNS)
 		.naturalKey("romaji")
 		.detail(PublishedView.reading(DevilFruitRow.class, PublishedRowMapper::toDomain))
 		.summary(PublishedView.reading(DevilFruitSummaryRow.class, PublishedRowMapper::toDomain))

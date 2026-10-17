@@ -59,6 +59,14 @@ examples:
               }
             ],
             "disadvantages": "",
+            "firstAppearance": {
+              "chapter": {
+                "id": "",
+                "number": 0,
+                "slug": "",
+                "title": ""
+              }
+            },
             "id": "",
             "language": "",
             "name": "",
@@ -68,6 +76,14 @@ examples:
             "subcategories": [
               {
                 "description": "",
+                "firstAppearance": {
+                  "chapter": {
+                    "id": "",
+                    "number": 0,
+                    "slug": "",
+                    "title": ""
+                  }
+                },
                 "id": "",
                 "name": ""
               }
@@ -125,6 +141,14 @@ examples:
               }
             ],
             "disadvantages": "",
+            "firstAppearance": {
+              "chapter": {
+                "id": "",
+                "number": 0,
+                "slug": "",
+                "title": ""
+              }
+            },
             "id": "",
             "language": "",
             "name": "",
@@ -134,6 +158,14 @@ examples:
             "subcategories": [
               {
                 "description": "",
+                "firstAppearance": {
+                  "chapter": {
+                    "id": "",
+                    "number": 0,
+                    "slug": "",
+                    "title": ""
+                  }
+                },
                 "id": "",
                 "name": ""
               }

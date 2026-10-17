@@ -24,7 +24,8 @@ public class PublishedSubcategoryRepository {
 	/** Those of one type in one language, in the order of the type's version (S4). */
 	public List<DevilFruitSubcategory> findOfType(UUID typeId, String language) {
 		return this.jdbc
-			.sql("SELECT id, name, description FROM published.devil_fruit_type_subcategory"
+			.sql("SELECT id, name, description" + PublishedViews.FIRST_APPEARANCE_COLUMNS
+					+ " FROM published.devil_fruit_type_subcategory"
 					+ " WHERE type_id = :type AND language = :language ORDER BY position")
 			.param("type", typeId)
 			.param("language", language)

@@ -15,11 +15,12 @@ import java.util.UUID;
  * @param publishedAt when the online version was published
  * @param subcategories its subcategories, in the type's order; empty when it has none
  * @param devilFruits its fruits online, by name (plan D12); empty until added
+ * @param firstAppearance where the reader first meets it
  */
 @Builder
 public record DevilFruitType(UUID id, String slug, String romaji, String language, String name, String description,
 		String advantages, String disadvantages, Instant publishedAt, @With List<DevilFruitSubcategory> subcategories,
-		@With List<DevilFruitSummary> devilFruits) implements PublishedContent {
+		@With List<DevilFruitSummary> devilFruits, FirstAppearance firstAppearance) implements PublishedContent {
 
 	public DevilFruitType {
 		subcategories = subcategories == null ? List.of() : List.copyOf(subcategories);
