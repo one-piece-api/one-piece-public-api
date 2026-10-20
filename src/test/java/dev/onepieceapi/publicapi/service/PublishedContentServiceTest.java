@@ -9,6 +9,7 @@ import dev.onepieceapi.publicapi.persistence.PublishedContentRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedView;
 import dev.onepieceapi.publicapi.service.exception.ContentNotFoundException;
 import dev.onepieceapi.publicapi.service.exception.LanguageNotAvailableException;
+import dev.onepieceapi.publicapi.service.exception.SortNotAvailableException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -97,6 +98,19 @@ class PublishedContentServiceTest {
 		when(this.repository.search(this.view, "en", search)).thenReturn(page);
 
 		assertThat(this.service.search("en", search)).isSameAs(page);
+	}
+
+	@Test
+	void refusesASortTheEntityDoesNotDeclareBeforeReadingAnything() {
+		ContentSearch byAmount = ContentSearch.builder()
+			.sort(new ContentSort(ContentSort.Field.AMOUNT, ContentSort.Direction.DESC))
+			.page(0)
+			.size(20)
+			.build();
+
+		assertThatThrownBy(() -> this.service.search("en", byAmount)).isInstanceOf(SortNotAvailableException.class)
+			.hasMessage("This list cannot be sorted by amount");
+		verifyNoInteractions(this.repository);
 	}
 
 	private record Note(UUID id, String slug) implements PublishedContent {

@@ -5,7 +5,7 @@ package dev.onepieceapi.publicapi.domain;
  * matches (plan D14).
  *
  * @param name the filter's name, as in the query string
- * @param idOrSlug what the filter matches
+ * @param idOrSlug what the filter matches: an id or slug, or a value of a closed set
  */
 public record ContentFilterValue(String name, String idOrSlug) {
 

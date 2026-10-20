@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * The contents online of any entity, read through the {@code published} view its
@@ -119,13 +120,27 @@ public class PublishedContentRepository {
 		}
 	}
 
+	/**
+	 * The columns the entity declares for the field, or the common one; each in the
+	 * direction asked for.
+	 */
 	private static String orderBy(PublishedView<?, ?> view, ContentSort sort) {
-		String column = switch (sort.field()) {
+		List<String> columns = view.sorts().containsKey(sort.field()) ? view.sorts().get(sort.field())
+				: List.of(commonColumn(view, sort.field()));
+		return columns.stream().map(column -> column + " " + sort.direction().name()).collect(Collectors.joining(", "));
+	}
+
+	/**
+	 * A field the entity does not declare is a programming error here: the service
+	 * refuses it first.
+	 */
+	private static String commonColumn(PublishedView<?, ?> view, ContentSort.Field field) {
+		return switch (field) {
 			case NAME -> "name";
 			case ROMAJI, NUMBER -> view.naturalKey();
 			case PUBLISHED_AT -> "published_at";
+			case AMOUNT -> throw new IllegalArgumentException("No sort " + field + " on " + view.view());
 		};
-		return column + " " + sort.direction().name();
 	}
 
 	/**

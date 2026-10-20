@@ -8,6 +8,7 @@ import dev.onepieceapi.publicapi.domain.PublishedContent;
 import dev.onepieceapi.publicapi.persistence.PublishedContentRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedView;
 import dev.onepieceapi.publicapi.service.exception.ContentNotFoundException;
+import dev.onepieceapi.publicapi.service.exception.SortNotAvailableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,9 @@ public abstract class PublishedContentService<D extends PublishedContent, S> {
 
 	public Page<S> search(String language, ContentSearch search) {
 		this.languages.requireAvailable(language);
+		if (!this.view.sortable(search.sort().field())) {
+			throw new SortNotAvailableException(search.sort().field());
+		}
 		return this.repository.search(this.view, language, search);
 	}
 

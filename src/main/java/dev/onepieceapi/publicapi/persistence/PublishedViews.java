@@ -2,8 +2,11 @@ package dev.onepieceapi.publicapi.persistence;
 
 import dev.onepieceapi.publicapi.domain.Arc;
 import dev.onepieceapi.publicapi.domain.ArcSummary;
+import dev.onepieceapi.publicapi.domain.Bounty;
+import dev.onepieceapi.publicapi.domain.BountySummary;
 import dev.onepieceapi.publicapi.domain.Chapter;
 import dev.onepieceapi.publicapi.domain.ChapterSummary;
+import dev.onepieceapi.publicapi.domain.ContentSort;
 import dev.onepieceapi.publicapi.domain.DevilFruit;
 import dev.onepieceapi.publicapi.domain.DevilFruitSummary;
 import dev.onepieceapi.publicapi.domain.DevilFruitType;
@@ -14,10 +17,13 @@ import dev.onepieceapi.publicapi.domain.Saga;
 import dev.onepieceapi.publicapi.domain.SagaSummary;
 import dev.onepieceapi.publicapi.domain.Volume;
 import dev.onepieceapi.publicapi.domain.VolumeSummary;
+import dev.onepieceapi.publicapi.persistence.mapper.BountyRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.PublishedRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.StoryRowMapper;
 import dev.onepieceapi.publicapi.persistence.row.ArcRow;
 import dev.onepieceapi.publicapi.persistence.row.ArcSummaryRow;
+import dev.onepieceapi.publicapi.persistence.row.BountyRow;
+import dev.onepieceapi.publicapi.persistence.row.BountySummaryRow;
 import dev.onepieceapi.publicapi.persistence.row.ChapterRow;
 import dev.onepieceapi.publicapi.persistence.row.ChapterSummaryRow;
 import dev.onepieceapi.publicapi.persistence.row.DevilFruitRow;
@@ -31,6 +37,7 @@ import dev.onepieceapi.publicapi.persistence.row.SagaSummaryRow;
 import dev.onepieceapi.publicapi.persistence.row.VolumeRow;
 import dev.onepieceapi.publicapi.persistence.row.VolumeSummaryRow;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -150,6 +157,33 @@ public final class PublishedViews {
 		.detail(PublishedView.reading(EpisodeRow.class, StoryRowMapper::toDomain))
 		.summary(PublishedView.reading(EpisodeSummaryRow.class, StoryRowMapper::toDomain))
 		.filters(Map.of(ARC_FILTER, ContentFilter.onContent("arc_id", "ARC")))
+		.build();
+
+	/** The names of the filters of the bounties by a value (Bounty plan D5). */
+	public static final String VALIDITY_FILTER = "validity";
+
+	public static final String CONDITION_FILTER = "condition";
+
+	/** The columns of a bounty as a list row or a link of its chain. */
+	public static final String BOUNTY_SUMMARY_COLUMNS = "id, slug, poster_name, amount, condition, validity, image_id";
+
+	/**
+	 * The bounties (Bounty plan D2, D5): {@code q} searches the key text (the name) and
+	 * the poster name; {@code sort=name} orders by poster name, then by amount as a
+	 * number.
+	 */
+	public static final PublishedView<Bounty, BountySummary> BOUNTY = PublishedView.<Bounty, BountySummary>builder()
+		.entityType("BOUNTY")
+		.view("published.bounty")
+		.detailColumns(BOUNTY_SUMMARY_COLUMNS + ", language, description, published_at" + FIRST_APPEARANCE_COLUMNS)
+		.summaryColumns(BOUNTY_SUMMARY_COLUMNS)
+		.naturalKey("poster_name")
+		.detail(PublishedView.reading(BountyRow.class, BountyRowMapper::toDomain))
+		.summary(PublishedView.reading(BountySummaryRow.class, BountyRowMapper::toDomain))
+		.filters(Map.of(VALIDITY_FILTER, ContentFilter.onValue("validity"), CONDITION_FILTER,
+				ContentFilter.onValue("condition")))
+		.sorts(Map.of(ContentSort.Field.NAME, List.of("poster_name", "amount"), ContentSort.Field.AMOUNT,
+				List.of("amount")))
 		.build();
 
 	/**

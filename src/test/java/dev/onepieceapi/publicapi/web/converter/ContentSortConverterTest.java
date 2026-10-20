@@ -26,6 +26,11 @@ class ContentSortConverterTest {
 	}
 
 	@Test
+	void readsAmountWhateverTheEntityTheServiceDecides() {
+		assertThat(this.converter.convert("amount,desc")).isEqualTo(new ContentSort(Field.AMOUNT, Direction.DESC));
+	}
+
+	@Test
 	void readsNumberWithItsDirection() {
 		assertThat(this.converter.convert("number")).isEqualTo(new ContentSort(Field.NUMBER, Direction.ASC));
 		assertThat(this.converter.convert("number,desc")).isEqualTo(new ContentSort(Field.NUMBER, Direction.DESC));

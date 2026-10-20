@@ -2,9 +2,9 @@ package dev.onepieceapi.publicapi.persistence;
 
 /**
  * A filter an entity declares on its list (plan D14): two fixed SQL conditions on its
- * view, one for an id and one for a slug. Each takes its value as the bind parameter
- * named {@code %s}, filled in by the repository; nothing a caller sends ever becomes SQL
- * (plan D3).
+ * view, one for an id and one for a slug (the same one for a value of a closed set). Each
+ * takes its value as the bind parameter named {@code %s}, filled in by the repository;
+ * nothing a caller sends ever becomes SQL (plan D3).
  *
  * @param byId the condition when the value is an id
  * @param bySlug the condition when the value is a slug, current or old
@@ -18,6 +18,15 @@ public record ContentFilter(String byId, String bySlug) {
 	public static ContentFilter onContent(String column, String entityType) {
 		return new ContentFilter(column + " = :%s", column + " = (SELECT content_id FROM published.content_slug"
 				+ " WHERE entity_type = '" + entityType + "' AND slug = :%s)");
+	}
+
+	/**
+	 * A filter on a column holding one value of a closed set, such as the validity of a
+	 * bounty: the controller reads the value as an enum, so only its names get here.
+	 */
+	public static ContentFilter onValue(String column) {
+		String condition = column + " = :%s";
+		return new ContentFilter(condition, condition);
 	}
 
 }

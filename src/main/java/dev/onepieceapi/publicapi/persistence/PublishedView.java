@@ -1,9 +1,11 @@
 package dev.onepieceapi.publicapi.persistence;
 
+import dev.onepieceapi.publicapi.domain.ContentSort;
 import lombok.Builder;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -24,17 +26,26 @@ import java.util.function.Function;
  * @param filters the filters of the list, by name; none when null
  * @param embeddedOrder the column the entity is ordered by when embedded in another
  * content (a list of them, not paginated); the name when null
+ * @param sorts the columns a sort field orders by on this entity, where the entity
+ * declares it or orders it its own way; a field that is not common is available only when
+ * declared here; none when null
  * @param <D> the detail
  * @param <S> the list row
  */
 @Builder
 public record PublishedView<D, S>(String entityType, String view, String detailColumns, String summaryColumns,
 		String naturalKey, RowMapper<D> detail, RowMapper<S> summary, Map<String, ContentFilter> filters,
-		String embeddedOrder) {
+		String embeddedOrder, Map<ContentSort.Field, List<String>> sorts) {
 
 	public PublishedView {
 		embeddedOrder = embeddedOrder == null ? "name" : embeddedOrder;
 		filters = filters == null ? Map.of() : Map.copyOf(filters);
+		sorts = sorts == null ? Map.of() : Map.copyOf(sorts);
+	}
+
+	/** Whether the list of this entity can be ordered by the field. */
+	public boolean sortable(ContentSort.Field field) {
+		return field.isCommon() || this.sorts.containsKey(field);
 	}
 
 	/**

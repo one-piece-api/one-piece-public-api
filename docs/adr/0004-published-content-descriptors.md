@@ -70,3 +70,19 @@ slug to `301`, sort, paging, conditional GET - and let the copies drift apart.
   other views (embedded arcs, release days per country read by `PublishedReleaseRepository`).
   `DevilFruitTypeService` keeps its own override.
 - The cover of a volume is served by the same `v1/images/{id}.png` (PNG only today).
+
+## Addendum - Bounty (Bounty plan B3)
+
+- **Sorts in the descriptor**, as foreseen above: `PublishedView.sorts` maps a sort field to
+  the columns it orders by on that entity. A field is either common (`name`, `romaji`,
+  `number`, `publishedAt`) or available only where declared (`amount`); the service refuses
+  an undeclared one with `400 VALIDATION_FAILED` before reading. The bounty orders `name` by
+  `poster_name, amount` (the key text compared as text would put 100M before 30M), `amount`
+  by `amount`, default `amount,desc`.
+- **Value filters:** `ContentFilter.onValue(column)` filters by one value of a closed set
+  (`validity`, `condition`); the controller reads it as an enum, so an unknown value is a
+  `400` and only enum names reach the SQL.
+- **Chain:** `PublishedBountyChainRepository` reads the chain in one `WITH RECURSIVE` query on
+  `published.bounty`, walking `previous_id` both ways within the language, ordered by position
+  (depth), not by amount; `BountyService.complete` adds it to the detail.
+- The poster is served by the same `v1/images/{id}.png`.

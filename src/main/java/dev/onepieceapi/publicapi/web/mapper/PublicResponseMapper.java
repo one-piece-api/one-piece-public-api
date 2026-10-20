@@ -3,6 +3,8 @@ package dev.onepieceapi.publicapi.web.mapper;
 import dev.onepieceapi.publicapi.domain.Arc;
 import dev.onepieceapi.publicapi.domain.ArcReference;
 import dev.onepieceapi.publicapi.domain.ArcSummary;
+import dev.onepieceapi.publicapi.domain.Bounty;
+import dev.onepieceapi.publicapi.domain.BountySummary;
 import dev.onepieceapi.publicapi.domain.Chapter;
 import dev.onepieceapi.publicapi.domain.StoryItemReference;
 import dev.onepieceapi.publicapi.domain.ChapterSummary;
@@ -29,6 +31,8 @@ import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.dto.response.ArcReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ArcResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ArcSummaryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.BountyResponse;
+import dev.onepieceapi.publicapi.web.dto.response.BountySummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.StoryItemReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ChapterResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ChapterSummaryResponse;
@@ -295,6 +299,35 @@ public class PublicResponseMapper {
 	 * The address of an image relative to the API root, as every path the API gives (plan
 	 * D7); {@code null} when there is none.
 	 */
+	public BountyResponse toResponse(Bounty bounty) {
+		return BountyResponse.builder()
+			.id(bounty.id())
+			.slug(bounty.slug())
+			.posterName(bounty.posterName())
+			.amount(bounty.amount())
+			.condition(bounty.condition())
+			.validity(bounty.validity())
+			.language(bounty.language())
+			.description(bounty.description())
+			.image(imagePath(bounty.imageId()))
+			.publishedAt(bounty.publishedAt())
+			.firstAppearance(toResponse(bounty.firstAppearance()))
+			.chain(bounty.chain().stream().map(PublicResponseMapper::toResponse).toList())
+			.build();
+	}
+
+	public BountySummaryResponse toResponse(BountySummary summary) {
+		return BountySummaryResponse.builder()
+			.id(summary.id())
+			.slug(summary.slug())
+			.posterName(summary.posterName())
+			.amount(summary.amount())
+			.condition(summary.condition())
+			.validity(summary.validity())
+			.image(imagePath(summary.imageId()))
+			.build();
+	}
+
 	private String imagePath(String imageId) {
 		return imageId == null ? null : ApiPaths.IMAGE.substring(1).replace("{id}", imageId);
 	}

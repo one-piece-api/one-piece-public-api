@@ -164,6 +164,119 @@ paths:
           $ref: "#/components/responses/ServerError"
       tags:
       - Arcs
+  /v1/{lang}/bounties:
+    get:
+      description: "Lists the bounties online, one page at a time"
+      operationId: bountyList
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - description: "0-based page, 0 when missing"
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - description: "Page size: 20 when missing, at most 100"
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - description: "Text the name or the romaji or number contains, case-insensitive;\
+          \ 100 characters at most"
+        in: query
+        name: q
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+          minLength: 0
+      - description: "Only the bounties of this validity, derived from the bounties\
+          \ online"
+        in: query
+        name: validity
+        required: false
+        schema:
+          type: string
+          enum:
+          - ACTIVE
+          - SUPERSEDED
+          - INACTIVE
+      - description: Only the bounties of this condition
+        in: query
+        name: condition
+        required: false
+        schema:
+          type: string
+          enum:
+          - DEAD_OR_ALIVE
+          - ONLY_ALIVE
+      - description: "amount, name (poster name, then amount) or publishedAt, then\
+          \ asc or desc; default amount,desc"
+        in: query
+        name: sort
+        schema:
+          type: string
+          example: "amount,desc"
+      responses:
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseBountySummaryResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Bounties
+  /v1/{lang}/bounties/{idOrSlug}:
+    get:
+      description: "One bounty by id or slug, with its chain: the bounties it replaces\
+        \ and that replace it, newest first"
+      operationId: bountyGet
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: idOrSlug
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BountyResponse"
+          description: OK
+        "301":
+          description: "An old slug: Location is the current slug, relative to this\
+            \ address"
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BountyResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Bounties
   /v1/{lang}/chapters:
     get:
       description: "Lists the chapters online, one page at a time"
@@ -812,6 +925,71 @@ components:
           type: string
         title:
           type: string
+    BountyResponse:
+      type: object
+      properties:
+        amount:
+          type: integer
+          format: int64
+        chain:
+          type: array
+          items:
+            $ref: "#/components/schemas/BountySummaryResponse"
+        condition:
+          type: string
+          enum:
+          - DEAD_OR_ALIVE
+          - ONLY_ALIVE
+        description:
+          type: string
+        firstAppearance:
+          $ref: "#/components/schemas/FirstAppearanceResponse"
+        id:
+          type: string
+          format: uuid
+        image:
+          type: string
+        language:
+          type: string
+        posterName:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+        slug:
+          type: string
+        validity:
+          type: string
+          enum:
+          - ACTIVE
+          - SUPERSEDED
+          - INACTIVE
+    BountySummaryResponse:
+      type: object
+      properties:
+        amount:
+          type: integer
+          format: int64
+        condition:
+          type: string
+          enum:
+          - DEAD_OR_ALIVE
+          - ONLY_ALIVE
+        id:
+          type: string
+          format: uuid
+        image:
+          type: string
+        posterName:
+          type: string
+        slug:
+          type: string
+        validity:
+          type: string
+          enum:
+          - ACTIVE
+          - SUPERSEDED
+          - INACTIVE
     ChapterResponse:
       type: object
       properties:
@@ -1099,6 +1277,25 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArcSummaryResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    PageResponseBountySummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/BountySummaryResponse"
         page:
           type: integer
           format: int32

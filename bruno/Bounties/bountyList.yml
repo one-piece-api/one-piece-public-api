@@ -1,0 +1,301 @@
+info:
+  name: bountyList
+  type: http
+  seq: 1
+  tags:
+    - Bounties
+
+http:
+  method: GET
+  url: "{{baseUrl}}/v1/:lang/bounties"
+  params:
+    - name: lang
+      value: ""
+      type: path
+    - name: page
+      value: "0"
+      type: query
+      description: 0-based page, 0 when missing
+      disabled: true
+    - name: size
+      value: "1"
+      type: query
+      description: "Page size: 20 when missing, at most 100"
+      disabled: true
+    - name: q
+      value: ""
+      type: query
+      description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
+      disabled: true
+    - name: validity
+      value: ACTIVE
+      type: query
+      description: Only the bounties of this validity, derived from the bounties online
+      disabled: true
+    - name: validity
+      value: SUPERSEDED
+      type: query
+      description: Only the bounties of this validity, derived from the bounties online
+      disabled: true
+    - name: validity
+      value: INACTIVE
+      type: query
+      description: Only the bounties of this validity, derived from the bounties online
+      disabled: true
+    - name: condition
+      value: DEAD_OR_ALIVE
+      type: query
+      description: Only the bounties of this condition
+      disabled: true
+    - name: condition
+      value: ONLY_ALIVE
+      type: query
+      description: Only the bounties of this condition
+      disabled: true
+    - name: sort
+      value: amount,desc
+      type: query
+      description: amount, name (poster name, then amount) or publishedAt, then asc or desc; default amount,desc
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 304 Response
+    description: The caller's ETag is current
+    request:
+      url: "{{baseUrl}}/v1/:lang/bounties"
+      method: GET
+      params:
+        - name: lang
+          value: ""
+          type: path
+        - name: page
+          value: "0"
+          type: query
+          description: 0-based page, 0 when missing
+          disabled: true
+        - name: size
+          value: "1"
+          type: query
+          description: "Page size: 20 when missing, at most 100"
+          disabled: true
+        - name: q
+          value: ""
+          type: query
+          description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
+          disabled: true
+        - name: validity
+          value: ACTIVE
+          type: query
+          description: Only the bounties of this validity, derived from the bounties online
+          disabled: true
+        - name: validity
+          value: SUPERSEDED
+          type: query
+          description: Only the bounties of this validity, derived from the bounties online
+          disabled: true
+        - name: validity
+          value: INACTIVE
+          type: query
+          description: Only the bounties of this validity, derived from the bounties online
+          disabled: true
+        - name: condition
+          value: DEAD_OR_ALIVE
+          type: query
+          description: Only the bounties of this condition
+          disabled: true
+        - name: condition
+          value: ONLY_ALIVE
+          type: query
+          description: Only the bounties of this condition
+          disabled: true
+        - name: sort
+          value: amount,desc
+          type: query
+          description: amount, name (poster name, then amount) or publishedAt, then asc or desc; default amount,desc
+    response:
+      status: 304
+      statusText: Not Modified
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "content": [
+              {
+                "amount": 0,
+                "condition": "DEAD_OR_ALIVE",
+                "id": "",
+                "image": "",
+                "posterName": "",
+                "slug": "",
+                "validity": "ACTIVE"
+              }
+            ],
+            "page": 0,
+            "size": 0,
+            "totalElements": 0,
+            "totalPages": 0
+          }
+  - name: 4XX Response
+    description: Client error - a problem detail, except a 401/403 rejected by the security filter chain before reaching the application, which has no body
+    request:
+      url: "{{baseUrl}}/v1/:lang/bounties"
+      method: GET
+      params:
+        - name: lang
+          value: ""
+          type: path
+        - name: page
+          value: "0"
+          type: query
+          description: 0-based page, 0 when missing
+          disabled: true
+        - name: size
+          value: "1"
+          type: query
+          description: "Page size: 20 when missing, at most 100"
+          disabled: true
+        - name: q
+          value: ""
+          type: query
+          description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
+          disabled: true
+        - name: validity
+          value: ACTIVE
+          type: query
+          description: Only the bounties of this validity, derived from the bounties online
+          disabled: true
+        - name: validity
+          value: SUPERSEDED
+          type: query
+          description: Only the bounties of this validity, derived from the bounties online
+          disabled: true
+        - name: validity
+          value: INACTIVE
+          type: query
+          description: Only the bounties of this validity, derived from the bounties online
+          disabled: true
+        - name: condition
+          value: DEAD_OR_ALIVE
+          type: query
+          description: Only the bounties of this condition
+          disabled: true
+        - name: condition
+          value: ONLY_ALIVE
+          type: query
+          description: Only the bounties of this condition
+          disabled: true
+        - name: sort
+          value: amount,desc
+          type: query
+          description: amount, name (poster name, then amount) or publishedAt, then asc or desc; default amount,desc
+    response:
+      headers:
+        - name: Content-Type
+          value: application/problem+json
+      body:
+        type: json
+        data: |-
+          {
+            "detail": "",
+            "errorCode": "",
+            "errors": [
+              {
+                "field": "",
+                "message": ""
+              }
+            ],
+            "instance": "",
+            "status": 0,
+            "timestamp": "",
+            "title": "",
+            "traceId": "",
+            "type": ""
+          }
+  - name: 5XX Response
+    description: Unexpected server error
+    request:
+      url: "{{baseUrl}}/v1/:lang/bounties"
+      method: GET
+      params:
+        - name: lang
+          value: ""
+          type: path
+        - name: page
+          value: "0"
+          type: query
+          description: 0-based page, 0 when missing
+          disabled: true
+        - name: size
+          value: "1"
+          type: query
+          description: "Page size: 20 when missing, at most 100"
+          disabled: true
+        - name: q
+          value: ""
+          type: query
+          description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
+          disabled: true
+        - name: validity
+          value: ACTIVE
+          type: query
+          description: Only the bounties of this validity, derived from the bounties online
+          disabled: true
+        - name: validity
+          value: SUPERSEDED
+          type: query
+          description: Only the bounties of this validity, derived from the bounties online
+          disabled: true
+        - name: validity
+          value: INACTIVE
+          type: query
+          description: Only the bounties of this validity, derived from the bounties online
+          disabled: true
+        - name: condition
+          value: DEAD_OR_ALIVE
+          type: query
+          description: Only the bounties of this condition
+          disabled: true
+        - name: condition
+          value: ONLY_ALIVE
+          type: query
+          description: Only the bounties of this condition
+          disabled: true
+        - name: sort
+          value: amount,desc
+          type: query
+          description: amount, name (poster name, then amount) or publishedAt, then asc or desc; default amount,desc
+    response:
+      headers:
+        - name: Content-Type
+          value: application/problem+json
+      body:
+        type: json
+        data: |-
+          {
+            "detail": "",
+            "errorCode": "",
+            "errors": [
+              {
+                "field": "",
+                "message": ""
+              }
+            ],
+            "instance": "",
+            "status": 0,
+            "timestamp": "",
+            "title": "",
+            "traceId": "",
+            "type": ""
+          }
+
+docs: Lists the bounties online, one page at a time

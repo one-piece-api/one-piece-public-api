@@ -1,0 +1,233 @@
+info:
+  name: bountyGet
+  type: http
+  seq: 2
+  tags:
+    - Bounties
+
+http:
+  method: GET
+  url: "{{baseUrl}}/v1/:lang/bounties/:idOrSlug"
+  params:
+    - name: lang
+      value: ""
+      type: path
+    - name: idOrSlug
+      value: ""
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/v1/:lang/bounties/:idOrSlug"
+      method: GET
+      params:
+        - name: lang
+          value: ""
+          type: path
+        - name: idOrSlug
+          value: ""
+          type: path
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "amount": 0,
+            "chain": [
+              {
+                "amount": 0,
+                "condition": "DEAD_OR_ALIVE",
+                "id": "",
+                "image": "",
+                "posterName": "",
+                "slug": "",
+                "validity": "ACTIVE"
+              }
+            ],
+            "condition": "DEAD_OR_ALIVE",
+            "description": "",
+            "firstAppearance": {
+              "chapter": {
+                "id": "",
+                "number": 0,
+                "slug": "",
+                "title": ""
+              },
+              "episode": {
+                "id": "",
+                "number": 0,
+                "slug": "",
+                "title": ""
+              }
+            },
+            "id": "",
+            "image": "",
+            "language": "",
+            "posterName": "",
+            "publishedAt": "",
+            "slug": "",
+            "validity": "ACTIVE"
+          }
+  - name: 301 Response
+    description: "An old slug: Location is the current slug, relative to this address"
+    request:
+      url: "{{baseUrl}}/v1/:lang/bounties/:idOrSlug"
+      method: GET
+      params:
+        - name: lang
+          value: ""
+          type: path
+        - name: idOrSlug
+          value: ""
+          type: path
+    response:
+      status: 301
+      statusText: Moved Permanently
+      body:
+        type: text
+        data: ""
+  - name: 304 Response
+    description: The caller's ETag is current
+    request:
+      url: "{{baseUrl}}/v1/:lang/bounties/:idOrSlug"
+      method: GET
+      params:
+        - name: lang
+          value: ""
+          type: path
+        - name: idOrSlug
+          value: ""
+          type: path
+    response:
+      status: 304
+      statusText: Not Modified
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "amount": 0,
+            "chain": [
+              {
+                "amount": 0,
+                "condition": "DEAD_OR_ALIVE",
+                "id": "",
+                "image": "",
+                "posterName": "",
+                "slug": "",
+                "validity": "ACTIVE"
+              }
+            ],
+            "condition": "DEAD_OR_ALIVE",
+            "description": "",
+            "firstAppearance": {
+              "chapter": {
+                "id": "",
+                "number": 0,
+                "slug": "",
+                "title": ""
+              },
+              "episode": {
+                "id": "",
+                "number": 0,
+                "slug": "",
+                "title": ""
+              }
+            },
+            "id": "",
+            "image": "",
+            "language": "",
+            "posterName": "",
+            "publishedAt": "",
+            "slug": "",
+            "validity": "ACTIVE"
+          }
+  - name: 4XX Response
+    description: Client error - a problem detail, except a 401/403 rejected by the security filter chain before reaching the application, which has no body
+    request:
+      url: "{{baseUrl}}/v1/:lang/bounties/:idOrSlug"
+      method: GET
+      params:
+        - name: lang
+          value: ""
+          type: path
+        - name: idOrSlug
+          value: ""
+          type: path
+    response:
+      headers:
+        - name: Content-Type
+          value: application/problem+json
+      body:
+        type: json
+        data: |-
+          {
+            "detail": "",
+            "errorCode": "",
+            "errors": [
+              {
+                "field": "",
+                "message": ""
+              }
+            ],
+            "instance": "",
+            "status": 0,
+            "timestamp": "",
+            "title": "",
+            "traceId": "",
+            "type": ""
+          }
+  - name: 5XX Response
+    description: Unexpected server error
+    request:
+      url: "{{baseUrl}}/v1/:lang/bounties/:idOrSlug"
+      method: GET
+      params:
+        - name: lang
+          value: ""
+          type: path
+        - name: idOrSlug
+          value: ""
+          type: path
+    response:
+      headers:
+        - name: Content-Type
+          value: application/problem+json
+      body:
+        type: json
+        data: |-
+          {
+            "detail": "",
+            "errorCode": "",
+            "errors": [
+              {
+                "field": "",
+                "message": ""
+              }
+            ],
+            "instance": "",
+            "status": 0,
+            "timestamp": "",
+            "title": "",
+            "traceId": "",
+            "type": ""
+          }
+
+docs: "One bounty by id or slug, with its chain: the bounties it replaces and that replace it, newest first"

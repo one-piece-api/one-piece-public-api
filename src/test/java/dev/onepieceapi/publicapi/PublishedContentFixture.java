@@ -1,5 +1,6 @@
 package dev.onepieceapi.publicapi;
 
+import lombok.Builder;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -31,6 +32,8 @@ public class PublishedContentFixture {
 
 	private static final Entity EPISODE = new Entity("EPISODE", "episode_version");
 
+	private static final Entity BOUNTY = new Entity("BOUNTY", "bounty_version");
+
 	private static final String PUBLISHED = "PUBLISHED";
 
 	private final JdbcClient owner;
@@ -42,14 +45,15 @@ public class PublishedContentFixture {
 
 	/**
 	 * Removes every content and image, leaving the language catalog as migrated. The
-	 * fruits go first: a type with fruits linked cannot be deleted, nor an image in use;
-	 * then the types, which may point to the chapter of their first appearance; likewise
-	 * the chapters and episodes before their arcs and volumes, and those before the
-	 * sagas.
+	 * bounties and the fruits go first: a type with fruits linked cannot be deleted, nor
+	 * an image in use; then the types, which may point to the chapter of their first
+	 * appearance; likewise the chapters and episodes before their arcs and volumes, and
+	 * those before the sagas.
 	 */
 	public void clear() {
-		this.owner.sql("DELETE FROM content WHERE entity_type = :type").param("type", FRUIT.type()).update();
-		for (Entity entity : new Entity[] { TYPE, CHAPTER, EPISODE, ARC, VOLUME, SAGA }) {
+		// A bounty points to the bounty it replaces: its versions go before any content.
+		this.owner.sql("DELETE FROM bounty_version").update();
+		for (Entity entity : new Entity[] { BOUNTY, FRUIT, TYPE, CHAPTER, EPISODE, ARC, VOLUME, SAGA }) {
 			this.owner.sql("DELETE FROM content WHERE entity_type = :type").param("type", entity.type()).update();
 		}
 		this.owner.sql("DELETE FROM content").update();
@@ -116,18 +120,24 @@ public class PublishedContentFixture {
 		return contentId;
 	}
 
-	/** The chapter of the first appearance of the version online of a fruit or a type. */
+	/**
+	 * The chapter of the first appearance of the version online of a fruit, a type or a
+	 * bounty.
+	 */
 	public void firstAppearance(UUID contentId, UUID chapterId) {
 		firstAppearanceIn("first_appearance_chapter_id", contentId, chapterId);
 	}
 
-	/** The episode of the first appearance of the version online of a fruit or a type. */
+	/**
+	 * The episode of the first appearance of the version online of a fruit, a type or a
+	 * bounty.
+	 */
 	public void firstAppearanceEpisode(UUID contentId, UUID episodeId) {
 		firstAppearanceIn("first_appearance_episode_id", contentId, episodeId);
 	}
 
 	private void firstAppearanceIn(String column, UUID contentId, UUID storyItemId) {
-		for (String table : new String[] { "devil_fruit_version", "devil_fruit_type_version" }) {
+		for (String table : new String[] { "devil_fruit_version", "devil_fruit_type_version", "bounty_version" }) {
 			this.owner
 				.sql("UPDATE " + table + " SET " + column + " = :item WHERE version_id ="
 						+ " (SELECT id FROM content_version WHERE content_id = :id AND status = 'PUBLISHED')")
@@ -279,6 +289,63 @@ public class PublishedContentFixture {
 	}
 
 	/**
+	 * A bounty in the status of the poster, with its slug on record when online: the slug
+	 * of its key text, as content-service records at publish. The description of each
+	 * translation is the bounty's.
+	 */
+	public UUID bounty(Poster poster, Translation... translations) {
+		UUID contentId = insertContent(BOUNTY);
+		bountyVersion(contentId, 1, poster, translations);
+		return contentId;
+	}
+
+	/**
+	 * A new version of a bounty with another key goes online: the old one is superseded.
+	 */
+	public void republishBounty(UUID contentId, Poster poster, Translation... translations) {
+		this.owner
+			.sql("UPDATE content_version SET status = 'SUPERSEDED' WHERE content_id = :id AND status = 'PUBLISHED'")
+			.param("id", contentId)
+			.update();
+		bountyVersion(contentId, 2, poster, translations);
+	}
+
+	private void bountyVersion(UUID contentId, int number, Poster poster, Translation... translations) {
+		UUID versionId = insertContentVersion(contentId, number, poster.status());
+		this.owner.sql("""
+				INSERT INTO bounty_version (version_id, poster_name, amount, condition, inactive, previous_content_id,
+				                            image_id)
+				VALUES (:id, :posterName, :amount, :condition, :inactive, :previous, :image)""")
+			.param("id", versionId)
+			.param("posterName", poster.posterName())
+			.param("amount", poster.amount())
+			.param("condition", poster.condition())
+			.param("inactive", poster.inactive())
+			.param("previous", poster.previousId())
+			.param("image", poster.imageId())
+			.update();
+		for (Translation translation : translations) {
+			this.owner.sql("""
+					INSERT INTO bounty_version_translation (version_id, language_code, description)
+					VALUES (:id, :language, :description)""")
+				.param("id", versionId)
+				.param("language", translation.language())
+				.param("description", translation.description())
+				.update();
+		}
+		if (PUBLISHED.equals(poster.status())) {
+			this.owner.sql("""
+					INSERT INTO content_slug (entity_type, slug, content_id, assigned_at)
+					SELECT :type, key_slug, :contentId, now() FROM bounty_version WHERE version_id = :id
+					ON CONFLICT DO NOTHING""")
+				.param("type", BOUNTY.type())
+				.param("contentId", contentId)
+				.param("id", versionId)
+				.update();
+		}
+	}
+
+	/**
 	 * A story entity (keyed by a number, not a romaji) in the given status: its content,
 	 * version, the row of its own columns, its translations and, when online, the slug
 	 * content-service records at publish: the number itself.
@@ -286,18 +353,7 @@ public class PublishedContentFixture {
 	private UUID story(Entity entity, String status, int number, String insertSql,
 			UnaryOperator<JdbcClient.StatementSpec> ownColumns, Translation... translations) {
 		UUID contentId = insertContent(entity);
-		UUID versionId = UUID.randomUUID();
-		this.owner.sql("""
-				INSERT INTO content_version (id, content_id, version_number, author_user_id, author_username,
-				                             author_email, status, created_at, updated_at)
-				VALUES (:id, :contentId, 1, :authorId, :author, 'fixture@example.org', :status,
-				        '2026-10-02T14:31:07.123456Z', '2026-10-02T14:31:07.123456Z')""")
-			.param("id", versionId)
-			.param("contentId", contentId)
-			.param("status", status)
-			.param("authorId", UUID.randomUUID())
-			.param("author", AUTHOR)
-			.update();
+		UUID versionId = insertContentVersion(contentId, 1, status);
 		ownColumns.apply(this.owner.sql(insertSql).param("id", versionId).param("number", number)).update();
 		for (Translation translation : translations) {
 			storyTranslation(entity, versionId, translation);
@@ -363,6 +419,19 @@ public class PublishedContentFixture {
 
 	private UUID insertVersion(Entity entity, UUID contentId, int number, String status, String romaji,
 			Translation... translations) {
+		UUID versionId = insertContentVersion(contentId, number, status);
+		this.owner.sql("INSERT INTO " + entity.table() + " (version_id, romaji) VALUES (:id, :romaji)")
+			.param("id", versionId)
+			.param("romaji", romaji)
+			.update();
+		for (Translation translation : translations) {
+			insertTranslation(entity, versionId, translation);
+		}
+		return versionId;
+	}
+
+	/** The row every version has, whatever its entity; returns its id. */
+	private UUID insertContentVersion(UUID contentId, int number, String status) {
 		UUID versionId = UUID.randomUUID();
 		this.owner.sql("""
 				INSERT INTO content_version (id, content_id, version_number, author_user_id, author_username,
@@ -376,13 +445,6 @@ public class PublishedContentFixture {
 			.param("authorId", UUID.randomUUID())
 			.param("author", AUTHOR)
 			.update();
-		this.owner.sql("INSERT INTO " + entity.table() + " (version_id, romaji) VALUES (:id, :romaji)")
-			.param("id", versionId)
-			.param("romaji", romaji)
-			.update();
-		for (Translation translation : translations) {
-			insertTranslation(entity, versionId, translation);
-		}
 		return versionId;
 	}
 
@@ -405,6 +467,21 @@ public class PublishedContentFixture {
 	 * {@code _translation}. Constants of this class only.
 	 */
 	private record Entity(String type, String table) {
+
+	}
+
+	/**
+	 * What a bounty version holds besides its texts: online and dead or alive unless told
+	 * otherwise.
+	 */
+	@Builder
+	public record Poster(String posterName, long amount, String condition, boolean inactive, UUID previousId,
+			String imageId, String status) {
+
+		public Poster {
+			condition = condition == null ? "DEAD_OR_ALIVE" : condition;
+			status = status == null ? PUBLISHED : status;
+		}
 
 	}
 
