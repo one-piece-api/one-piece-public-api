@@ -23,7 +23,8 @@ class IndexController {
 						relative(ApiPaths.DEVIL_FRUITS), "sagas", relative(ApiPaths.SAGAS), "arcs",
 						relative(ApiPaths.ARCS), "volumes", relative(ApiPaths.VOLUMES), "chapters",
 						relative(ApiPaths.CHAPTERS), "episodes", relative(ApiPaths.EPISODES), "bounties",
-						relative(ApiPaths.BOUNTIES), "affiliations", relative(ApiPaths.AFFILIATIONS))));
+						relative(ApiPaths.BOUNTIES), "affiliations", relative(ApiPaths.AFFILIATIONS), "species",
+						relative(ApiPaths.SPECIES))));
 	}
 
 	/** A path as a template relative to the API root: no leading slash. */

@@ -17,11 +17,14 @@ import dev.onepieceapi.publicapi.domain.Episode;
 import dev.onepieceapi.publicapi.domain.EpisodeSummary;
 import dev.onepieceapi.publicapi.domain.Saga;
 import dev.onepieceapi.publicapi.domain.SagaSummary;
+import dev.onepieceapi.publicapi.domain.Species;
+import dev.onepieceapi.publicapi.domain.SpeciesSummary;
 import dev.onepieceapi.publicapi.domain.Volume;
 import dev.onepieceapi.publicapi.domain.VolumeSummary;
 import dev.onepieceapi.publicapi.persistence.mapper.AffiliationRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.BountyRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.PublishedRowMapper;
+import dev.onepieceapi.publicapi.persistence.mapper.SpeciesRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.StoryRowMapper;
 import dev.onepieceapi.publicapi.persistence.row.AffiliationRow;
 import dev.onepieceapi.publicapi.persistence.row.AffiliationSummaryRow;
@@ -39,6 +42,8 @@ import dev.onepieceapi.publicapi.persistence.row.EpisodeRow;
 import dev.onepieceapi.publicapi.persistence.row.EpisodeSummaryRow;
 import dev.onepieceapi.publicapi.persistence.row.SagaRow;
 import dev.onepieceapi.publicapi.persistence.row.SagaSummaryRow;
+import dev.onepieceapi.publicapi.persistence.row.SpeciesRow;
+import dev.onepieceapi.publicapi.persistence.row.SpeciesSummaryRow;
 import dev.onepieceapi.publicapi.persistence.row.VolumeRow;
 import dev.onepieceapi.publicapi.persistence.row.VolumeSummaryRow;
 
@@ -205,6 +210,22 @@ public final class PublishedViews {
 		.naturalKey("romaji")
 		.detail(PublishedView.reading(AffiliationRow.class, AffiliationRowMapper::toDomain))
 		.summary(PublishedView.reading(AffiliationSummaryRow.class, AffiliationRowMapper::toDomain))
+		.build();
+
+	/**
+	 * The species (Species plan D2, D6): the shape of the Affiliation, the romaji as
+	 * natural key, the picture on the list rows too; common filters and sorts.
+	 */
+	public static final PublishedView<Species, SpeciesSummary> SPECIES = PublishedView
+		.<Species, SpeciesSummary>builder()
+		.entityType("SPECIES")
+		.view("published.species")
+		.detailColumns(
+				"id, slug, romaji, language, name, description, image_id, published_at" + FIRST_APPEARANCE_COLUMNS)
+		.summaryColumns("id, slug, romaji, name, image_id")
+		.naturalKey("romaji")
+		.detail(PublishedView.reading(SpeciesRow.class, SpeciesRowMapper::toDomain))
+		.summary(PublishedView.reading(SpeciesSummaryRow.class, SpeciesRowMapper::toDomain))
 		.build();
 
 	/**

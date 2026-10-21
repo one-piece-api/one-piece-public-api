@@ -1,0 +1,17 @@
+package dev.onepieceapi.publicapi.service;
+
+import dev.onepieceapi.publicapi.domain.Species;
+import dev.onepieceapi.publicapi.domain.SpeciesSummary;
+import dev.onepieceapi.publicapi.persistence.PublishedContentRepository;
+import dev.onepieceapi.publicapi.persistence.PublishedViews;
+import org.springframework.stereotype.Service;
+
+/** The species online: the generic rules, bound to their view; no relation yet. */
+@Service
+public class SpeciesService extends PublishedContentService<Species, SpeciesSummary> {
+
+	SpeciesService(LanguageService languages, PublishedContentRepository repository) {
+		super(languages, repository, PublishedViews.SPECIES);
+	}
+
+}

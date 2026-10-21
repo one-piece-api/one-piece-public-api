@@ -853,6 +853,97 @@ paths:
           $ref: "#/components/responses/ServerError"
       tags:
       - Sagas
+  /v1/{lang}/species:
+    get:
+      description: "Lists the species online, one page at a time"
+      operationId: speciesList
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - description: "0-based page, 0 when missing"
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - description: "Page size: 20 when missing, at most 100"
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - description: "Text the name or the romaji or number contains, case-insensitive;\
+          \ 100 characters at most"
+        in: query
+        name: q
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+          minLength: 0
+      - description: "name, romaji or publishedAt, then asc or desc; default name,asc"
+        in: query
+        name: sort
+        schema:
+          type: string
+          example: "name,asc"
+      responses:
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseSpeciesSummaryResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Species
+  /v1/{lang}/species/{idOrSlug}:
+    get:
+      description: One species by id or slug
+      operationId: speciesGet
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: idOrSlug
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeciesResponse"
+          description: OK
+        "301":
+          description: "An old slug: Location is the current slug, relative to this\
+            \ address"
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeciesResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Species
   /v1/{lang}/volumes:
     get:
       description: "Lists the volumes online, one page at a time"
@@ -1550,6 +1641,25 @@ components:
         totalPages:
           type: integer
           format: int32
+    PageResponseSpeciesSummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpeciesSummaryResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
     PageResponseVolumeSummaryResponse:
       type: object
       properties:
@@ -1652,6 +1762,43 @@ components:
         slug:
           type: string
         title:
+          type: string
+    SpeciesResponse:
+      type: object
+      properties:
+        description:
+          type: string
+        firstAppearance:
+          $ref: "#/components/schemas/FirstAppearanceResponse"
+        id:
+          type: string
+          format: uuid
+        image:
+          type: string
+        language:
+          type: string
+        name:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+        romaji:
+          type: string
+        slug:
+          type: string
+    SpeciesSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        image:
+          type: string
+        name:
+          type: string
+        romaji:
+          type: string
+        slug:
           type: string
     StoryItemReferenceResponse:
       type: object

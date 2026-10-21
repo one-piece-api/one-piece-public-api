@@ -36,6 +36,8 @@ public class PublishedContentFixture {
 
 	private static final Entity AFFILIATION = new Entity("AFFILIATION", "affiliation_version");
 
+	private static final Entity SPECIES = new Entity("SPECIES", "species_version");
+
 	private static final String PUBLISHED = "PUBLISHED";
 
 	private final JdbcClient owner;
@@ -48,14 +50,15 @@ public class PublishedContentFixture {
 	/**
 	 * Removes every content and image, leaving the language catalog as migrated. The
 	 * bounties and the fruits go first: a type with fruits linked cannot be deleted, nor
-	 * an image in use; then the types and the affiliations, which may point to the
-	 * chapter of their first appearance; likewise the chapters and episodes before their
-	 * arcs and volumes, and those before the sagas.
+	 * an image in use; then the types, the affiliations and the species, which may point
+	 * to the chapter of their first appearance; likewise the chapters and episodes before
+	 * their arcs and volumes, and those before the sagas.
 	 */
 	public void clear() {
 		// A bounty points to the bounty it replaces: its versions go before any content.
 		this.owner.sql("DELETE FROM bounty_version").update();
-		for (Entity entity : new Entity[] { BOUNTY, FRUIT, TYPE, AFFILIATION, CHAPTER, EPISODE, ARC, VOLUME, SAGA }) {
+		for (Entity entity : new Entity[] { BOUNTY, FRUIT, TYPE, AFFILIATION, SPECIES, CHAPTER, EPISODE, ARC, VOLUME,
+				SAGA }) {
 			this.owner.sql("DELETE FROM content WHERE entity_type = :type").param("type", entity.type()).update();
 		}
 		this.owner.sql("DELETE FROM content").update();
@@ -124,7 +127,7 @@ public class PublishedContentFixture {
 
 	/**
 	 * The chapter of the first appearance of the version online of a fruit, a type, a
-	 * bounty or an affiliation.
+	 * bounty, an affiliation or a species.
 	 */
 	public void firstAppearance(UUID contentId, UUID chapterId) {
 		firstAppearanceIn("first_appearance_chapter_id", contentId, chapterId);
@@ -132,7 +135,7 @@ public class PublishedContentFixture {
 
 	/**
 	 * The episode of the first appearance of the version online of a fruit, a type, a
-	 * bounty or an affiliation.
+	 * bounty, an affiliation or a species.
 	 */
 	public void firstAppearanceEpisode(UUID contentId, UUID episodeId) {
 		firstAppearanceIn("first_appearance_episode_id", contentId, episodeId);
@@ -140,7 +143,7 @@ public class PublishedContentFixture {
 
 	private void firstAppearanceIn(String column, UUID contentId, UUID storyItemId) {
 		for (String table : new String[] { "devil_fruit_version", "devil_fruit_type_version", "bounty_version",
-				"affiliation_version" }) {
+				"affiliation_version", "species_version" }) {
 			this.owner
 				.sql("UPDATE " + table + " SET " + column + " = :item WHERE version_id ="
 						+ " (SELECT id FROM content_version WHERE content_id = :id AND status = 'PUBLISHED')")
@@ -418,6 +421,53 @@ public class PublishedContentFixture {
 		}
 		if (PUBLISHED.equals(status)) {
 			recordSlug(AFFILIATION, contentId, romaji);
+		}
+	}
+
+	/** A species online, with its picture if any and its slug on record. */
+	public UUID publishSpecies(String romaji, String imageId, Translation... translations) {
+		UUID contentId = insertContent(SPECIES);
+		speciesVersion(contentId, 1, PUBLISHED, romaji, imageId, translations);
+		return contentId;
+	}
+
+	/** A species still in draft: never online, nor its picture. */
+	public void draftSpecies(String romaji, String imageId, Translation... translations) {
+		speciesVersion(insertContent(SPECIES), 1, "DRAFT", romaji, imageId, translations);
+	}
+
+	/**
+	 * A new version of a species with another romaji goes online: the previous one is
+	 * superseded, its slug kept on record.
+	 */
+	public void republishSpecies(UUID contentId, String romaji, Translation... translations) {
+		this.owner
+			.sql("UPDATE content_version SET status = 'SUPERSEDED' WHERE content_id = :id AND status = 'PUBLISHED'")
+			.param("id", contentId)
+			.update();
+		speciesVersion(contentId, 2, PUBLISHED, romaji, null, translations);
+	}
+
+	private void speciesVersion(UUID contentId, int number, String status, String romaji, String imageId,
+			Translation... translations) {
+		UUID versionId = insertContentVersion(contentId, number, status);
+		this.owner.sql("INSERT INTO species_version (version_id, romaji, image_id) VALUES (:id, :romaji, :image)")
+			.param("id", versionId)
+			.param("romaji", romaji)
+			.param("image", imageId)
+			.update();
+		for (Translation translation : translations) {
+			this.owner.sql("""
+					INSERT INTO species_version_translation (version_id, language_code, name, description)
+					VALUES (:id, :language, :name, :description)""")
+				.param("id", versionId)
+				.param("language", translation.language())
+				.param("name", translation.name())
+				.param("description", translation.description())
+				.update();
+		}
+		if (PUBLISHED.equals(status)) {
+			recordSlug(SPECIES, contentId, romaji);
 		}
 	}
 

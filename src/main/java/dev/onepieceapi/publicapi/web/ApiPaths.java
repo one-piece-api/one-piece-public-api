@@ -49,6 +49,11 @@ public final class ApiPaths {
 
 	public static final String AFFILIATION = AFFILIATIONS + "/{idOrSlug}";
 
+	/** Singular and plural are the same word in English. */
+	public static final String SPECIES = V1 + "/{lang}/species";
+
+	public static final String SPECIES_ITEM = SPECIES + "/{idOrSlug}";
+
 	/** No language: an image is the same in all of them (plan D11). */
 	public static final String IMAGE = V1 + "/images/{id}.png";
 

@@ -8,6 +8,8 @@ import dev.onepieceapi.publicapi.domain.ArcSummary;
 import dev.onepieceapi.publicapi.domain.Bounty;
 import dev.onepieceapi.publicapi.domain.BountySummary;
 import dev.onepieceapi.publicapi.domain.Chapter;
+import dev.onepieceapi.publicapi.domain.Species;
+import dev.onepieceapi.publicapi.domain.SpeciesSummary;
 import dev.onepieceapi.publicapi.domain.StoryItemReference;
 import dev.onepieceapi.publicapi.domain.ChapterSummary;
 import dev.onepieceapi.publicapi.domain.DevilFruit;
@@ -37,6 +39,8 @@ import dev.onepieceapi.publicapi.web.dto.response.ArcResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ArcSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.BountyResponse;
 import dev.onepieceapi.publicapi.web.dto.response.BountySummaryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.SpeciesResponse;
+import dev.onepieceapi.publicapi.web.dto.response.SpeciesSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.StoryItemReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ChapterResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ChapterSummaryResponse;
@@ -348,6 +352,30 @@ public class PublicResponseMapper {
 
 	public AffiliationSummaryResponse toResponse(AffiliationSummary summary) {
 		return AffiliationSummaryResponse.builder()
+			.id(summary.id())
+			.slug(summary.slug())
+			.romaji(summary.romaji())
+			.name(summary.name())
+			.image(imagePath(summary.imageId()))
+			.build();
+	}
+
+	public SpeciesResponse toResponse(Species species) {
+		return SpeciesResponse.builder()
+			.id(species.id())
+			.slug(species.slug())
+			.romaji(species.romaji())
+			.language(species.language())
+			.name(species.name())
+			.description(species.description())
+			.image(imagePath(species.imageId()))
+			.publishedAt(species.publishedAt())
+			.firstAppearance(toResponse(species.firstAppearance()))
+			.build();
+	}
+
+	public SpeciesSummaryResponse toResponse(SpeciesSummary summary) {
+		return SpeciesSummaryResponse.builder()
 			.id(summary.id())
 			.slug(summary.slug())
 			.romaji(summary.romaji())
