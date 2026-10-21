@@ -86,3 +86,16 @@ slug to `301`, sort, paging, conditional GET - and let the copies drift apart.
   `published.bounty`, walking `previous_id` both ways within the language, ordered by position
   (depth), not by amount; `BountyService.complete` adds it to the detail.
 - The poster is served by the same `v1/images/{id}.png`.
+
+## Addendum - Character (Character plan C2)
+
+- **Child lists:** the lists inside a character version (epithets, aliases, species) come from
+  child views of content-service, one row per entry with its `position`.
+  `PublishedCharacterListRepository` reads them one query per list, for the detail only
+  (`CharacterService.complete`); the list rows read none.
+- **Child filters:** `ContentFilter.onChild(childView, ownerColumn, column, entityType)` keeps
+  the contents whose child view names another content, by id or by any slug it has had
+  (`species` on characters). It will serve `affiliation` and `devilFruit` too (C8, C10).
+- An entry is in a language only when it is written in it: an epithet, or a species named
+  through `published.species`, without text in that language is left out of it, as a
+  subcategory.

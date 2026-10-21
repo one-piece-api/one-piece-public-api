@@ -54,6 +54,10 @@ public final class ApiPaths {
 
 	public static final String SPECIES_ITEM = SPECIES + "/{idOrSlug}";
 
+	public static final String CHARACTERS = V1 + "/{lang}/characters";
+
+	public static final String CHARACTER = CHARACTERS + "/{idOrSlug}";
+
 	/** No language: an image is the same in all of them (plan D11). */
 	public static final String IMAGE = V1 + "/images/{id}.png";
 

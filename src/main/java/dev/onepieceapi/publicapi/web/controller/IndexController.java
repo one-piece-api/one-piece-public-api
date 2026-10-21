@@ -19,12 +19,16 @@ class IndexController {
 	@GetMapping(ApiPaths.V1)
 	IndexResponse index() {
 		return new IndexResponse(relative(ApiPaths.LANGUAGES),
-				new TreeMap<>(Map.of("devil-fruit-types", relative(ApiPaths.DEVIL_FRUIT_TYPES), "devil-fruits",
-						relative(ApiPaths.DEVIL_FRUITS), "sagas", relative(ApiPaths.SAGAS), "arcs",
-						relative(ApiPaths.ARCS), "volumes", relative(ApiPaths.VOLUMES), "chapters",
-						relative(ApiPaths.CHAPTERS), "episodes", relative(ApiPaths.EPISODES), "bounties",
-						relative(ApiPaths.BOUNTIES), "affiliations", relative(ApiPaths.AFFILIATIONS), "species",
-						relative(ApiPaths.SPECIES))));
+				new TreeMap<>(Map.ofEntries(link("devil-fruit-types", ApiPaths.DEVIL_FRUIT_TYPES),
+						link("devil-fruits", ApiPaths.DEVIL_FRUITS), link("sagas", ApiPaths.SAGAS),
+						link("arcs", ApiPaths.ARCS), link("volumes", ApiPaths.VOLUMES),
+						link("chapters", ApiPaths.CHAPTERS), link("episodes", ApiPaths.EPISODES),
+						link("bounties", ApiPaths.BOUNTIES), link("affiliations", ApiPaths.AFFILIATIONS),
+						link("species", ApiPaths.SPECIES), link("characters", ApiPaths.CHARACTERS))));
+	}
+
+	private static Map.Entry<String, String> link(String resource, String path) {
+		return Map.entry(resource, relative(path));
 	}
 
 	/** A path as a template relative to the API root: no leading slash. */

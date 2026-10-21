@@ -16,8 +16,21 @@ public record ContentFilter(String byId, String bySlug) {
 	 * id or by any slug it has had online.
 	 */
 	public static ContentFilter onContent(String column, String entityType) {
-		return new ContentFilter(column + " = :%s", column + " = (SELECT content_id FROM published.content_slug"
-				+ " WHERE entity_type = '" + entityType + "' AND slug = :%s)");
+		return new ContentFilter(column + " = :%s", column + " = " + contentOfSlug(entityType));
+	}
+
+	/**
+	 * A filter on a list of the content, kept in a child view: the contents whose child
+	 * view has a row naming the other content, by its id or by any slug it has had online
+	 * (the species of a character).
+	 * @param childView the child view, such as {@code published.character_species}
+	 * @param ownerColumn its column holding the id of the content listed
+	 * @param column its column holding the id of the other content
+	 * @param entityType the entity of the other content
+	 */
+	public static ContentFilter onChild(String childView, String ownerColumn, String column, String entityType) {
+		String owners = "id IN (SELECT " + ownerColumn + " FROM " + childView + " WHERE " + column + " = ";
+		return new ContentFilter(owners + ":%s)", owners + contentOfSlug(entityType) + ")");
 	}
 
 	/**
@@ -27,6 +40,12 @@ public record ContentFilter(String byId, String bySlug) {
 	public static ContentFilter onValue(String column) {
 		String condition = column + " = :%s";
 		return new ContentFilter(condition, condition);
+	}
+
+	/** The content of an entity that has, or had, the slug bound to {@code %s}. */
+	private static String contentOfSlug(String entityType) {
+		return "(SELECT content_id FROM published.content_slug WHERE entity_type = '" + entityType
+				+ "' AND slug = :%s)";
 	}
 
 }

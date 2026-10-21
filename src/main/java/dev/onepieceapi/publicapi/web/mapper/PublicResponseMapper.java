@@ -8,6 +8,9 @@ import dev.onepieceapi.publicapi.domain.ArcSummary;
 import dev.onepieceapi.publicapi.domain.Bounty;
 import dev.onepieceapi.publicapi.domain.BountySummary;
 import dev.onepieceapi.publicapi.domain.Chapter;
+import dev.onepieceapi.publicapi.domain.Character;
+import dev.onepieceapi.publicapi.domain.CharacterSummary;
+import dev.onepieceapi.publicapi.domain.SpeciesReference;
 import dev.onepieceapi.publicapi.domain.Species;
 import dev.onepieceapi.publicapi.domain.SpeciesSummary;
 import dev.onepieceapi.publicapi.domain.StoryItemReference;
@@ -39,6 +42,9 @@ import dev.onepieceapi.publicapi.web.dto.response.ArcResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ArcSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.BountyResponse;
 import dev.onepieceapi.publicapi.web.dto.response.BountySummaryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.CharacterResponse;
+import dev.onepieceapi.publicapi.web.dto.response.CharacterSummaryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.SpeciesReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SpeciesResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SpeciesSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.StoryItemReferenceResponse;
@@ -382,6 +388,42 @@ public class PublicResponseMapper {
 			.name(summary.name())
 			.image(imagePath(summary.imageId()))
 			.build();
+	}
+
+	public CharacterResponse toResponse(Character character) {
+		return CharacterResponse.builder()
+			.id(character.id())
+			.slug(character.slug())
+			.romaji(character.romaji())
+			.japaneseName(character.japaneseName())
+			.language(character.language())
+			.name(character.name())
+			.description(character.description())
+			.status(character.status())
+			.gender(character.gender())
+			.birthday(character.birthday())
+			.image(imagePath(character.imageId()))
+			.epithets(character.epithets())
+			.aliases(character.aliases())
+			.species(character.species().stream().map(PublicResponseMapper::toResponse).toList())
+			.publishedAt(character.publishedAt())
+			.firstAppearance(toResponse(character.firstAppearance()))
+			.build();
+	}
+
+	public CharacterSummaryResponse toResponse(CharacterSummary summary) {
+		return CharacterSummaryResponse.builder()
+			.id(summary.id())
+			.slug(summary.slug())
+			.romaji(summary.romaji())
+			.name(summary.name())
+			.status(summary.status())
+			.image(imagePath(summary.imageId()))
+			.build();
+	}
+
+	public SpeciesReferenceResponse toResponse(SpeciesReference species) {
+		return new SpeciesReferenceResponse(species.id(), species.slug(), species.name());
 	}
 
 	private String imagePath(String imageId) {

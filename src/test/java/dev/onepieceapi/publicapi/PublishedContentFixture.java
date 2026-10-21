@@ -6,6 +6,9 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.time.LocalDate;
+import java.time.MonthDay;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 
@@ -38,6 +41,8 @@ public class PublishedContentFixture {
 
 	private static final Entity SPECIES = new Entity("SPECIES", "species_version");
 
+	private static final Entity CHARACTER = new Entity("CHARACTER", "character_version");
+
 	private static final String PUBLISHED = "PUBLISHED";
 
 	private final JdbcClient owner;
@@ -50,15 +55,16 @@ public class PublishedContentFixture {
 	/**
 	 * Removes every content and image, leaving the language catalog as migrated. The
 	 * bounties and the fruits go first: a type with fruits linked cannot be deleted, nor
-	 * an image in use; then the types, the affiliations and the species, which may point
-	 * to the chapter of their first appearance; likewise the chapters and episodes before
-	 * their arcs and volumes, and those before the sagas.
+	 * an image in use; then the characters, which name species; then the types, the
+	 * affiliations and the species, which may point to the chapter of their first
+	 * appearance; likewise the chapters and episodes before their arcs and volumes, and
+	 * those before the sagas.
 	 */
 	public void clear() {
 		// A bounty points to the bounty it replaces: its versions go before any content.
 		this.owner.sql("DELETE FROM bounty_version").update();
-		for (Entity entity : new Entity[] { BOUNTY, FRUIT, TYPE, AFFILIATION, SPECIES, CHAPTER, EPISODE, ARC, VOLUME,
-				SAGA }) {
+		for (Entity entity : new Entity[] { BOUNTY, FRUIT, CHARACTER, TYPE, AFFILIATION, SPECIES, CHAPTER, EPISODE, ARC,
+				VOLUME, SAGA }) {
 			this.owner.sql("DELETE FROM content WHERE entity_type = :type").param("type", entity.type()).update();
 		}
 		this.owner.sql("DELETE FROM content").update();
@@ -127,7 +133,7 @@ public class PublishedContentFixture {
 
 	/**
 	 * The chapter of the first appearance of the version online of a fruit, a type, a
-	 * bounty, an affiliation or a species.
+	 * bounty, an affiliation, a species or a character.
 	 */
 	public void firstAppearance(UUID contentId, UUID chapterId) {
 		firstAppearanceIn("first_appearance_chapter_id", contentId, chapterId);
@@ -135,7 +141,7 @@ public class PublishedContentFixture {
 
 	/**
 	 * The episode of the first appearance of the version online of a fruit, a type, a
-	 * bounty, an affiliation or a species.
+	 * bounty, an affiliation, a species or a character.
 	 */
 	public void firstAppearanceEpisode(UUID contentId, UUID episodeId) {
 		firstAppearanceIn("first_appearance_episode_id", contentId, episodeId);
@@ -143,7 +149,7 @@ public class PublishedContentFixture {
 
 	private void firstAppearanceIn(String column, UUID contentId, UUID storyItemId) {
 		for (String table : new String[] { "devil_fruit_version", "devil_fruit_type_version", "bounty_version",
-				"affiliation_version", "species_version" }) {
+				"affiliation_version", "species_version", "character_version" }) {
 			this.owner
 				.sql("UPDATE " + table + " SET " + column + " = :item WHERE version_id ="
 						+ " (SELECT id FROM content_version WHERE content_id = :id AND status = 'PUBLISHED')")
@@ -471,6 +477,102 @@ public class PublishedContentFixture {
 		}
 	}
 
+	/** A character online, with its portrait if any and its slug on record. */
+	public UUID publishCharacter(Persona persona, Translation... translations) {
+		UUID contentId = insertContent(CHARACTER);
+		characterVersion(contentId, 1, PUBLISHED, persona, translations);
+		return contentId;
+	}
+
+	/** A character still in draft: never online, nor its portrait. */
+	public void draftCharacter(Persona persona, Translation... translations) {
+		characterVersion(insertContent(CHARACTER), 1, "DRAFT", persona, translations);
+	}
+
+	/**
+	 * A new version of a character goes online: the previous one is superseded, its slug
+	 * kept on record.
+	 */
+	public void republishCharacter(UUID contentId, Persona persona, Translation... translations) {
+		this.owner
+			.sql("UPDATE content_version SET status = 'SUPERSEDED' WHERE content_id = :id AND status = 'PUBLISHED'")
+			.param("id", contentId)
+			.update();
+		characterVersion(contentId, 2, PUBLISHED, persona, translations);
+	}
+
+	private void characterVersion(UUID contentId, int number, String status, Persona persona,
+			Translation... translations) {
+		UUID versionId = insertContentVersion(contentId, number, status);
+		MonthDay birthday = persona.birthday();
+		this.owner.sql("""
+				INSERT INTO character_version (version_id, romaji, japanese_name, status, gender, birthday_month,
+				                               birthday_day, image_id)
+				VALUES (:id, :romaji, :japaneseName, :status, :gender, :month, :day, :image)""")
+			.param("id", versionId)
+			.param("romaji", persona.romaji())
+			.param("japaneseName", persona.japaneseName())
+			.param("status", persona.status())
+			.param("gender", persona.gender())
+			.param("month", birthday == null ? null : birthday.getMonthValue())
+			.param("day", birthday == null ? null : birthday.getDayOfMonth())
+			.param("image", persona.imageId())
+			.update();
+		for (Translation translation : translations) {
+			this.owner.sql("""
+					INSERT INTO character_version_translation (version_id, language_code, name, description)
+					VALUES (:id, :language, :name, :description)""")
+				.param("id", versionId)
+				.param("language", translation.language())
+				.param("name", translation.name())
+				.param("description", translation.description())
+				.update();
+		}
+		characterLists(versionId, persona);
+		if (PUBLISHED.equals(status)) {
+			recordSlug(CHARACTER, contentId, persona.romaji());
+		}
+	}
+
+	/** The epithets, aliases and species of a character version, in the given order. */
+	private void characterLists(UUID versionId, Persona persona) {
+		for (int position = 0; position < persona.epithets().size(); position++) {
+			UUID epithetId = UUID.randomUUID();
+			this.owner
+				.sql("INSERT INTO character_version_epithet (id, version_id, position) VALUES (:id, :version, :at)")
+				.param("id", epithetId)
+				.param("version", versionId)
+				.param("at", position)
+				.update();
+			persona.epithets()
+				.get(position)
+				.forEach((language, text) -> this.owner.sql("""
+						INSERT INTO character_version_epithet_translation (epithet_id, language_code, text)
+						VALUES (:id, :language, :text)""")
+					.param("id", epithetId)
+					.param("language", language)
+					.param("text", text)
+					.update());
+		}
+		for (int position = 0; position < persona.aliases().size(); position++) {
+			this.owner
+				.sql("INSERT INTO character_version_alias (version_id, position, alias) VALUES (:version, :at, :alias)")
+				.param("version", versionId)
+				.param("at", position)
+				.param("alias", persona.aliases().get(position))
+				.update();
+		}
+		for (int position = 0; position < persona.species().size(); position++) {
+			this.owner.sql("""
+					INSERT INTO character_version_species (version_id, position, species_content_id)
+					VALUES (:version, :at, :species)""")
+				.param("version", versionId)
+				.param("at", position)
+				.param("species", persona.species().get(position))
+				.update();
+		}
+	}
+
 	private void storyTranslation(Entity entity, UUID versionId, Translation translation) {
 		boolean described = !VOLUME.equals(entity);
 		this.owner
@@ -585,6 +687,26 @@ public class PublishedContentFixture {
 		public Poster {
 			condition = condition == null ? "DEAD_OR_ALIVE" : condition;
 			status = status == null ? PUBLISHED : status;
+		}
+
+	}
+
+	/**
+	 * What a character version holds besides its name and description: alive and male,
+	 * with no lists, unless told otherwise.
+	 *
+	 * @param epithets each one's text by language
+	 */
+	@Builder
+	public record Persona(String romaji, String japaneseName, String status, String gender, MonthDay birthday,
+			String imageId, List<Map<String, String>> epithets, List<String> aliases, List<UUID> species) {
+
+		public Persona {
+			status = status == null ? "ALIVE" : status;
+			gender = gender == null ? "MALE" : gender;
+			epithets = epithets == null ? List.of() : epithets;
+			aliases = aliases == null ? List.of() : aliases;
+			species = species == null ? List.of() : species;
 		}
 
 	}

@@ -7,6 +7,8 @@ import dev.onepieceapi.publicapi.domain.ArcSummary;
 import dev.onepieceapi.publicapi.domain.Bounty;
 import dev.onepieceapi.publicapi.domain.BountySummary;
 import dev.onepieceapi.publicapi.domain.Chapter;
+import dev.onepieceapi.publicapi.domain.Character;
+import dev.onepieceapi.publicapi.domain.CharacterSummary;
 import dev.onepieceapi.publicapi.domain.ChapterSummary;
 import dev.onepieceapi.publicapi.domain.ContentSort;
 import dev.onepieceapi.publicapi.domain.DevilFruit;
@@ -23,6 +25,7 @@ import dev.onepieceapi.publicapi.domain.Volume;
 import dev.onepieceapi.publicapi.domain.VolumeSummary;
 import dev.onepieceapi.publicapi.persistence.mapper.AffiliationRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.BountyRowMapper;
+import dev.onepieceapi.publicapi.persistence.mapper.CharacterRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.PublishedRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.SpeciesRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.StoryRowMapper;
@@ -34,6 +37,8 @@ import dev.onepieceapi.publicapi.persistence.row.BountyRow;
 import dev.onepieceapi.publicapi.persistence.row.BountySummaryRow;
 import dev.onepieceapi.publicapi.persistence.row.ChapterRow;
 import dev.onepieceapi.publicapi.persistence.row.ChapterSummaryRow;
+import dev.onepieceapi.publicapi.persistence.row.CharacterRow;
+import dev.onepieceapi.publicapi.persistence.row.CharacterSummaryRow;
 import dev.onepieceapi.publicapi.persistence.row.DevilFruitRow;
 import dev.onepieceapi.publicapi.persistence.row.DevilFruitSummaryRow;
 import dev.onepieceapi.publicapi.persistence.row.DevilFruitTypeRow;
@@ -226,6 +231,31 @@ public final class PublishedViews {
 		.naturalKey("romaji")
 		.detail(PublishedView.reading(SpeciesRow.class, SpeciesRowMapper::toDomain))
 		.summary(PublishedView.reading(SpeciesSummaryRow.class, SpeciesRowMapper::toDomain))
+		.build();
+
+	/** The names of the filters of the characters (Character plan D16). */
+	public static final String STATUS_FILTER = "status";
+
+	public static final String SPECIES_FILTER = "species";
+
+	/**
+	 * The characters (Character plan D2-D8, D16): the shape of the Species plus the
+	 * values that are the same in every language; filtered by status and by a species of
+	 * their list, read from its child view. The lists themselves are read for the detail
+	 * only.
+	 */
+	public static final PublishedView<Character, CharacterSummary> CHARACTER = PublishedView
+		.<Character, CharacterSummary>builder()
+		.entityType("CHARACTER")
+		.view("published.character")
+		.detailColumns("id, slug, romaji, japanese_name, language, name, description, status, gender, birthday_month,"
+				+ " birthday_day, image_id, published_at" + FIRST_APPEARANCE_COLUMNS)
+		.summaryColumns("id, slug, romaji, name, status, image_id")
+		.naturalKey("romaji")
+		.detail(PublishedView.reading(CharacterRow.class, CharacterRowMapper::toDomain))
+		.summary(PublishedView.reading(CharacterSummaryRow.class, CharacterRowMapper::toDomain))
+		.filters(Map.of(STATUS_FILTER, ContentFilter.onValue("status"), SPECIES_FILTER,
+				ContentFilter.onChild("published.character_species", "character_id", "species_id", "SPECIES")))
 		.build();
 
 	/**
