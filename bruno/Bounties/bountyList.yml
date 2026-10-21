@@ -52,6 +52,11 @@ http:
       type: query
       description: Only the bounties of this condition
       disabled: true
+    - name: holder
+      value: ""
+      type: query
+      description: Only the bounties of this character, by id or slug (current or old); an unknown character lists nothing
+      disabled: true
     - name: sort
       value: amount,desc
       type: query
@@ -115,6 +120,11 @@ examples:
           type: query
           description: Only the bounties of this condition
           disabled: true
+        - name: holder
+          value: ""
+          type: query
+          description: Only the bounties of this character, by id or slug (current or old); an unknown character lists nothing
+          disabled: true
         - name: sort
           value: amount,desc
           type: query
@@ -133,6 +143,11 @@ examples:
               {
                 "amount": 0,
                 "condition": "DEAD_OR_ALIVE",
+                "holder": {
+                  "id": "",
+                  "name": "",
+                  "slug": ""
+                },
                 "id": "",
                 "image": "",
                 "posterName": "",
@@ -193,6 +208,11 @@ examples:
           value: ONLY_ALIVE
           type: query
           description: Only the bounties of this condition
+          disabled: true
+        - name: holder
+          value: ""
+          type: query
+          description: Only the bounties of this character, by id or slug (current or old); an unknown character lists nothing
           disabled: true
         - name: sort
           value: amount,desc
@@ -269,6 +289,11 @@ examples:
           value: ONLY_ALIVE
           type: query
           description: Only the bounties of this condition
+          disabled: true
+        - name: holder
+          value: ""
+          type: query
+          description: Only the bounties of this character, by id or slug (current or old); an unknown character lists nothing
           disabled: true
         - name: sort
           value: amount,desc

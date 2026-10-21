@@ -19,12 +19,13 @@ import java.util.UUID;
  * @param description why it was issued, raised or made inactive
  * @param image the poster's path relative to the API root; {@code null} when none
  * @param firstAppearance where the reader first meets it
+ * @param holder the character the poster is about; {@code null} when none
  * @param chain the bounties it replaces and that replace it, newest first, itself
  * included
  */
 @Builder
 public record BountyResponse(UUID id, String slug, String posterName, long amount, BountyCondition condition,
 		BountyValidity validity, String language, String description, String image, Instant publishedAt,
-		FirstAppearanceResponse firstAppearance, List<BountySummaryResponse> chain) {
+		FirstAppearanceResponse firstAppearance, CharacterReferenceResponse holder, List<BountySummaryResponse> chain) {
 
 }

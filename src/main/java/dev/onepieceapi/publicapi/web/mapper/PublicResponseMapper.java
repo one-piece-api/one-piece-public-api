@@ -9,7 +9,9 @@ import dev.onepieceapi.publicapi.domain.Bounty;
 import dev.onepieceapi.publicapi.domain.BountySummary;
 import dev.onepieceapi.publicapi.domain.Chapter;
 import dev.onepieceapi.publicapi.domain.Character;
+import dev.onepieceapi.publicapi.domain.CharacterReference;
 import dev.onepieceapi.publicapi.domain.CharacterSummary;
+import dev.onepieceapi.publicapi.domain.HeldBounty;
 import dev.onepieceapi.publicapi.domain.SpeciesReference;
 import dev.onepieceapi.publicapi.domain.Species;
 import dev.onepieceapi.publicapi.domain.SpeciesSummary;
@@ -42,8 +44,10 @@ import dev.onepieceapi.publicapi.web.dto.response.ArcResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ArcSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.BountyResponse;
 import dev.onepieceapi.publicapi.web.dto.response.BountySummaryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.CharacterReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.CharacterResponse;
 import dev.onepieceapi.publicapi.web.dto.response.CharacterSummaryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.HeldBountyResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SpeciesReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SpeciesResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SpeciesSummaryResponse;
@@ -326,6 +330,7 @@ public class PublicResponseMapper {
 			.image(imagePath(bounty.imageId()))
 			.publishedAt(bounty.publishedAt())
 			.firstAppearance(toResponse(bounty.firstAppearance()))
+			.holder(toResponse(bounty.holder()))
 			.chain(bounty.chain().stream().map(PublicResponseMapper::toResponse).toList())
 			.build();
 	}
@@ -339,6 +344,7 @@ public class PublicResponseMapper {
 			.condition(summary.condition())
 			.validity(summary.validity())
 			.image(imagePath(summary.imageId()))
+			.holder(toResponse(summary.holder()))
 			.build();
 	}
 
@@ -406,6 +412,7 @@ public class PublicResponseMapper {
 			.epithets(character.epithets())
 			.aliases(character.aliases())
 			.species(character.species().stream().map(PublicResponseMapper::toResponse).toList())
+			.bounties(character.bounties().stream().map(PublicResponseMapper::toResponse).toList())
 			.publishedAt(character.publishedAt())
 			.firstAppearance(toResponse(character.firstAppearance()))
 			.build();
@@ -420,6 +427,16 @@ public class PublicResponseMapper {
 			.status(summary.status())
 			.image(imagePath(summary.imageId()))
 			.build();
+	}
+
+	/** The character a bounty is about; null for a bounty without one. */
+	public CharacterReferenceResponse toResponse(CharacterReference character) {
+		return character == null ? null
+				: new CharacterReferenceResponse(character.id(), character.slug(), character.name());
+	}
+
+	public HeldBountyResponse toResponse(HeldBounty bounty) {
+		return new HeldBountyResponse(bounty.id(), bounty.slug(), bounty.amount(), bounty.validity());
 	}
 
 	public SpeciesReferenceResponse toResponse(SpeciesReference species) {

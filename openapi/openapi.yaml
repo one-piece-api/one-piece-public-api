@@ -310,6 +310,13 @@ paths:
           enum:
           - DEAD_OR_ALIVE
           - ONLY_ALIVE
+      - description: "Only the bounties of this character, by id or slug (current\
+          \ or old); an unknown character lists nothing"
+        in: query
+        name: holder
+        required: false
+        schema:
+          type: string
       - description: "amount, name (poster name, then amount) or publishedAt, then\
           \ asc or desc; default amount,desc"
         in: query
@@ -1271,6 +1278,8 @@ components:
           type: string
         firstAppearance:
           $ref: "#/components/schemas/FirstAppearanceResponse"
+        holder:
+          $ref: "#/components/schemas/CharacterReferenceResponse"
         id:
           type: string
           format: uuid
@@ -1302,6 +1311,8 @@ components:
           enum:
           - DEAD_OR_ALIVE
           - ONLY_ALIVE
+        holder:
+          $ref: "#/components/schemas/CharacterReferenceResponse"
         id:
           type: string
           format: uuid
@@ -1367,6 +1378,16 @@ components:
           type: string
         volume:
           $ref: "#/components/schemas/VolumeSummaryResponse"
+    CharacterReferenceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
     CharacterResponse:
       type: object
       properties:
@@ -1379,6 +1400,10 @@ components:
           description: "Day and month, ISO 8601 without year"
           example: --05-05
           pattern: "^--\\d{2}-\\d{2}$"
+        bounties:
+          type: array
+          items:
+            $ref: "#/components/schemas/HeldBountyResponse"
         description:
           type: string
         epithets:
@@ -1655,6 +1680,23 @@ components:
           $ref: "#/components/schemas/StoryItemReferenceResponse"
         episode:
           $ref: "#/components/schemas/StoryItemReferenceResponse"
+    HeldBountyResponse:
+      type: object
+      properties:
+        amount:
+          type: integer
+          format: int64
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        validity:
+          type: string
+          enum:
+          - ACTIVE
+          - SUPERSEDED
+          - INACTIVE
     IndexResponse:
       type: object
       properties:

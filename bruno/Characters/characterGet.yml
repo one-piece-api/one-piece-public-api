@@ -49,6 +49,14 @@ examples:
           {
             "aliases": [],
             "birthday": "--05-05",
+            "bounties": [
+              {
+                "amount": 0,
+                "id": "",
+                "slug": "",
+                "validity": "ACTIVE"
+              }
+            ],
             "description": "",
             "epithets": [],
             "firstAppearance": {
@@ -125,6 +133,14 @@ examples:
           {
             "aliases": [],
             "birthday": "--05-05",
+            "bounties": [
+              {
+                "amount": 0,
+                "id": "",
+                "slug": "",
+                "validity": "ACTIVE"
+              }
+            ],
             "description": "",
             "epithets": [],
             "firstAppearance": {

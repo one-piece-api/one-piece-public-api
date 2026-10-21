@@ -326,8 +326,8 @@ public class PublishedContentFixture {
 		UUID versionId = insertContentVersion(contentId, number, poster.status());
 		this.owner.sql("""
 				INSERT INTO bounty_version (version_id, poster_name, amount, condition, inactive, previous_content_id,
-				                            image_id)
-				VALUES (:id, :posterName, :amount, :condition, :inactive, :previous, :image)""")
+				                            image_id, holder_content_id)
+				VALUES (:id, :posterName, :amount, :condition, :inactive, :previous, :image, :holder)""")
 			.param("id", versionId)
 			.param("posterName", poster.posterName())
 			.param("amount", poster.amount())
@@ -335,6 +335,7 @@ public class PublishedContentFixture {
 			.param("inactive", poster.inactive())
 			.param("previous", poster.previousId())
 			.param("image", poster.imageId())
+			.param("holder", poster.holderId())
 			.update();
 		for (Translation translation : translations) {
 			this.owner.sql("""
@@ -682,7 +683,7 @@ public class PublishedContentFixture {
 	 */
 	@Builder
 	public record Poster(String posterName, long amount, String condition, boolean inactive, UUID previousId,
-			String imageId, String status) {
+			String imageId, UUID holderId, String status) {
 
 		public Poster {
 			condition = condition == null ? "DEAD_OR_ALIVE" : condition;

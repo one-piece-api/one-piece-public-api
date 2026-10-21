@@ -179,8 +179,22 @@ public final class PublishedViews {
 
 	public static final String CONDITION_FILTER = "condition";
 
+	/** The name of the filter of the bounties by their holder (Character plan C6). */
+	public static final String HOLDER_FILTER = "holder";
+
+	/**
+	 * The holder of a bounty, named in the language of the row: a character not written
+	 * in it has no slug and no name there.
+	 */
+	public static final String HOLDER_COLUMNS = "holder_id,"
+			+ " (SELECT c.slug FROM published.character c WHERE c.id = holder_id AND c.language = :language)"
+			+ " AS holder_slug,"
+			+ " (SELECT c.name FROM published.character c WHERE c.id = holder_id AND c.language = :language)"
+			+ " AS holder_name";
+
 	/** The columns of a bounty as a list row or a link of its chain. */
-	public static final String BOUNTY_SUMMARY_COLUMNS = "id, slug, poster_name, amount, condition, validity, image_id";
+	public static final String BOUNTY_SUMMARY_COLUMNS = "id, slug, poster_name, amount, condition, validity, image_id, "
+			+ HOLDER_COLUMNS;
 
 	/**
 	 * The bounties (Bounty plan D2, D5): {@code q} searches the key text (the name) and
@@ -196,7 +210,7 @@ public final class PublishedViews {
 		.detail(PublishedView.reading(BountyRow.class, BountyRowMapper::toDomain))
 		.summary(PublishedView.reading(BountySummaryRow.class, BountyRowMapper::toDomain))
 		.filters(Map.of(VALIDITY_FILTER, ContentFilter.onValue("validity"), CONDITION_FILTER,
-				ContentFilter.onValue("condition")))
+				ContentFilter.onValue("condition"), HOLDER_FILTER, ContentFilter.onContent("holder_id", "CHARACTER")))
 		.sorts(Map.of(ContentSort.Field.NAME, List.of("poster_name", "amount"), ContentSort.Field.AMOUNT,
 				List.of("amount")))
 		.build();

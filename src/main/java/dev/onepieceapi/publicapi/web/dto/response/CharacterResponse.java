@@ -20,6 +20,7 @@ import java.util.UUID;
  * @param epithets those written in the language of the path, in order
  * @param aliases the same in every language, in order
  * @param species its species online, in order
+ * @param bounties its bounties online, highest amount first
  * @param firstAppearance where the reader first meets it
  */
 @Builder
@@ -28,6 +29,6 @@ public record CharacterResponse(UUID id, String slug, String romaji, String japa
 		@Schema(type = "string", description = "Day and month, ISO 8601 without year", example = "--05-05",
 				pattern = "^--\\d{2}-\\d{2}$") MonthDay birthday,
 		String image, List<String> epithets, List<String> aliases, List<SpeciesReferenceResponse> species,
-		Instant publishedAt, FirstAppearanceResponse firstAppearance) {
+		List<HeldBountyResponse> bounties, Instant publishedAt, FirstAppearanceResponse firstAppearance) {
 
 }

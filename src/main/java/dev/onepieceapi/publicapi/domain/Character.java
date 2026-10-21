@@ -20,17 +20,19 @@ import java.util.UUID;
  * @param epithets those written in its language, in the version's order
  * @param aliases the same in every language, in the version's order
  * @param species its species online, in the version's order
+ * @param bounties its bounties online, highest amount first
  */
 @Builder
 public record Character(UUID id, String slug, String romaji, String japaneseName, String language, String name,
 		String description, CharacterStatus status, Gender gender, MonthDay birthday, String imageId,
 		Instant publishedAt, FirstAppearance firstAppearance, @With List<String> epithets, @With List<String> aliases,
-		@With List<SpeciesReference> species) implements PublishedContent {
+		@With List<SpeciesReference> species, @With List<HeldBounty> bounties) implements PublishedContent {
 
 	public Character {
 		epithets = epithets == null ? List.of() : List.copyOf(epithets);
 		aliases = aliases == null ? List.of() : List.copyOf(aliases);
 		species = species == null ? List.of() : List.copyOf(species);
+		bounties = bounties == null ? List.of() : List.copyOf(bounties);
 	}
 
 }

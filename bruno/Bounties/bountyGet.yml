@@ -52,6 +52,11 @@ examples:
               {
                 "amount": 0,
                 "condition": "DEAD_OR_ALIVE",
+                "holder": {
+                  "id": "",
+                  "name": "",
+                  "slug": ""
+                },
                 "id": "",
                 "image": "",
                 "posterName": "",
@@ -74,6 +79,11 @@ examples:
                 "slug": "",
                 "title": ""
               }
+            },
+            "holder": {
+              "id": "",
+              "name": "",
+              "slug": ""
             },
             "id": "",
             "image": "",
@@ -128,6 +138,11 @@ examples:
               {
                 "amount": 0,
                 "condition": "DEAD_OR_ALIVE",
+                "holder": {
+                  "id": "",
+                  "name": "",
+                  "slug": ""
+                },
                 "id": "",
                 "image": "",
                 "posterName": "",
@@ -150,6 +165,11 @@ examples:
                 "slug": "",
                 "title": ""
               }
+            },
+            "holder": {
+              "id": "",
+              "name": "",
+              "slug": ""
             },
             "id": "",
             "image": "",

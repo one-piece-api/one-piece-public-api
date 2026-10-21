@@ -14,9 +14,10 @@ import java.util.UUID;
  * @param amount in Berry
  * @param validity derived from the bounties online
  * @param image the poster's path relative to the API root; {@code null} when none
+ * @param holder the character the poster is about; {@code null} when none
  */
 @Builder
 public record BountySummaryResponse(UUID id, String slug, String posterName, long amount, BountyCondition condition,
-		BountyValidity validity, String image) {
+		BountyValidity validity, String image, CharacterReferenceResponse holder) {
 
 }

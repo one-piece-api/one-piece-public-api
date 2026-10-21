@@ -1,7 +1,10 @@
 package dev.onepieceapi.publicapi.persistence;
 
+import dev.onepieceapi.publicapi.domain.HeldBounty;
 import dev.onepieceapi.publicapi.domain.SpeciesReference;
+import dev.onepieceapi.publicapi.persistence.mapper.BountyRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.CharacterRowMapper;
+import dev.onepieceapi.publicapi.persistence.row.HeldBountyRow;
 import dev.onepieceapi.publicapi.persistence.row.SpeciesReferenceRow;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +16,8 @@ import java.util.UUID;
 
 /**
  * The lists of the characters online, each read from its child view in the version's
- * order (Character plan D14): one query per list, for the detail only.
+ * order (Character plan D14): one query per list, for the detail only; the bounties come
+ * from the bounty view.
  */
 @Repository
 @RequiredArgsConstructor(onConstructor_ = { @Autowired })
@@ -56,6 +60,20 @@ public class PublishedCharacterListRepository {
 			.list()
 			.stream()
 			.map(CharacterRowMapper::toDomain)
+			.toList();
+	}
+
+	/** The bounties online naming it as holder, in the language, highest amount first. */
+	public List<HeldBounty> findBounties(UUID characterId, String language) {
+		return this.jdbc
+			.sql("SELECT id, slug, amount, validity FROM published.bounty WHERE holder_id = :id"
+					+ " AND language = :language ORDER BY amount DESC, id")
+			.param("id", characterId)
+			.param("language", language)
+			.query(HeldBountyRow.class)
+			.list()
+			.stream()
+			.map(BountyRowMapper::toDomain)
 			.toList();
 	}
 

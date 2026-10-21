@@ -46,6 +46,9 @@ class BountyController {
 
 	private static final String CONDITION_DESCRIPTION = "Only the bounties of this condition";
 
+	private static final String HOLDER_DESCRIPTION = "Only the bounties of this character, by id or slug (current or old);"
+			+ " an unknown character lists nothing";
+
 	private final BountyService service;
 
 	private final PublicApiProperties properties;
@@ -62,10 +65,10 @@ class BountyController {
 			@ParameterObject @Valid ContentListRequest request,
 			@Parameter(description = VALIDITY_DESCRIPTION) @RequestParam Optional<BountyValidity> validity,
 			@Parameter(description = CONDITION_DESCRIPTION) @RequestParam Optional<BountyCondition> condition,
-			WebRequest webRequest) {
-		var filters = ContentSearchMapper
-			.toFilters(Map.of(PublishedViews.VALIDITY_FILTER, validity.map(BountyValidity::name),
-					PublishedViews.CONDITION_FILTER, condition.map(BountyCondition::name)));
+			@Parameter(description = HOLDER_DESCRIPTION) @RequestParam Optional<String> holder, WebRequest webRequest) {
+		var filters = ContentSearchMapper.toFilters(Map.of(PublishedViews.VALIDITY_FILTER,
+				validity.map(BountyValidity::name), PublishedViews.CONDITION_FILTER,
+				condition.map(BountyCondition::name), PublishedViews.HOLDER_FILTER, holder));
 		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters,
 				ContentSort.BY_AMOUNT_DESCENDING);
 		return this.responses.page(webRequest, () -> this.service.search(lang, search),
