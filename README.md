@@ -1,13 +1,13 @@
 # one-piece-public-api
 
 API HTTP pubblica, anonima e in sola lettura, sui contenuti **pubblicati** del workflow
-editoriale (Devil Fruit Type, Devil Fruit e le loro immagini; Saga, Arco, Volume, Capitolo, Episodio; Bounty). Legge le viste dello schema `published` del
+editoriale (Devil Fruit Type, Devil Fruit e le loro immagini; Saga, Arco, Volume, Capitolo, Episodio; Bounty; Affiliazione). Legge le viste dello schema `published` del
 database di `one-piece-content-service` con il ruolo di sola lettura `public_api_reader`.
 
 - **Piano di implementazione:** `docs/implementation-plan-public-api.md` (repo `one-piece-api`).
 - **Decisioni architetturali di questo servizio:** `docs/adr/`.
 
-Stato: API di lettura `v1` (step P3) con cache HTTP e richieste condizionali (P4), baseline di prestazioni (P5); Devil Fruit, filtro per tipo e immagini `v1/images/{id}.png` immutabili (Devil Fruit plan, DF8); prima apparizione (`firstAppearance.chapter` / `.episode`) di frutti, tipi e sottocategorie; Bounty con validità derivata, filtri `validity`/`condition`, ordinamento `amount` e catena nel dettaglio (Bounty plan, B3). Contratto: `openapi/openapi.yaml`, collezione Bruno in `bruno/`.
+Stato: API di lettura `v1` (step P3) con cache HTTP e richieste condizionali (P4), baseline di prestazioni (P5); Devil Fruit, filtro per tipo e immagini `v1/images/{id}.png` immutabili (Devil Fruit plan, DF8); prima apparizione (`firstAppearance.chapter` / `.episode`) di frutti, tipi e sottocategorie; Bounty con validità derivata, filtri `validity`/`condition`, ordinamento `amount` e catena nel dettaglio (Bounty plan, B3). Affiliazioni con emblema e prima apparizione, ordinate per nome (Affiliation plan, A2). Contratto: `openapi/openapi.yaml`, collezione Bruno in `bruno/`.
 
 ## Sviluppo locale
 

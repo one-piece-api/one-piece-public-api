@@ -65,6 +65,97 @@ paths:
           $ref: "#/components/responses/ServerError"
       tags:
       - Languages
+  /v1/{lang}/affiliations:
+    get:
+      description: "Lists the affiliations online, one page at a time"
+      operationId: affiliationList
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - description: "0-based page, 0 when missing"
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - description: "Page size: 20 when missing, at most 100"
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - description: "Text the name or the romaji or number contains, case-insensitive;\
+          \ 100 characters at most"
+        in: query
+        name: q
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+          minLength: 0
+      - description: "name, romaji or publishedAt, then asc or desc; default name,asc"
+        in: query
+        name: sort
+        schema:
+          type: string
+          example: "name,asc"
+      responses:
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseAffiliationSummaryResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Affiliations
+  /v1/{lang}/affiliations/{idOrSlug}:
+    get:
+      description: One affiliation by id or slug
+      operationId: affiliationGet
+      parameters:
+      - in: path
+        name: lang
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: idOrSlug
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AffiliationResponse"
+          description: OK
+        "301":
+          description: "An old slug: Location is the current slug, relative to this\
+            \ address"
+        "304":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AffiliationResponse"
+          description: The caller's ETag is current
+        "4XX":
+          $ref: "#/components/responses/ClientError"
+        "5XX":
+          $ref: "#/components/responses/ServerError"
+      tags:
+      - Affiliations
   /v1/{lang}/arcs:
     get:
       description: "Lists the arcs online, one page at a time"
@@ -871,6 +962,43 @@ components:
             $ref: "#/components/schemas/ProblemDetail"
       description: Unexpected server error
   schemas:
+    AffiliationResponse:
+      type: object
+      properties:
+        description:
+          type: string
+        firstAppearance:
+          $ref: "#/components/schemas/FirstAppearanceResponse"
+        id:
+          type: string
+          format: uuid
+        image:
+          type: string
+        language:
+          type: string
+        name:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+        romaji:
+          type: string
+        slug:
+          type: string
+    AffiliationSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        image:
+          type: string
+        name:
+          type: string
+        romaji:
+          type: string
+        slug:
+          type: string
     ArcReferenceResponse:
       type: object
       properties:
@@ -1270,6 +1398,25 @@ components:
           type: string
         name:
           type: string
+    PageResponseAffiliationSummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/AffiliationSummaryResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
     PageResponseArcSummaryResponse:
       type: object
       properties:

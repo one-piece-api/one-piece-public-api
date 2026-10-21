@@ -1,5 +1,7 @@
 package dev.onepieceapi.publicapi.web.mapper;
 
+import dev.onepieceapi.publicapi.domain.Affiliation;
+import dev.onepieceapi.publicapi.domain.AffiliationSummary;
 import dev.onepieceapi.publicapi.domain.Arc;
 import dev.onepieceapi.publicapi.domain.ArcReference;
 import dev.onepieceapi.publicapi.domain.ArcSummary;
@@ -28,6 +30,8 @@ import dev.onepieceapi.publicapi.domain.StorySpan;
 import dev.onepieceapi.publicapi.domain.Volume;
 import dev.onepieceapi.publicapi.domain.VolumeSummary;
 import dev.onepieceapi.publicapi.web.ApiPaths;
+import dev.onepieceapi.publicapi.web.dto.response.AffiliationResponse;
+import dev.onepieceapi.publicapi.web.dto.response.AffiliationSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ArcReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ArcResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ArcSummaryResponse;
@@ -324,6 +328,30 @@ public class PublicResponseMapper {
 			.amount(summary.amount())
 			.condition(summary.condition())
 			.validity(summary.validity())
+			.image(imagePath(summary.imageId()))
+			.build();
+	}
+
+	public AffiliationResponse toResponse(Affiliation affiliation) {
+		return AffiliationResponse.builder()
+			.id(affiliation.id())
+			.slug(affiliation.slug())
+			.romaji(affiliation.romaji())
+			.language(affiliation.language())
+			.name(affiliation.name())
+			.description(affiliation.description())
+			.image(imagePath(affiliation.imageId()))
+			.publishedAt(affiliation.publishedAt())
+			.firstAppearance(toResponse(affiliation.firstAppearance()))
+			.build();
+	}
+
+	public AffiliationSummaryResponse toResponse(AffiliationSummary summary) {
+		return AffiliationSummaryResponse.builder()
+			.id(summary.id())
+			.slug(summary.slug())
+			.romaji(summary.romaji())
+			.name(summary.name())
 			.image(imagePath(summary.imageId()))
 			.build();
 	}

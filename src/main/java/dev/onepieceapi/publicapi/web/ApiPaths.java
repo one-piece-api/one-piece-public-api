@@ -45,6 +45,10 @@ public final class ApiPaths {
 
 	public static final String BOUNTY = BOUNTIES + "/{idOrSlug}";
 
+	public static final String AFFILIATIONS = V1 + "/{lang}/affiliations";
+
+	public static final String AFFILIATION = AFFILIATIONS + "/{idOrSlug}";
+
 	/** No language: an image is the same in all of them (plan D11). */
 	public static final String IMAGE = V1 + "/images/{id}.png";
 

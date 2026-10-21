@@ -34,6 +34,8 @@ public class PublishedContentFixture {
 
 	private static final Entity BOUNTY = new Entity("BOUNTY", "bounty_version");
 
+	private static final Entity AFFILIATION = new Entity("AFFILIATION", "affiliation_version");
+
 	private static final String PUBLISHED = "PUBLISHED";
 
 	private final JdbcClient owner;
@@ -46,14 +48,14 @@ public class PublishedContentFixture {
 	/**
 	 * Removes every content and image, leaving the language catalog as migrated. The
 	 * bounties and the fruits go first: a type with fruits linked cannot be deleted, nor
-	 * an image in use; then the types, which may point to the chapter of their first
-	 * appearance; likewise the chapters and episodes before their arcs and volumes, and
-	 * those before the sagas.
+	 * an image in use; then the types and the affiliations, which may point to the
+	 * chapter of their first appearance; likewise the chapters and episodes before their
+	 * arcs and volumes, and those before the sagas.
 	 */
 	public void clear() {
 		// A bounty points to the bounty it replaces: its versions go before any content.
 		this.owner.sql("DELETE FROM bounty_version").update();
-		for (Entity entity : new Entity[] { BOUNTY, FRUIT, TYPE, CHAPTER, EPISODE, ARC, VOLUME, SAGA }) {
+		for (Entity entity : new Entity[] { BOUNTY, FRUIT, TYPE, AFFILIATION, CHAPTER, EPISODE, ARC, VOLUME, SAGA }) {
 			this.owner.sql("DELETE FROM content WHERE entity_type = :type").param("type", entity.type()).update();
 		}
 		this.owner.sql("DELETE FROM content").update();
@@ -121,23 +123,24 @@ public class PublishedContentFixture {
 	}
 
 	/**
-	 * The chapter of the first appearance of the version online of a fruit, a type or a
-	 * bounty.
+	 * The chapter of the first appearance of the version online of a fruit, a type, a
+	 * bounty or an affiliation.
 	 */
 	public void firstAppearance(UUID contentId, UUID chapterId) {
 		firstAppearanceIn("first_appearance_chapter_id", contentId, chapterId);
 	}
 
 	/**
-	 * The episode of the first appearance of the version online of a fruit, a type or a
-	 * bounty.
+	 * The episode of the first appearance of the version online of a fruit, a type, a
+	 * bounty or an affiliation.
 	 */
 	public void firstAppearanceEpisode(UUID contentId, UUID episodeId) {
 		firstAppearanceIn("first_appearance_episode_id", contentId, episodeId);
 	}
 
 	private void firstAppearanceIn(String column, UUID contentId, UUID storyItemId) {
-		for (String table : new String[] { "devil_fruit_version", "devil_fruit_type_version", "bounty_version" }) {
+		for (String table : new String[] { "devil_fruit_version", "devil_fruit_type_version", "bounty_version",
+				"affiliation_version" }) {
 			this.owner
 				.sql("UPDATE " + table + " SET " + column + " = :item WHERE version_id ="
 						+ " (SELECT id FROM content_version WHERE content_id = :id AND status = 'PUBLISHED')")
@@ -371,6 +374,53 @@ public class PublishedContentFixture {
 		return contentId;
 	}
 
+	/** An affiliation online, with its emblem if any and its slug on record. */
+	public UUID publishAffiliation(String romaji, String imageId, Translation... translations) {
+		UUID contentId = insertContent(AFFILIATION);
+		affiliationVersion(contentId, 1, PUBLISHED, romaji, imageId, translations);
+		return contentId;
+	}
+
+	/** An affiliation still in draft: never online, nor its emblem. */
+	public void draftAffiliation(String romaji, String imageId, Translation... translations) {
+		affiliationVersion(insertContent(AFFILIATION), 1, "DRAFT", romaji, imageId, translations);
+	}
+
+	/**
+	 * A new version of an affiliation with another romaji goes online: the previous one
+	 * is superseded, its slug kept on record.
+	 */
+	public void republishAffiliation(UUID contentId, String romaji, Translation... translations) {
+		this.owner
+			.sql("UPDATE content_version SET status = 'SUPERSEDED' WHERE content_id = :id AND status = 'PUBLISHED'")
+			.param("id", contentId)
+			.update();
+		affiliationVersion(contentId, 2, PUBLISHED, romaji, null, translations);
+	}
+
+	private void affiliationVersion(UUID contentId, int number, String status, String romaji, String imageId,
+			Translation... translations) {
+		UUID versionId = insertContentVersion(contentId, number, status);
+		this.owner.sql("INSERT INTO affiliation_version (version_id, romaji, image_id) VALUES (:id, :romaji, :image)")
+			.param("id", versionId)
+			.param("romaji", romaji)
+			.param("image", imageId)
+			.update();
+		for (Translation translation : translations) {
+			this.owner.sql("""
+					INSERT INTO affiliation_version_translation (version_id, language_code, name, description)
+					VALUES (:id, :language, :name, :description)""")
+				.param("id", versionId)
+				.param("language", translation.language())
+				.param("name", translation.name())
+				.param("description", translation.description())
+				.update();
+		}
+		if (PUBLISHED.equals(status)) {
+			recordSlug(AFFILIATION, contentId, romaji);
+		}
+	}
+
 	private void storyTranslation(Entity entity, UUID versionId, Translation translation) {
 		boolean described = !VOLUME.equals(entity);
 		this.owner
@@ -405,7 +455,12 @@ public class PublishedContentFixture {
 	private UUID insertOnlineVersion(Entity entity, UUID contentId, int number, String romaji,
 			Translation... translations) {
 		UUID versionId = insertVersion(entity, contentId, number, "PUBLISHED", romaji, translations);
-		// What content-service writes at publish: the slug of the romaji, kept for good.
+		recordSlug(entity, contentId, romaji);
+		return versionId;
+	}
+
+	/** What content-service writes at publish: the slug of the romaji, kept for good. */
+	private void recordSlug(Entity entity, UUID contentId, String romaji) {
 		this.owner.sql("""
 				INSERT INTO content_slug (entity_type, slug, content_id, assigned_at)
 				VALUES (:type, slug_of(:romaji), :id, now())
@@ -414,7 +469,6 @@ public class PublishedContentFixture {
 			.param("romaji", romaji)
 			.param("id", contentId)
 			.update();
-		return versionId;
 	}
 
 	private UUID insertVersion(Entity entity, UUID contentId, int number, String status, String romaji,

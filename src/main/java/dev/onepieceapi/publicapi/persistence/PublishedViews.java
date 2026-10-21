@@ -1,5 +1,7 @@
 package dev.onepieceapi.publicapi.persistence;
 
+import dev.onepieceapi.publicapi.domain.Affiliation;
+import dev.onepieceapi.publicapi.domain.AffiliationSummary;
 import dev.onepieceapi.publicapi.domain.Arc;
 import dev.onepieceapi.publicapi.domain.ArcSummary;
 import dev.onepieceapi.publicapi.domain.Bounty;
@@ -17,9 +19,12 @@ import dev.onepieceapi.publicapi.domain.Saga;
 import dev.onepieceapi.publicapi.domain.SagaSummary;
 import dev.onepieceapi.publicapi.domain.Volume;
 import dev.onepieceapi.publicapi.domain.VolumeSummary;
+import dev.onepieceapi.publicapi.persistence.mapper.AffiliationRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.BountyRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.PublishedRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.StoryRowMapper;
+import dev.onepieceapi.publicapi.persistence.row.AffiliationRow;
+import dev.onepieceapi.publicapi.persistence.row.AffiliationSummaryRow;
 import dev.onepieceapi.publicapi.persistence.row.ArcRow;
 import dev.onepieceapi.publicapi.persistence.row.ArcSummaryRow;
 import dev.onepieceapi.publicapi.persistence.row.BountyRow;
@@ -184,6 +189,22 @@ public final class PublishedViews {
 				ContentFilter.onValue("condition")))
 		.sorts(Map.of(ContentSort.Field.NAME, List.of("poster_name", "amount"), ContentSort.Field.AMOUNT,
 				List.of("amount")))
+		.build();
+
+	/**
+	 * The affiliations (Affiliation plan D2, D6): the shape of the Devil Fruit Type, the
+	 * romaji as natural key, the emblem on the list rows too; common filters and sorts.
+	 */
+	public static final PublishedView<Affiliation, AffiliationSummary> AFFILIATION = PublishedView
+		.<Affiliation, AffiliationSummary>builder()
+		.entityType("AFFILIATION")
+		.view("published.affiliation")
+		.detailColumns(
+				"id, slug, romaji, language, name, description, image_id, published_at" + FIRST_APPEARANCE_COLUMNS)
+		.summaryColumns("id, slug, romaji, name, image_id")
+		.naturalKey("romaji")
+		.detail(PublishedView.reading(AffiliationRow.class, AffiliationRowMapper::toDomain))
+		.summary(PublishedView.reading(AffiliationSummaryRow.class, AffiliationRowMapper::toDomain))
 		.build();
 
 	/**
