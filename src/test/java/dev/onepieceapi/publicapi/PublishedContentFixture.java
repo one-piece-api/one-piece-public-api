@@ -431,6 +431,16 @@ public class PublishedContentFixture {
 		}
 	}
 
+	/** Sets the kind of the version online of an affiliation. */
+	public void affiliationKind(UUID contentId, String kind) {
+		this.owner
+			.sql("UPDATE affiliation_version SET kind = :kind WHERE version_id ="
+					+ " (SELECT id FROM content_version WHERE content_id = :id AND status = 'PUBLISHED')")
+			.param("kind", kind)
+			.param("id", contentId)
+			.update();
+	}
+
 	/** A species online, with its picture if any and its slug on record. */
 	public UUID publishSpecies(String romaji, String imageId, Translation... translations) {
 		UUID contentId = insertContent(SPECIES);

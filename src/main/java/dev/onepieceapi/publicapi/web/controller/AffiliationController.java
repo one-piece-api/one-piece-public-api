@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import dev.onepieceapi.publicapi.config.PublicApiProperties;
+import dev.onepieceapi.publicapi.domain.AffiliationKind;
+import dev.onepieceapi.publicapi.persistence.PublishedViews;
 import dev.onepieceapi.publicapi.service.AffiliationService;
 import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.ContentResponses;
@@ -24,14 +26,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
+
+import java.util.Map;
+import java.util.Optional;
 
 /** The affiliations online, in the language of the path (Affiliation plan D6). */
 @RestController
 @Tag(name = "Affiliations")
 @RequiredArgsConstructor(onConstructor_ = { @Autowired })
 class AffiliationController {
+
+	private static final String KIND_DESCRIPTION = "Only the affiliations of this kind";
 
 	private final AffiliationService service;
 
@@ -46,8 +54,12 @@ class AffiliationController {
 	@Operation(description = "Lists the affiliations online, one page at a time")
 	@GetMapping(ApiPaths.AFFILIATIONS)
 	ResponseEntity<PageResponse<AffiliationSummaryResponse>> list(@PathVariable String lang,
-			@ParameterObject @Valid ContentListRequest request, WebRequest webRequest) {
-		var search = ContentSearchMapper.toSearch(request, this.properties.pagination());
+			@ParameterObject @Valid ContentListRequest request,
+			@Parameter(description = KIND_DESCRIPTION) @RequestParam Optional<AffiliationKind> kind,
+			WebRequest webRequest) {
+		var filters = ContentSearchMapper
+			.toFilters(Map.of(PublishedViews.KIND_FILTER, kind.map(AffiliationKind::name)));
+		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters);
 		return this.responses.page(webRequest, () -> this.service.search(lang, search),
 				PublicResponseMapper::toResponse);
 	}

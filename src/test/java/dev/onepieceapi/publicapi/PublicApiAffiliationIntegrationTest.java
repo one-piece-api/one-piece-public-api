@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,7 +56,10 @@ class PublicApiAffiliationIntegrationTest extends PublishedDatabaseTest {
 		this.mugiwara = this.fixture.publishAffiliation("Mugiwara no Ichimi", this.emblem,
 				Translation.of("it", "Pirati di Cappello di Paglia"), Translation.of("en", "Straw Hat Pirates"));
 		this.fixture.firstAppearance(this.mugiwara, this.chapter);
-		this.fixture.publishAffiliation("Kaigun", null, Translation.of("it", "Marina"), Translation.of("en", "Navy"));
+		UUID kaigun = this.fixture.publishAffiliation("Kaigun", null, Translation.of("it", "Marina"),
+				Translation.of("en", "Navy"));
+		this.fixture.affiliationKind(this.mugiwara, "PIRATE_CREW");
+		this.fixture.affiliationKind(kaigun, "NAVY");
 		this.fixture.publishAffiliation("Baroque Works", null, Translation.of("it", "Baroque Works"),
 				Translation.of("en", "Baroque Works"));
 		this.fixture.draftAffiliation("Akagami Kaizokudan", this.draftEmblem, Translation.of("it", "Pirati del Rosso"),
@@ -87,6 +91,21 @@ class PublicApiAffiliationIntegrationTest extends PublishedDatabaseTest {
 			.doesNotExist();
 		ok("/v1/en/affiliations").jsonPath("$.content[*].name")
 			.isEqualTo(List.of("Baroque Works", "Navy", "Straw Hat Pirates"));
+	}
+
+	@Test
+	void showsTheKindAndFiltersByIt() {
+		ok("/v1/en/affiliations").jsonPath("$.content[*].kind").isEqualTo(Arrays.asList(null, "NAVY", "PIRATE_CREW"));
+		ok("/v1/en/affiliations?kind=NAVY").jsonPath("$.content[*].romaji").isEqualTo(List.of("Kaigun"));
+		ok("/v1/en/affiliations?kind=OTHER").jsonPath("$.totalElements").isEqualTo(0);
+		ok("/v1/it/affiliations/kaigun").jsonPath("$.kind").isEqualTo("NAVY");
+		// Baroque Works was written before kinds existed
+		ok("/v1/en/affiliations/baroque-works").jsonPath("$.kind").isEmpty();
+		get("/v1/en/affiliations?kind=PIRATE").expectStatus()
+			.isBadRequest()
+			.expectBody()
+			.jsonPath("$.errorCode")
+			.isEqualTo("VALIDATION_FAILED");
 	}
 
 	@Test

@@ -215,6 +215,9 @@ public final class PublishedViews {
 				List.of("amount")))
 		.build();
 
+	/** The name of the filter of the affiliations (Character plan D10, D16). */
+	public static final String KIND_FILTER = "kind";
+
 	/**
 	 * The affiliations (Affiliation plan D2, D6): the shape of the Devil Fruit Type, the
 	 * romaji as natural key, the emblem on the list rows too; common filters and sorts.
@@ -223,12 +226,13 @@ public final class PublishedViews {
 		.<Affiliation, AffiliationSummary>builder()
 		.entityType("AFFILIATION")
 		.view("published.affiliation")
-		.detailColumns(
-				"id, slug, romaji, language, name, description, image_id, published_at" + FIRST_APPEARANCE_COLUMNS)
-		.summaryColumns("id, slug, romaji, name, image_id")
+		.detailColumns("id, slug, romaji, language, name, description, kind, image_id, published_at"
+				+ FIRST_APPEARANCE_COLUMNS)
+		.summaryColumns("id, slug, romaji, name, kind, image_id")
 		.naturalKey("romaji")
 		.detail(PublishedView.reading(AffiliationRow.class, AffiliationRowMapper::toDomain))
 		.summary(PublishedView.reading(AffiliationSummaryRow.class, AffiliationRowMapper::toDomain))
+		.filters(Map.of(KIND_FILTER, ContentFilter.onValue("kind")))
 		.build();
 
 	/**

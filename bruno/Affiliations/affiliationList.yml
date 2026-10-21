@@ -27,6 +27,31 @@ http:
       type: query
       description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
       disabled: true
+    - name: kind
+      value: PIRATE_CREW
+      type: query
+      description: Only the affiliations of this kind
+      disabled: true
+    - name: kind
+      value: NAVY
+      type: query
+      description: Only the affiliations of this kind
+      disabled: true
+    - name: kind
+      value: WORLD_GOVERNMENT
+      type: query
+      description: Only the affiliations of this kind
+      disabled: true
+    - name: kind
+      value: REVOLUTIONARY_ARMY
+      type: query
+      description: Only the affiliations of this kind
+      disabled: true
+    - name: kind
+      value: OTHER
+      type: query
+      description: Only the affiliations of this kind
+      disabled: true
     - name: sort
       value: name,asc
       type: query
@@ -65,6 +90,31 @@ examples:
           type: query
           description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
           disabled: true
+        - name: kind
+          value: PIRATE_CREW
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
+        - name: kind
+          value: NAVY
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
+        - name: kind
+          value: WORLD_GOVERNMENT
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
+        - name: kind
+          value: REVOLUTIONARY_ARMY
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
+        - name: kind
+          value: OTHER
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
         - name: sort
           value: name,asc
           type: query
@@ -83,6 +133,7 @@ examples:
               {
                 "id": "",
                 "image": "",
+                "kind": "PIRATE_CREW",
                 "name": "",
                 "romaji": "",
                 "slug": ""
@@ -116,6 +167,31 @@ examples:
           value: ""
           type: query
           description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
+          disabled: true
+        - name: kind
+          value: PIRATE_CREW
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
+        - name: kind
+          value: NAVY
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
+        - name: kind
+          value: WORLD_GOVERNMENT
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
+        - name: kind
+          value: REVOLUTIONARY_ARMY
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
+        - name: kind
+          value: OTHER
+          type: query
+          description: Only the affiliations of this kind
           disabled: true
         - name: sort
           value: name,asc
@@ -167,6 +243,31 @@ examples:
           value: ""
           type: query
           description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
+          disabled: true
+        - name: kind
+          value: PIRATE_CREW
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
+        - name: kind
+          value: NAVY
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
+        - name: kind
+          value: WORLD_GOVERNMENT
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
+        - name: kind
+          value: REVOLUTIONARY_ARMY
+          type: query
+          description: Only the affiliations of this kind
+          disabled: true
+        - name: kind
+          value: OTHER
+          type: query
+          description: Only the affiliations of this kind
           disabled: true
         - name: sort
           value: name,asc

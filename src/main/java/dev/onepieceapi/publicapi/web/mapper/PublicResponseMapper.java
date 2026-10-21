@@ -356,6 +356,7 @@ public class PublicResponseMapper {
 			.language(affiliation.language())
 			.name(affiliation.name())
 			.description(affiliation.description())
+			.kind(affiliation.kind())
 			.image(imagePath(affiliation.imageId()))
 			.publishedAt(affiliation.publishedAt())
 			.firstAppearance(toResponse(affiliation.firstAppearance()))
@@ -368,6 +369,7 @@ public class PublicResponseMapper {
 			.slug(summary.slug())
 			.romaji(summary.romaji())
 			.name(summary.name())
+			.kind(summary.kind())
 			.image(imagePath(summary.imageId()))
 			.build();
 	}
