@@ -47,6 +47,19 @@ examples:
         type: json
         data: |-
           {
+            "affiliations": [
+              {
+                "affiliation": {
+                  "id": "",
+                  "kind": "PIRATE_CREW",
+                  "name": "",
+                  "slug": ""
+                },
+                "former": false,
+                "marineRank": "FLEET_ADMIRAL",
+                "role": ""
+              }
+            ],
             "aliases": [],
             "birthday": "--05-05",
             "bounties": [
@@ -131,6 +144,19 @@ examples:
         type: json
         data: |-
           {
+            "affiliations": [
+              {
+                "affiliation": {
+                  "id": "",
+                  "kind": "PIRATE_CREW",
+                  "name": "",
+                  "slug": ""
+                },
+                "former": false,
+                "marineRank": "FLEET_ADMIRAL",
+                "role": ""
+              }
+            ],
             "aliases": [],
             "birthday": "--05-05",
             "bounties": [
@@ -246,4 +272,4 @@ examples:
             "type": ""
           }
 
-docs: One character by id or slug, with its epithets, aliases and species
+docs: One character by id or slug, with its epithets, aliases, species and memberships

@@ -13,9 +13,12 @@ import java.util.UUID;
  * @param kind null for a version written before kinds existed
  * @param image the emblem's path relative to the API root; {@code null} when none
  * @param firstAppearance where the reader first meets it
+ * @param memberCount how many characters online belong to it now, those who left it not
+ * counted
  */
 @Builder
 public record AffiliationResponse(UUID id, String slug, String romaji, String language, String name, String description,
-		AffiliationKind kind, String image, Instant publishedAt, FirstAppearanceResponse firstAppearance) {
+		AffiliationKind kind, String image, Instant publishedAt, FirstAppearanceResponse firstAppearance,
+		long memberCount) {
 
 }

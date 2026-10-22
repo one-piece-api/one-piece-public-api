@@ -1,14 +1,19 @@
 package dev.onepieceapi.publicapi.persistence.mapper;
 
+import dev.onepieceapi.publicapi.domain.AffiliationKind;
+import dev.onepieceapi.publicapi.domain.AffiliationReference;
 import dev.onepieceapi.publicapi.domain.Character;
 import dev.onepieceapi.publicapi.domain.CharacterStatus;
 import dev.onepieceapi.publicapi.domain.CharacterSummary;
 import dev.onepieceapi.publicapi.domain.FirstAppearance;
 import dev.onepieceapi.publicapi.domain.Gender;
+import dev.onepieceapi.publicapi.domain.MarineRank;
+import dev.onepieceapi.publicapi.domain.Membership;
 import dev.onepieceapi.publicapi.domain.SpeciesReference;
 import dev.onepieceapi.publicapi.domain.StoryItemReference;
 import dev.onepieceapi.publicapi.persistence.row.CharacterRow;
 import dev.onepieceapi.publicapi.persistence.row.CharacterSummaryRow;
+import dev.onepieceapi.publicapi.persistence.row.MembershipRow;
 import dev.onepieceapi.publicapi.persistence.row.SpeciesReferenceRow;
 import lombok.experimental.UtilityClass;
 
@@ -50,6 +55,13 @@ public class CharacterRowMapper {
 
 	public SpeciesReference toDomain(SpeciesReferenceRow row) {
 		return new SpeciesReference(row.id(), row.slug(), row.name());
+	}
+
+	public Membership toDomain(MembershipRow row) {
+		AffiliationKind kind = row.kind() == null ? null : AffiliationKind.valueOf(row.kind());
+		MarineRank rank = row.marineRank() == null ? null : MarineRank.valueOf(row.marineRank());
+		return new Membership(new AffiliationReference(row.id(), row.slug(), row.name(), kind), row.role(), rank,
+				row.former());
 	}
 
 	/** Both or neither, as the version table guarantees. */

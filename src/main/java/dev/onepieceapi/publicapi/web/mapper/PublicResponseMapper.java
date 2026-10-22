@@ -12,6 +12,7 @@ import dev.onepieceapi.publicapi.domain.Character;
 import dev.onepieceapi.publicapi.domain.CharacterReference;
 import dev.onepieceapi.publicapi.domain.CharacterSummary;
 import dev.onepieceapi.publicapi.domain.HeldBounty;
+import dev.onepieceapi.publicapi.domain.Membership;
 import dev.onepieceapi.publicapi.domain.SpeciesReference;
 import dev.onepieceapi.publicapi.domain.Species;
 import dev.onepieceapi.publicapi.domain.SpeciesSummary;
@@ -37,6 +38,7 @@ import dev.onepieceapi.publicapi.domain.StorySpan;
 import dev.onepieceapi.publicapi.domain.Volume;
 import dev.onepieceapi.publicapi.domain.VolumeSummary;
 import dev.onepieceapi.publicapi.web.ApiPaths;
+import dev.onepieceapi.publicapi.web.dto.response.AffiliationReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.AffiliationResponse;
 import dev.onepieceapi.publicapi.web.dto.response.AffiliationSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ArcReferenceResponse;
@@ -48,6 +50,7 @@ import dev.onepieceapi.publicapi.web.dto.response.CharacterReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.CharacterResponse;
 import dev.onepieceapi.publicapi.web.dto.response.CharacterSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.HeldBountyResponse;
+import dev.onepieceapi.publicapi.web.dto.response.MembershipResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SpeciesReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SpeciesResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SpeciesSummaryResponse;
@@ -360,6 +363,7 @@ public class PublicResponseMapper {
 			.image(imagePath(affiliation.imageId()))
 			.publishedAt(affiliation.publishedAt())
 			.firstAppearance(toResponse(affiliation.firstAppearance()))
+			.memberCount(affiliation.memberCount())
 			.build();
 	}
 
@@ -414,6 +418,7 @@ public class PublicResponseMapper {
 			.epithets(character.epithets())
 			.aliases(character.aliases())
 			.species(character.species().stream().map(PublicResponseMapper::toResponse).toList())
+			.affiliations(character.affiliations().stream().map(PublicResponseMapper::toResponse).toList())
 			.bounties(character.bounties().stream().map(PublicResponseMapper::toResponse).toList())
 			.publishedAt(character.publishedAt())
 			.firstAppearance(toResponse(character.firstAppearance()))
@@ -439,6 +444,13 @@ public class PublicResponseMapper {
 
 	public HeldBountyResponse toResponse(HeldBounty bounty) {
 		return new HeldBountyResponse(bounty.id(), bounty.slug(), bounty.amount(), bounty.validity());
+	}
+
+	public MembershipResponse toResponse(Membership membership) {
+		var affiliation = membership.affiliation();
+		return new MembershipResponse(new AffiliationReferenceResponse(affiliation.id(), affiliation.slug(),
+				affiliation.name(), affiliation.kind()), membership.role(), membership.marineRank(),
+				membership.former());
 	}
 
 	public SpeciesReferenceResponse toResponse(SpeciesReference species) {

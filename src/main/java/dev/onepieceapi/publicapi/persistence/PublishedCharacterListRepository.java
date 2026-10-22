@@ -1,10 +1,12 @@
 package dev.onepieceapi.publicapi.persistence;
 
 import dev.onepieceapi.publicapi.domain.HeldBounty;
+import dev.onepieceapi.publicapi.domain.Membership;
 import dev.onepieceapi.publicapi.domain.SpeciesReference;
 import dev.onepieceapi.publicapi.persistence.mapper.BountyRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.CharacterRowMapper;
 import dev.onepieceapi.publicapi.persistence.row.HeldBountyRow;
+import dev.onepieceapi.publicapi.persistence.row.MembershipRow;
 import dev.onepieceapi.publicapi.persistence.row.SpeciesReferenceRow;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +63,43 @@ public class PublishedCharacterListRepository {
 			.stream()
 			.map(CharacterRowMapper::toDomain)
 			.toList();
+	}
+
+	/**
+	 * Its memberships in affiliations online, named in the language and in the version's
+	 * order: an affiliation not written in it is left out, a role not written in it is
+	 * null.
+	 */
+	public List<Membership> findAffiliations(UUID characterId, String language) {
+		return this.jdbc.sql("""
+				SELECT a.id, a.slug, a.name, a.kind, r.role, ca.marine_rank, ca.former
+				FROM published.character_affiliation ca
+				         JOIN published.affiliation a ON a.id = ca.affiliation_id AND a.language = :language
+				         LEFT JOIN published.character_affiliation_role r
+				                   ON r.character_id = ca.character_id AND r.position = ca.position
+				                       AND r.language = :language
+				WHERE ca.character_id = :id
+				ORDER BY ca.position""")
+			.param("id", characterId)
+			.param("language", language)
+			.query(MembershipRow.class)
+			.list()
+			.stream()
+			.map(CharacterRowMapper::toDomain)
+			.toList();
+	}
+
+	/**
+	 * How many characters online belong now to this affiliation: those who left it not
+	 * counted.
+	 */
+	public long countMembers(UUID affiliationId) {
+		return this.jdbc
+			.sql("SELECT count(DISTINCT character_id) FROM published.character_affiliation"
+					+ " WHERE affiliation_id = :id AND NOT former")
+			.param("id", affiliationId)
+			.query(Long.class)
+			.single();
 	}
 
 	/** The bounties online naming it as holder, in the language, highest amount first. */

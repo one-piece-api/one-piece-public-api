@@ -1,6 +1,7 @@
 package dev.onepieceapi.publicapi.domain;
 
 import lombok.Builder;
+import lombok.With;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -13,10 +14,12 @@ import java.util.UUID;
  * @param imageId the emblem's identifier; null when it has none
  * @param publishedAt when the online version was published
  * @param firstAppearance where the reader first meets it
+ * @param memberCount how many characters online belong to it now, those who left it not
+ * counted
  */
 @Builder
 public record Affiliation(UUID id, String slug, String romaji, String language, String name, String description,
-		AffiliationKind kind, String imageId, Instant publishedAt,
-		FirstAppearance firstAppearance) implements PublishedContent {
+		AffiliationKind kind, String imageId, Instant publishedAt, FirstAppearance firstAppearance,
+		@With long memberCount) implements PublishedContent {
 
 }

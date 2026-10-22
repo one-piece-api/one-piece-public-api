@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import dev.onepieceapi.publicapi.config.PublicApiProperties;
+import dev.onepieceapi.publicapi.domain.AffiliationKind;
 import dev.onepieceapi.publicapi.domain.CharacterStatus;
 import dev.onepieceapi.publicapi.persistence.PublishedViews;
 import dev.onepieceapi.publicapi.service.CharacterService;
@@ -44,6 +45,12 @@ class CharacterController {
 	private static final String SPECIES_DESCRIPTION = "Only the characters of this species, by id or slug (current"
 			+ " or old); an unknown species lists nothing";
 
+	private static final String AFFILIATION_DESCRIPTION = "Only the characters that belong to this affiliation now, by id"
+			+ " or slug (current or old); those who left it do not count; an unknown affiliation lists nothing";
+
+	private static final String AFFILIATION_KIND_DESCRIPTION = "Only the characters that belong now to an affiliation"
+			+ " of this kind";
+
 	private final CharacterService service;
 
 	private final PublicApiProperties properties;
@@ -60,16 +67,21 @@ class CharacterController {
 			@ParameterObject @Valid ContentListRequest request,
 			@Parameter(description = STATUS_DESCRIPTION) @RequestParam Optional<CharacterStatus> status,
 			@Parameter(description = SPECIES_DESCRIPTION) @RequestParam Optional<String> species,
+			@Parameter(description = AFFILIATION_DESCRIPTION) @RequestParam Optional<String> affiliation,
+			@Parameter(
+					description = AFFILIATION_KIND_DESCRIPTION) @RequestParam Optional<AffiliationKind> affiliationKind,
 			WebRequest webRequest) {
-		var filters = ContentSearchMapper.toFilters(Map.of(PublishedViews.STATUS_FILTER,
-				status.map(CharacterStatus::name), PublishedViews.SPECIES_FILTER, species));
+		var filters = ContentSearchMapper
+			.toFilters(Map.of(PublishedViews.STATUS_FILTER, status.map(CharacterStatus::name),
+					PublishedViews.SPECIES_FILTER, species, PublishedViews.AFFILIATION_FILTER, affiliation,
+					PublishedViews.AFFILIATION_KIND_FILTER, affiliationKind.map(AffiliationKind::name)));
 		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters);
 		return this.responses.page(webRequest, () -> this.service.search(lang, search),
 				PublicResponseMapper::toResponse);
 	}
 
 	/** By id or slug; an old slug answers {@code 301} (see {@link ContentResponses}). */
-	@Operation(description = "One character by id or slug, with its epithets, aliases and species")
+	@Operation(description = "One character by id or slug, with its epithets, aliases, species and memberships")
 	@ApiResponse(responseCode = "200", description = "OK")
 	@ApiResponse(responseCode = "304", description = "The caller's ETag is current")
 	@ApiResponse(responseCode = "301",

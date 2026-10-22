@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 
 /**
  * The characters online: the generic rules, bound to their view, and the detail completed
- * with its epithets, aliases, species and bounties (Character plan C2, C6).
+ * with its epithets, aliases, species, memberships and bounties (Character plan C2, C6,
+ * C8).
  */
 @Service
 public class CharacterService extends PublishedContentService<Character, CharacterSummary> {
@@ -27,6 +28,7 @@ public class CharacterService extends PublishedContentService<Character, Charact
 		return character.withEpithets(this.lists.findEpithets(character.id(), character.language()))
 			.withAliases(this.lists.findAliases(character.id()))
 			.withSpecies(this.lists.findSpecies(character.id(), character.language()))
+			.withAffiliations(this.lists.findAffiliations(character.id(), character.language()))
 			.withBounties(this.lists.findBounties(character.id(), character.language()));
 	}
 

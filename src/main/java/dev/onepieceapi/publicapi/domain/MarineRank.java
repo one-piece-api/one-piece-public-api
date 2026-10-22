@@ -1,0 +1,13 @@
+package dev.onepieceapi.publicapi.domain;
+
+/**
+ * The ranks of the Navy, in the order of the hierarchy, the highest first (Character plan
+ * D10).
+ */
+public enum MarineRank {
+
+	FLEET_ADMIRAL, ADMIRAL, VICE_ADMIRAL, REAR_ADMIRAL, COMMODORE, CAPTAIN, COMMANDER, LIEUTENANT_COMMANDER, LIEUTENANT,
+	LIEUTENANT_JUNIOR_GRADE, ENSIGN, WARRANT_OFFICER, MASTER_CHIEF_PETTY_OFFICER, CHIEF_PETTY_OFFICER, PETTY_OFFICER,
+	SEAMAN_FIRST_CLASS, SEAMAN_APPRENTICE, SEAMAN_RECRUIT, CHORE_BOY
+
+}

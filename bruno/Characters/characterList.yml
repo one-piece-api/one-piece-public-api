@@ -47,6 +47,36 @@ http:
       type: query
       description: Only the characters of this species, by id or slug (current or old); an unknown species lists nothing
       disabled: true
+    - name: affiliation
+      value: ""
+      type: query
+      description: Only the characters that belong to this affiliation now, by id or slug (current or old); those who left it do not count; an unknown affiliation lists nothing
+      disabled: true
+    - name: affiliationKind
+      value: PIRATE_CREW
+      type: query
+      description: Only the characters that belong now to an affiliation of this kind
+      disabled: true
+    - name: affiliationKind
+      value: NAVY
+      type: query
+      description: Only the characters that belong now to an affiliation of this kind
+      disabled: true
+    - name: affiliationKind
+      value: WORLD_GOVERNMENT
+      type: query
+      description: Only the characters that belong now to an affiliation of this kind
+      disabled: true
+    - name: affiliationKind
+      value: REVOLUTIONARY_ARMY
+      type: query
+      description: Only the characters that belong now to an affiliation of this kind
+      disabled: true
+    - name: affiliationKind
+      value: OTHER
+      type: query
+      description: Only the characters that belong now to an affiliation of this kind
+      disabled: true
     - name: sort
       value: name,asc
       type: query
@@ -104,6 +134,36 @@ examples:
           value: ""
           type: query
           description: Only the characters of this species, by id or slug (current or old); an unknown species lists nothing
+          disabled: true
+        - name: affiliation
+          value: ""
+          type: query
+          description: Only the characters that belong to this affiliation now, by id or slug (current or old); those who left it do not count; an unknown affiliation lists nothing
+          disabled: true
+        - name: affiliationKind
+          value: PIRATE_CREW
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: affiliationKind
+          value: NAVY
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: affiliationKind
+          value: WORLD_GOVERNMENT
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: affiliationKind
+          value: REVOLUTIONARY_ARMY
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: affiliationKind
+          value: OTHER
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
           disabled: true
         - name: sort
           value: name,asc
@@ -178,6 +238,36 @@ examples:
           type: query
           description: Only the characters of this species, by id or slug (current or old); an unknown species lists nothing
           disabled: true
+        - name: affiliation
+          value: ""
+          type: query
+          description: Only the characters that belong to this affiliation now, by id or slug (current or old); those who left it do not count; an unknown affiliation lists nothing
+          disabled: true
+        - name: affiliationKind
+          value: PIRATE_CREW
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: affiliationKind
+          value: NAVY
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: affiliationKind
+          value: WORLD_GOVERNMENT
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: affiliationKind
+          value: REVOLUTIONARY_ARMY
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: affiliationKind
+          value: OTHER
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
         - name: sort
           value: name,asc
           type: query
@@ -248,6 +338,36 @@ examples:
           value: ""
           type: query
           description: Only the characters of this species, by id or slug (current or old); an unknown species lists nothing
+          disabled: true
+        - name: affiliation
+          value: ""
+          type: query
+          description: Only the characters that belong to this affiliation now, by id or slug (current or old); those who left it do not count; an unknown affiliation lists nothing
+          disabled: true
+        - name: affiliationKind
+          value: PIRATE_CREW
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: affiliationKind
+          value: NAVY
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: affiliationKind
+          value: WORLD_GOVERNMENT
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: affiliationKind
+          value: REVOLUTIONARY_ARMY
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: affiliationKind
+          value: OTHER
+          type: query
+          description: Only the characters that belong now to an affiliation of this kind
           disabled: true
         - name: sort
           value: name,asc

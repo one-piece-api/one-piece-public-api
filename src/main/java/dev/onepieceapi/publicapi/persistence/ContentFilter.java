@@ -29,7 +29,17 @@ public record ContentFilter(String byId, String bySlug) {
 	 * @param entityType the entity of the other content
 	 */
 	public static ContentFilter onChild(String childView, String ownerColumn, String column, String entityType) {
-		String owners = "id IN (SELECT " + ownerColumn + " FROM " + childView + " WHERE " + column + " = ";
+		return onChild(childView, ownerColumn, column, entityType, "TRUE");
+	}
+
+	/**
+	 * The same, for the rows of the child view that also meet a fixed condition, such as
+	 * {@code NOT former} for the affiliations a character belongs to now.
+	 */
+	public static ContentFilter onChild(String childView, String ownerColumn, String column, String entityType,
+			String andCondition) {
+		String owners = "id IN (SELECT " + ownerColumn + " FROM " + childView + " WHERE " + andCondition + " AND "
+				+ column + " = ";
 		return new ContentFilter(owners + ":%s)", owners + contentOfSlug(entityType) + ")");
 	}
 

@@ -256,11 +256,15 @@ public final class PublishedViews {
 
 	public static final String SPECIES_FILTER = "species";
 
+	public static final String AFFILIATION_FILTER = "affiliation";
+
+	public static final String AFFILIATION_KIND_FILTER = "affiliationKind";
+
 	/**
 	 * The characters (Character plan D2-D8, D16): the shape of the Species plus the
 	 * values that are the same in every language; filtered by status and by a species of
-	 * their list, read from its child view. The lists themselves are read for the detail
-	 * only.
+	 * their list, read from its child view; by an affiliation they currently belong to,
+	 * or the kind of one. The lists themselves are read for the detail only.
 	 */
 	public static final PublishedView<Character, CharacterSummary> CHARACTER = PublishedView
 		.<Character, CharacterSummary>builder()
@@ -273,7 +277,11 @@ public final class PublishedViews {
 		.detail(PublishedView.reading(CharacterRow.class, CharacterRowMapper::toDomain))
 		.summary(PublishedView.reading(CharacterSummaryRow.class, CharacterRowMapper::toDomain))
 		.filters(Map.of(STATUS_FILTER, ContentFilter.onValue("status"), SPECIES_FILTER,
-				ContentFilter.onChild("published.character_species", "character_id", "species_id", "SPECIES")))
+				ContentFilter.onChild("published.character_species", "character_id", "species_id", "SPECIES"),
+				AFFILIATION_FILTER,
+				ContentFilter.onChild("published.character_affiliation", "character_id", "affiliation_id",
+						"AFFILIATION", "NOT former"),
+				AFFILIATION_KIND_FILTER, currentMembershipOfKind()))
 		.build();
 
 	/**
@@ -290,6 +298,16 @@ public final class PublishedViews {
 			"episode_id", "broadcast_date");
 
 	private PublishedViews() {
+	}
+
+	/**
+	 * The characters that currently belong to an affiliation of this kind: the kind is a
+	 * value of a closed set, so only its names get here.
+	 */
+	private static ContentFilter currentMembershipOfKind() {
+		String condition = "id IN (SELECT ca.character_id FROM published.character_affiliation ca"
+				+ " JOIN published.affiliation a ON a.id = ca.affiliation_id WHERE NOT ca.former AND a.kind = :%s)";
+		return new ContentFilter(condition, condition);
 	}
 
 	/**

@@ -545,7 +545,10 @@ public class PublishedContentFixture {
 		}
 	}
 
-	/** The epithets, aliases and species of a character version, in the given order. */
+	/**
+	 * The epithets, aliases, species and memberships of a character version, in the given
+	 * order.
+	 */
 	private void characterLists(UUID versionId, Persona persona) {
 		for (int position = 0; position < persona.epithets().size(); position++) {
 			UUID epithetId = UUID.randomUUID();
@@ -581,6 +584,29 @@ public class PublishedContentFixture {
 				.param("at", position)
 				.param("species", persona.species().get(position))
 				.update();
+		}
+		for (int position = 0; position < persona.affiliations().size(); position++) {
+			Belonging belonging = persona.affiliations().get(position);
+			UUID membershipId = UUID.randomUUID();
+			this.owner.sql("""
+					INSERT INTO character_version_affiliation (id, version_id, position, affiliation_content_id,
+					                                           marine_rank, former)
+					VALUES (:id, :version, :at, :affiliation, :rank, :former)""")
+				.param("id", membershipId)
+				.param("version", versionId)
+				.param("at", position)
+				.param("affiliation", belonging.affiliationId())
+				.param("rank", belonging.marineRank())
+				.param("former", belonging.former())
+				.update();
+			belonging.role()
+				.forEach((language, role) -> this.owner.sql("""
+						INSERT INTO character_version_affiliation_translation (membership_id, language_code, role)
+						VALUES (:id, :language, :role)""")
+					.param("id", membershipId)
+					.param("language", language)
+					.param("role", role)
+					.update());
 		}
 	}
 
@@ -710,7 +736,8 @@ public class PublishedContentFixture {
 	 */
 	@Builder
 	public record Persona(String romaji, String japaneseName, String status, String gender, MonthDay birthday,
-			String imageId, List<Map<String, String>> epithets, List<String> aliases, List<UUID> species) {
+			String imageId, List<Map<String, String>> epithets, List<String> aliases, List<UUID> species,
+			List<Belonging> affiliations) {
 
 		public Persona {
 			status = status == null ? "ALIVE" : status;
@@ -718,6 +745,19 @@ public class PublishedContentFixture {
 			epithets = epithets == null ? List.of() : epithets;
 			aliases = aliases == null ? List.of() : aliases;
 			species = species == null ? List.of() : species;
+			affiliations = affiliations == null ? List.of() : affiliations;
+		}
+
+	}
+
+	/**
+	 * A membership of a character version: the affiliation, its role by language and its
+	 * rank.
+	 */
+	public record Belonging(UUID affiliationId, Map<String, String> role, String marineRank, boolean former) {
+
+		public Belonging {
+			role = role == null ? Map.of() : role;
 		}
 
 	}
