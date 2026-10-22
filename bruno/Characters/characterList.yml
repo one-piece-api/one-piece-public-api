@@ -77,6 +77,11 @@ http:
       type: query
       description: Only the characters that belong now to an affiliation of this kind
       disabled: true
+    - name: devilFruit
+      value: ""
+      type: query
+      description: Only the characters that have this Devil Fruit, now or once, by id or slug (current or old); an unknown fruit lists nothing
+      disabled: true
     - name: sort
       value: name,asc
       type: query
@@ -164,6 +169,11 @@ examples:
           value: OTHER
           type: query
           description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: devilFruit
+          value: ""
+          type: query
+          description: Only the characters that have this Devil Fruit, now or once, by id or slug (current or old); an unknown fruit lists nothing
           disabled: true
         - name: sort
           value: name,asc
@@ -268,6 +278,11 @@ examples:
           type: query
           description: Only the characters that belong now to an affiliation of this kind
           disabled: true
+        - name: devilFruit
+          value: ""
+          type: query
+          description: Only the characters that have this Devil Fruit, now or once, by id or slug (current or old); an unknown fruit lists nothing
+          disabled: true
         - name: sort
           value: name,asc
           type: query
@@ -368,6 +383,11 @@ examples:
           value: OTHER
           type: query
           description: Only the characters that belong now to an affiliation of this kind
+          disabled: true
+        - name: devilFruit
+          value: ""
+          type: query
+          description: Only the characters that have this Devil Fruit, now or once, by id or slug (current or old); an unknown fruit lists nothing
           disabled: true
         - name: sort
           value: name,asc

@@ -8,12 +8,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import dev.onepieceapi.publicapi.config.PublicApiProperties;
-import dev.onepieceapi.publicapi.domain.AffiliationKind;
-import dev.onepieceapi.publicapi.domain.CharacterStatus;
-import dev.onepieceapi.publicapi.persistence.PublishedViews;
 import dev.onepieceapi.publicapi.service.CharacterService;
 import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.ContentResponses;
+import dev.onepieceapi.publicapi.web.dto.request.CharacterFilterRequest;
 import dev.onepieceapi.publicapi.web.dto.request.ContentListRequest;
 import dev.onepieceapi.publicapi.web.dto.response.CharacterResponse;
 import dev.onepieceapi.publicapi.web.dto.response.CharacterSummaryResponse;
@@ -27,29 +25,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
-
-import java.util.Map;
-import java.util.Optional;
 
 /** The characters online, in the language of the path (Character plan D16). */
 @RestController
 @Tag(name = "Characters")
 @RequiredArgsConstructor(onConstructor_ = { @Autowired })
 class CharacterController {
-
-	private static final String STATUS_DESCRIPTION = "Only the characters of this status";
-
-	private static final String SPECIES_DESCRIPTION = "Only the characters of this species, by id or slug (current"
-			+ " or old); an unknown species lists nothing";
-
-	private static final String AFFILIATION_DESCRIPTION = "Only the characters that belong to this affiliation now, by id"
-			+ " or slug (current or old); those who left it do not count; an unknown affiliation lists nothing";
-
-	private static final String AFFILIATION_KIND_DESCRIPTION = "Only the characters that belong now to an affiliation"
-			+ " of this kind";
 
 	private final CharacterService service;
 
@@ -64,24 +47,17 @@ class CharacterController {
 	@Operation(description = "Lists the characters online, one page at a time")
 	@GetMapping(ApiPaths.CHARACTERS)
 	ResponseEntity<PageResponse<CharacterSummaryResponse>> list(@PathVariable String lang,
-			@ParameterObject @Valid ContentListRequest request,
-			@Parameter(description = STATUS_DESCRIPTION) @RequestParam Optional<CharacterStatus> status,
-			@Parameter(description = SPECIES_DESCRIPTION) @RequestParam Optional<String> species,
-			@Parameter(description = AFFILIATION_DESCRIPTION) @RequestParam Optional<String> affiliation,
-			@Parameter(
-					description = AFFILIATION_KIND_DESCRIPTION) @RequestParam Optional<AffiliationKind> affiliationKind,
+			@ParameterObject @Valid ContentListRequest request, @ParameterObject CharacterFilterRequest filter,
 			WebRequest webRequest) {
-		var filters = ContentSearchMapper
-			.toFilters(Map.of(PublishedViews.STATUS_FILTER, status.map(CharacterStatus::name),
-					PublishedViews.SPECIES_FILTER, species, PublishedViews.AFFILIATION_FILTER, affiliation,
-					PublishedViews.AFFILIATION_KIND_FILTER, affiliationKind.map(AffiliationKind::name)));
+		var filters = ContentSearchMapper.toFilters(filter.asked());
 		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters);
 		return this.responses.page(webRequest, () -> this.service.search(lang, search),
 				PublicResponseMapper::toResponse);
 	}
 
 	/** By id or slug; an old slug answers {@code 301} (see {@link ContentResponses}). */
-	@Operation(description = "One character by id or slug, with its epithets, aliases, species and memberships")
+	@Operation(
+			description = "One character by id or slug, with its epithets, aliases, species, memberships and Devil Fruits")
 	@ApiResponse(responseCode = "200", description = "OK")
 	@ApiResponse(responseCode = "304", description = "The caller's ETag is current")
 	@ApiResponse(responseCode = "301",

@@ -5,7 +5,9 @@ import dev.onepieceapi.publicapi.domain.AffiliationReference;
 import dev.onepieceapi.publicapi.domain.Character;
 import dev.onepieceapi.publicapi.domain.CharacterStatus;
 import dev.onepieceapi.publicapi.domain.CharacterSummary;
+import dev.onepieceapi.publicapi.domain.DevilFruitReference;
 import dev.onepieceapi.publicapi.domain.FirstAppearance;
+import dev.onepieceapi.publicapi.domain.FruitUse;
 import dev.onepieceapi.publicapi.domain.Gender;
 import dev.onepieceapi.publicapi.domain.MarineRank;
 import dev.onepieceapi.publicapi.domain.Membership;
@@ -13,6 +15,7 @@ import dev.onepieceapi.publicapi.domain.SpeciesReference;
 import dev.onepieceapi.publicapi.domain.StoryItemReference;
 import dev.onepieceapi.publicapi.persistence.row.CharacterRow;
 import dev.onepieceapi.publicapi.persistence.row.CharacterSummaryRow;
+import dev.onepieceapi.publicapi.persistence.row.FruitUseRow;
 import dev.onepieceapi.publicapi.persistence.row.MembershipRow;
 import dev.onepieceapi.publicapi.persistence.row.SpeciesReferenceRow;
 import lombok.experimental.UtilityClass;
@@ -62,6 +65,11 @@ public class CharacterRowMapper {
 		MarineRank rank = row.marineRank() == null ? null : MarineRank.valueOf(row.marineRank());
 		return new Membership(new AffiliationReference(row.id(), row.slug(), row.name(), kind), row.role(), rank,
 				row.former());
+	}
+
+	/** A fruit of a character: the row names the fruit. */
+	public FruitUse toFruitUse(FruitUseRow row) {
+		return new FruitUse(new DevilFruitReference(row.id(), row.slug(), row.name()), row.former());
 	}
 
 	/** Both or neither, as the version table guarantees. */

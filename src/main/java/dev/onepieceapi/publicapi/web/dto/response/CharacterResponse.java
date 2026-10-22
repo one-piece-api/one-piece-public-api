@@ -21,6 +21,7 @@ import java.util.UUID;
  * @param aliases the same in every language, in order
  * @param species its species online, in order
  * @param affiliations its memberships, in order
+ * @param devilFruits its Devil Fruits, in order
  * @param bounties its bounties online, highest amount first
  * @param firstAppearance where the reader first meets it
  */
@@ -30,7 +31,7 @@ public record CharacterResponse(UUID id, String slug, String romaji, String japa
 		@Schema(type = "string", description = "Day and month, ISO 8601 without year", example = "--05-05",
 				pattern = "^--\\d{2}-\\d{2}$") MonthDay birthday,
 		String image, List<String> epithets, List<String> aliases, List<SpeciesReferenceResponse> species,
-		List<MembershipResponse> affiliations, List<HeldBountyResponse> bounties, Instant publishedAt,
-		FirstAppearanceResponse firstAppearance) {
+		List<MembershipResponse> affiliations, List<FruitUseResponse> devilFruits, List<HeldBountyResponse> bounties,
+		Instant publishedAt, FirstAppearanceResponse firstAppearance) {
 
 }

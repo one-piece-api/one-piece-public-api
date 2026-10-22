@@ -21,13 +21,14 @@ import java.util.UUID;
  * @param aliases the same in every language, in the version's order
  * @param species its species online, in the version's order
  * @param affiliations its memberships in affiliations online, in the version's order
+ * @param devilFruits its Devil Fruits online, in the version's order
  * @param bounties its bounties online, highest amount first
  */
 @Builder
 public record Character(UUID id, String slug, String romaji, String japaneseName, String language, String name,
 		String description, CharacterStatus status, Gender gender, MonthDay birthday, String imageId,
 		Instant publishedAt, FirstAppearance firstAppearance, @With List<String> epithets, @With List<String> aliases,
-		@With List<SpeciesReference> species, @With List<Membership> affiliations,
+		@With List<SpeciesReference> species, @With List<Membership> affiliations, @With List<FruitUse> devilFruits,
 		@With List<HeldBounty> bounties) implements PublishedContent {
 
 	public Character {
@@ -35,6 +36,7 @@ public record Character(UUID id, String slug, String romaji, String japaneseName
 		aliases = aliases == null ? List.of() : List.copyOf(aliases);
 		species = species == null ? List.of() : List.copyOf(species);
 		affiliations = affiliations == null ? List.of() : List.copyOf(affiliations);
+		devilFruits = devilFruits == null ? List.of() : List.copyOf(devilFruits);
 		bounties = bounties == null ? List.of() : List.copyOf(bounties);
 	}
 

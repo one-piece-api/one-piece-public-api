@@ -81,6 +81,7 @@ public class PublishedRowMapper {
 							row.firstAppearanceChapterNumber(), row.firstAppearanceChapterTitle()),
 					StoryItemReference.of(row.firstAppearanceEpisodeId(), row.firstAppearanceEpisodeSlug(),
 							row.firstAppearanceEpisodeNumber(), row.firstAppearanceEpisodeTitle())))
+			.multipleUsers(row.multipleUsers())
 			.build();
 	}
 

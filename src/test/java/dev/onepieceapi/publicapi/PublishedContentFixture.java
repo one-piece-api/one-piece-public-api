@@ -63,7 +63,7 @@ public class PublishedContentFixture {
 	public void clear() {
 		// A bounty points to the bounty it replaces: its versions go before any content.
 		this.owner.sql("DELETE FROM bounty_version").update();
-		for (Entity entity : new Entity[] { BOUNTY, FRUIT, CHARACTER, TYPE, AFFILIATION, SPECIES, CHAPTER, EPISODE, ARC,
+		for (Entity entity : new Entity[] { BOUNTY, CHARACTER, FRUIT, TYPE, AFFILIATION, SPECIES, CHAPTER, EPISODE, ARC,
 				VOLUME, SAGA }) {
 			this.owner.sql("DELETE FROM content WHERE entity_type = :type").param("type", entity.type()).update();
 		}
@@ -540,14 +540,15 @@ public class PublishedContentFixture {
 				.update();
 		}
 		characterLists(versionId, persona);
+		devilFruitsOf(versionId, persona);
 		if (PUBLISHED.equals(status)) {
 			recordSlug(CHARACTER, contentId, persona.romaji());
 		}
 	}
 
 	/**
-	 * The epithets, aliases, species and memberships of a character version, in the given
-	 * order.
+	 * The epithets, aliases, species, memberships and Devil Fruits of a character
+	 * version, in the given order.
 	 */
 	private void characterLists(UUID versionId, Persona persona) {
 		for (int position = 0; position < persona.epithets().size(); position++) {
@@ -608,6 +609,29 @@ public class PublishedContentFixture {
 					.param("role", role)
 					.update());
 		}
+	}
+
+	private void devilFruitsOf(UUID versionId, Persona persona) {
+		for (int position = 0; position < persona.devilFruits().size(); position++) {
+			Having having = persona.devilFruits().get(position);
+			this.owner.sql("""
+					INSERT INTO character_version_devil_fruit (version_id, position, devil_fruit_content_id, former)
+					VALUES (:version, :at, :fruit, :former)""")
+				.param("version", versionId)
+				.param("at", position)
+				.param("fruit", having.devilFruitId())
+				.param("former", having.former())
+				.update();
+		}
+	}
+
+	/** Whether several characters may have the power of the fruit online at once. */
+	public void multipleUsers(UUID fruitId) {
+		this.owner
+			.sql("UPDATE devil_fruit_version SET multiple_users = true WHERE version_id ="
+					+ " (SELECT id FROM content_version WHERE content_id = :id AND status = 'PUBLISHED')")
+			.param("id", fruitId)
+			.update();
 	}
 
 	private void storyTranslation(Entity entity, UUID versionId, Translation translation) {
@@ -737,7 +761,7 @@ public class PublishedContentFixture {
 	@Builder
 	public record Persona(String romaji, String japaneseName, String status, String gender, MonthDay birthday,
 			String imageId, List<Map<String, String>> epithets, List<String> aliases, List<UUID> species,
-			List<Belonging> affiliations) {
+			List<Belonging> affiliations, List<Having> devilFruits) {
 
 		public Persona {
 			status = status == null ? "ALIVE" : status;
@@ -746,7 +770,13 @@ public class PublishedContentFixture {
 			aliases = aliases == null ? List.of() : aliases;
 			species = species == null ? List.of() : species;
 			affiliations = affiliations == null ? List.of() : affiliations;
+			devilFruits = devilFruits == null ? List.of() : devilFruits;
 		}
+
+	}
+
+	/** A Devil Fruit of a character version: the fruit and whether it is a past one. */
+	public record Having(UUID devilFruitId, boolean former) {
 
 	}
 

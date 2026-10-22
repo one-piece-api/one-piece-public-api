@@ -12,6 +12,7 @@ public record DevilFruitRow(UUID id, String slug, String romaji, String language
 		String imageId, OffsetDateTime publishedAt, UUID subcategoryId, String subcategoryName,
 		String subcategoryDescription, UUID firstAppearanceChapterId, String firstAppearanceChapterSlug,
 		Integer firstAppearanceChapterNumber, String firstAppearanceChapterTitle, UUID firstAppearanceEpisodeId,
-		String firstAppearanceEpisodeSlug, Integer firstAppearanceEpisodeNumber, String firstAppearanceEpisodeTitle) {
+		String firstAppearanceEpisodeSlug, Integer firstAppearanceEpisodeNumber, String firstAppearanceEpisodeTitle,
+		boolean multipleUsers) {
 
 }

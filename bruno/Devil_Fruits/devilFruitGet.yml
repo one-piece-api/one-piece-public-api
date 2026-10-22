@@ -67,6 +67,7 @@ examples:
             "id": "",
             "image": "",
             "language": "",
+            "multipleUsers": false,
             "name": "",
             "publishedAt": "",
             "romaji": "",
@@ -81,7 +82,17 @@ examples:
               "name": "",
               "romaji": "",
               "slug": ""
-            }
+            },
+            "users": [
+              {
+                "character": {
+                  "id": "",
+                  "name": "",
+                  "slug": ""
+                },
+                "former": false
+              }
+            ]
           }
   - name: 301 Response
     description: "An old slug: Location is the current slug, relative to this address"
@@ -143,6 +154,7 @@ examples:
             "id": "",
             "image": "",
             "language": "",
+            "multipleUsers": false,
             "name": "",
             "publishedAt": "",
             "romaji": "",
@@ -157,7 +169,17 @@ examples:
               "name": "",
               "romaji": "",
               "slug": ""
-            }
+            },
+            "users": [
+              {
+                "character": {
+                  "id": "",
+                  "name": "",
+                  "slug": ""
+                },
+                "former": false
+              }
+            ]
           }
   - name: 4XX Response
     description: Client error - a problem detail, except a 401/403 rejected by the security filter chain before reaching the application, which has no body

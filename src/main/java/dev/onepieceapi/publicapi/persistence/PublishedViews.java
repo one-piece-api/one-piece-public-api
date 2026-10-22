@@ -91,7 +91,8 @@ public final class PublishedViews {
 		.view("published.devil_fruit")
 		.detailColumns("id, slug, romaji, language, name, description, advantages, disadvantages,"
 				+ " type_id, type_slug, type_romaji, type_name, image_id, published_at,"
-				+ " subcategory_id, subcategory_name, subcategory_description" + FIRST_APPEARANCE_COLUMNS)
+				+ " subcategory_id, subcategory_name, subcategory_description, multiple_users"
+				+ FIRST_APPEARANCE_COLUMNS)
 		.summaryColumns("id, slug, romaji, name, type_id, type_slug, type_romaji, type_name, image_id,"
 				+ " subcategory_id, subcategory_name" + FIRST_APPEARANCE_COLUMNS)
 		.naturalKey("romaji")
@@ -260,11 +261,14 @@ public final class PublishedViews {
 
 	public static final String AFFILIATION_KIND_FILTER = "affiliationKind";
 
+	public static final String DEVIL_FRUIT_FILTER = "devilFruit";
+
 	/**
 	 * The characters (Character plan D2-D8, D16): the shape of the Species plus the
 	 * values that are the same in every language; filtered by status and by a species of
 	 * their list, read from its child view; by an affiliation they currently belong to,
-	 * or the kind of one. The lists themselves are read for the detail only.
+	 * or the kind of one; by a Devil Fruit they have, now or once. The lists themselves
+	 * are read for the detail only.
 	 */
 	public static final PublishedView<Character, CharacterSummary> CHARACTER = PublishedView
 		.<Character, CharacterSummary>builder()
@@ -281,7 +285,9 @@ public final class PublishedViews {
 				AFFILIATION_FILTER,
 				ContentFilter.onChild("published.character_affiliation", "character_id", "affiliation_id",
 						"AFFILIATION", "NOT former"),
-				AFFILIATION_KIND_FILTER, currentMembershipOfKind()))
+				AFFILIATION_KIND_FILTER, currentMembershipOfKind(), DEVIL_FRUIT_FILTER,
+				ContentFilter.onChild("published.character_devil_fruit", "character_id", "devil_fruit_id",
+						"DEVIL_FRUIT")))
 		.build();
 
 	/**

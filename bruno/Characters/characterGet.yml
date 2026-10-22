@@ -71,6 +71,16 @@ examples:
               }
             ],
             "description": "",
+            "devilFruits": [
+              {
+                "devilFruit": {
+                  "id": "",
+                  "name": "",
+                  "slug": ""
+                },
+                "former": false
+              }
+            ],
             "epithets": [],
             "firstAppearance": {
               "chapter": {
@@ -168,6 +178,16 @@ examples:
               }
             ],
             "description": "",
+            "devilFruits": [
+              {
+                "devilFruit": {
+                  "id": "",
+                  "name": "",
+                  "slug": ""
+                },
+                "former": false
+              }
+            ],
             "epithets": [],
             "firstAppearance": {
               "chapter": {
@@ -272,4 +292,4 @@ examples:
             "type": ""
           }
 
-docs: One character by id or slug, with its epithets, aliases, species and memberships
+docs: One character by id or slug, with its epithets, aliases, species, memberships and Devil Fruits

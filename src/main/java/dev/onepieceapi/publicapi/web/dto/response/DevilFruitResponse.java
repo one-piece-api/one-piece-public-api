@@ -3,6 +3,7 @@ package dev.onepieceapi.publicapi.web.dto.response;
 import lombok.Builder;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -13,11 +14,14 @@ import java.util.UUID;
  * @param subcategory the subcategory of its type it names; {@code null} when none
  * @param image the image's path relative to the API root; {@code null} when none
  * @param firstAppearance where the reader first meets it
+ * @param multipleUsers whether several characters may have its power at once (the SMILE
+ * fruits)
+ * @param users the characters that have eaten it, those who have its power now first
  */
 @Builder
 public record DevilFruitResponse(UUID id, String slug, String romaji, String language, String name, String description,
 		String advantages, String disadvantages, DevilFruitTypeReferenceResponse type,
 		DevilFruitSubcategoryReferenceResponse subcategory, String image, Instant publishedAt,
-		FirstAppearanceResponse firstAppearance) {
+		FirstAppearanceResponse firstAppearance, boolean multipleUsers, List<FruitUserResponse> users) {
 
 }

@@ -566,6 +566,13 @@ paths:
           - WORLD_GOVERNMENT
           - REVOLUTIONARY_ARMY
           - OTHER
+      - description: "Only the characters that have this Devil Fruit, now or once,\
+          \ by id or slug (current or old); an unknown fruit lists nothing"
+        in: query
+        name: devilFruit
+        required: false
+        schema:
+          type: string
       - description: "name, romaji or publishedAt, then asc or desc; default name,asc"
         in: query
         name: sort
@@ -587,8 +594,8 @@ paths:
       - Characters
   /v1/{lang}/characters/{idOrSlug}:
     get:
-      description: "One character by id or slug, with its epithets, aliases, species\
-        \ and memberships"
+      description: "One character by id or slug, with its epithets, aliases, species,\
+        \ memberships and Devil Fruits"
       operationId: characterGet
       parameters:
       - in: path
@@ -1481,6 +1488,10 @@ components:
             $ref: "#/components/schemas/HeldBountyResponse"
         description:
           type: string
+        devilFruits:
+          type: array
+          items:
+            $ref: "#/components/schemas/FruitUseResponse"
         epithets:
           type: array
           items:
@@ -1555,6 +1566,16 @@ components:
           type: string
         slug:
           type: string
+    DevilFruitReferenceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
     DevilFruitResponse:
       type: object
       properties:
@@ -1573,6 +1594,8 @@ components:
           type: string
         language:
           type: string
+        multipleUsers:
+          type: boolean
         name:
           type: string
         publishedAt:
@@ -1586,6 +1609,10 @@ components:
           $ref: "#/components/schemas/DevilFruitSubcategoryReferenceResponse"
         type:
           $ref: "#/components/schemas/DevilFruitTypeReferenceResponse"
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/FruitUserResponse"
     DevilFruitSubcategoryReferenceResponse:
       type: object
       properties:
@@ -1755,6 +1782,20 @@ components:
           $ref: "#/components/schemas/StoryItemReferenceResponse"
         episode:
           $ref: "#/components/schemas/StoryItemReferenceResponse"
+    FruitUseResponse:
+      type: object
+      properties:
+        devilFruit:
+          $ref: "#/components/schemas/DevilFruitReferenceResponse"
+        former:
+          type: boolean
+    FruitUserResponse:
+      type: object
+      properties:
+        character:
+          $ref: "#/components/schemas/CharacterReferenceResponse"
+        former:
+          type: boolean
     HeldBountyResponse:
       type: object
       properties:
