@@ -15,7 +15,7 @@ import java.util.Optional;
  * @param species a species of their list, by id or slug
  * @param affiliation an affiliation they belong to now, by id or slug
  * @param affiliationKind the kind of an affiliation they belong to now
- * @param devilFruit a Devil Fruit they have, now or once, by id or slug
+ * @param devilFruit a Devil Fruit they have now, by id or slug
  */
 public record CharacterFilterRequest(
 		@Parameter(description = "Only the characters of this status") CharacterStatus status,
@@ -25,8 +25,8 @@ public record CharacterFilterRequest(
 				+ " old); those who left it do not count; an unknown affiliation lists nothing") String affiliation,
 		@Parameter(
 				description = "Only the characters that belong now to an affiliation of this kind") AffiliationKind affiliationKind,
-		@Parameter(description = "Only the characters that have this Devil Fruit, now or once, by id or slug (current"
-				+ " or old); an unknown fruit lists nothing") String devilFruit) {
+		@Parameter(description = "Only the characters that have this Devil Fruit now, by id or slug (current or old);"
+				+ " those who lost its power do not count; an unknown fruit lists nothing") String devilFruit) {
 
 	/** As the list reads them: by the name of the filter. */
 	public Map<String, Optional<String>> asked() {

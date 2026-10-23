@@ -126,11 +126,10 @@ class PublicApiDevilFruitUsersIntegrationTest extends PublishedDatabaseTest {
 	}
 
 	@Test
-	void filtersTheCharactersByAFruitTheyHaveNowOrOnceByIdOrSlug() {
-		ok("/v1/en/characters?devilFruit=mera-mera-no-mi").jsonPath("$.content[*].name")
-			.isEqualTo(List.of("Portgas D. Ace", "Sabo"));
+	void filtersTheCharactersByAFruitTheyHaveNowByIdOrSlugNotThoseWhoLostIt() {
+		ok("/v1/en/characters?devilFruit=mera-mera-no-mi").jsonPath("$.content[*].name").isEqualTo(List.of("Sabo"));
 		ok("/v1/it/characters?devilFruit=" + this.gomu).jsonPath("$.content[*].name")
-			.isEqualTo(List.of("Monkey D. Rufy", "Sabo"));
+			.isEqualTo(List.of("Monkey D. Rufy"));
 		ok("/v1/en/characters?devilFruit=unknown").jsonPath("$.totalElements").isEqualTo(0);
 	}
 

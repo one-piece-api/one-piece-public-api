@@ -267,8 +267,8 @@ public final class PublishedViews {
 	 * The characters (Character plan D2-D8, D16): the shape of the Species plus the
 	 * values that are the same in every language; filtered by status and by a species of
 	 * their list, read from its child view; by an affiliation they currently belong to,
-	 * or the kind of one; by a Devil Fruit they have, now or once. The lists themselves
-	 * are read for the detail only.
+	 * or the kind of one; by a Devil Fruit they have now. The lists themselves are read
+	 * for the detail only.
 	 */
 	public static final PublishedView<Character, CharacterSummary> CHARACTER = PublishedView
 		.<Character, CharacterSummary>builder()
@@ -287,7 +287,7 @@ public final class PublishedViews {
 						"AFFILIATION", "NOT former"),
 				AFFILIATION_KIND_FILTER, currentMembershipOfKind(), DEVIL_FRUIT_FILTER,
 				ContentFilter.onChild("published.character_devil_fruit", "character_id", "devil_fruit_id",
-						"DEVIL_FRUIT")))
+						"DEVIL_FRUIT", "NOT former")))
 		.build();
 
 	/**

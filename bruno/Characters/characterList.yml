@@ -80,7 +80,7 @@ http:
     - name: devilFruit
       value: ""
       type: query
-      description: Only the characters that have this Devil Fruit, now or once, by id or slug (current or old); an unknown fruit lists nothing
+      description: Only the characters that have this Devil Fruit now, by id or slug (current or old); those who lost its power do not count; an unknown fruit lists nothing
       disabled: true
     - name: sort
       value: name,asc
@@ -173,7 +173,7 @@ examples:
         - name: devilFruit
           value: ""
           type: query
-          description: Only the characters that have this Devil Fruit, now or once, by id or slug (current or old); an unknown fruit lists nothing
+          description: Only the characters that have this Devil Fruit now, by id or slug (current or old); those who lost its power do not count; an unknown fruit lists nothing
           disabled: true
         - name: sort
           value: name,asc
@@ -281,7 +281,7 @@ examples:
         - name: devilFruit
           value: ""
           type: query
-          description: Only the characters that have this Devil Fruit, now or once, by id or slug (current or old); an unknown fruit lists nothing
+          description: Only the characters that have this Devil Fruit now, by id or slug (current or old); those who lost its power do not count; an unknown fruit lists nothing
           disabled: true
         - name: sort
           value: name,asc
@@ -387,7 +387,7 @@ examples:
         - name: devilFruit
           value: ""
           type: query
-          description: Only the characters that have this Devil Fruit, now or once, by id or slug (current or old); an unknown fruit lists nothing
+          description: Only the characters that have this Devil Fruit now, by id or slug (current or old); those who lost its power do not count; an unknown fruit lists nothing
           disabled: true
         - name: sort
           value: name,asc
