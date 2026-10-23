@@ -99,3 +99,17 @@ slug to `301`, sort, paging, conditional GET - and let the copies drift apart.
 - An entry is in a language only when it is written in it: an epithet, or a species named
   through `published.species`, without text in that language is left out of it, as a
   subcategory.
+
+## Addendum - Character relations (Character plan C8-C12)
+
+- **Child filters count current entries only:** `affiliation` and `devilFruit` use `ContentFilter.onChild` with a
+  condition on `former = false`; `species` has no such flag. A former member or user is not listed under the filter.
+- **Derived sides are queries over published views, never stored:** an affiliation's `memberCount`, a fruit's
+  `users` (current first) and a bounty holder's `bounties` (highest amount first) read the online characters or
+  bounties that name the entity.
+- **Relatives are stored once, read from both sides:** `relatives` of a character is the union of the entries it
+  holds and, with the kind inverted (`GRANDPARENT` -> `GRANDCHILD`), those of online characters naming it. Each
+  entry carries the relative's `gender`, so a client words the kind (`PARENT` + `MALE` = father). The invariant
+  that a pair is linked once is content-service's (ADR-0009 there); the public API only reads it.
+- **Trade-off:** the union and the inversion live in the public API's read model rather than in a view, so the
+  `published` views stay one row per stored fact.
