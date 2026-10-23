@@ -13,6 +13,7 @@ import dev.onepieceapi.publicapi.domain.CharacterReference;
 import dev.onepieceapi.publicapi.domain.CharacterSummary;
 import dev.onepieceapi.publicapi.domain.FruitUse;
 import dev.onepieceapi.publicapi.domain.FruitUser;
+import dev.onepieceapi.publicapi.domain.Relative;
 import dev.onepieceapi.publicapi.domain.HeldBounty;
 import dev.onepieceapi.publicapi.domain.Membership;
 import dev.onepieceapi.publicapi.domain.SpeciesReference;
@@ -54,6 +55,8 @@ import dev.onepieceapi.publicapi.web.dto.response.CharacterSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.FruitUseResponse;
 import dev.onepieceapi.publicapi.web.dto.response.FruitUserResponse;
+import dev.onepieceapi.publicapi.web.dto.response.RelativeReferenceResponse;
+import dev.onepieceapi.publicapi.web.dto.response.RelativeResponse;
 import dev.onepieceapi.publicapi.web.dto.response.HeldBountyResponse;
 import dev.onepieceapi.publicapi.web.dto.response.MembershipResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SpeciesReferenceResponse;
@@ -427,6 +430,7 @@ public class PublicResponseMapper {
 			.species(character.species().stream().map(PublicResponseMapper::toResponse).toList())
 			.affiliations(character.affiliations().stream().map(PublicResponseMapper::toResponse).toList())
 			.devilFruits(character.devilFruits().stream().map(PublicResponseMapper::toResponse).toList())
+			.relatives(character.relatives().stream().map(PublicResponseMapper::toResponse).toList())
 			.bounties(character.bounties().stream().map(PublicResponseMapper::toResponse).toList())
 			.publishedAt(character.publishedAt())
 			.firstAppearance(toResponse(character.firstAppearance()))
@@ -465,6 +469,13 @@ public class PublicResponseMapper {
 		var fruit = use.devilFruit();
 		return new FruitUseResponse(new DevilFruitReferenceResponse(fruit.id(), fruit.slug(), fruit.name()),
 				use.former());
+	}
+
+	public RelativeResponse toResponse(Relative relative) {
+		var character = relative.character();
+		return new RelativeResponse(
+				new RelativeReferenceResponse(character.id(), character.slug(), character.name(), character.gender()),
+				relative.kind());
 	}
 
 	public FruitUserResponse toResponse(FruitUser user) {

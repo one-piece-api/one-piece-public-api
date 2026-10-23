@@ -63,6 +63,9 @@ public class PublishedContentFixture {
 	public void clear() {
 		// A bounty points to the bounty it replaces: its versions go before any content.
 		this.owner.sql("DELETE FROM bounty_version").update();
+		// A character points to its relatives: those links go before any character
+		// content.
+		this.owner.sql("DELETE FROM character_version_relative").update();
 		for (Entity entity : new Entity[] { BOUNTY, CHARACTER, FRUIT, TYPE, AFFILIATION, SPECIES, CHAPTER, EPISODE, ARC,
 				VOLUME, SAGA }) {
 			this.owner.sql("DELETE FROM content WHERE entity_type = :type").param("type", entity.type()).update();
@@ -541,6 +544,7 @@ public class PublishedContentFixture {
 		}
 		characterLists(versionId, persona);
 		devilFruitsOf(versionId, persona);
+		relativesOf(versionId, persona);
 		if (PUBLISHED.equals(status)) {
 			recordSlug(CHARACTER, contentId, persona.romaji());
 		}
@@ -621,6 +625,20 @@ public class PublishedContentFixture {
 				.param("at", position)
 				.param("fruit", having.devilFruitId())
 				.param("former", having.former())
+				.update();
+		}
+	}
+
+	private void relativesOf(UUID versionId, Persona persona) {
+		for (int position = 0; position < persona.relatives().size(); position++) {
+			Related related = persona.relatives().get(position);
+			this.owner.sql("""
+					INSERT INTO character_version_relative (version_id, position, relative_content_id, kind)
+					VALUES (:version, :at, :relative, :kind)""")
+				.param("version", versionId)
+				.param("at", position)
+				.param("relative", related.relativeId())
+				.param("kind", related.kind())
 				.update();
 		}
 	}
@@ -761,7 +779,7 @@ public class PublishedContentFixture {
 	@Builder
 	public record Persona(String romaji, String japaneseName, String status, String gender, MonthDay birthday,
 			String imageId, List<Map<String, String>> epithets, List<String> aliases, List<UUID> species,
-			List<Belonging> affiliations, List<Having> devilFruits) {
+			List<Belonging> affiliations, List<Having> devilFruits, List<Related> relatives) {
 
 		public Persona {
 			status = status == null ? "ALIVE" : status;
@@ -771,7 +789,13 @@ public class PublishedContentFixture {
 			species = species == null ? List.of() : species;
 			affiliations = affiliations == null ? List.of() : affiliations;
 			devilFruits = devilFruits == null ? List.of() : devilFruits;
+			relatives = relatives == null ? List.of() : relatives;
 		}
+
+	}
+
+	/** A relative of a character version: the character and what it is to this one. */
+	public record Related(UUID relativeId, String kind) {
 
 	}
 

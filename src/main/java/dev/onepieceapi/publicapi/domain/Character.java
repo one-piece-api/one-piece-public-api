@@ -22,6 +22,8 @@ import java.util.UUID;
  * @param species its species online, in the version's order
  * @param affiliations its memberships in affiliations online, in the version's order
  * @param devilFruits its Devil Fruits online, in the version's order
+ * @param relatives the ones it stores, in the version's order, then the characters online
+ * that name it, by name, each through the inverse kind (Character plan D13)
  * @param bounties its bounties online, highest amount first
  */
 @Builder
@@ -29,7 +31,7 @@ public record Character(UUID id, String slug, String romaji, String japaneseName
 		String description, CharacterStatus status, Gender gender, MonthDay birthday, String imageId,
 		Instant publishedAt, FirstAppearance firstAppearance, @With List<String> epithets, @With List<String> aliases,
 		@With List<SpeciesReference> species, @With List<Membership> affiliations, @With List<FruitUse> devilFruits,
-		@With List<HeldBounty> bounties) implements PublishedContent {
+		@With List<Relative> relatives, @With List<HeldBounty> bounties) implements PublishedContent {
 
 	public Character {
 		epithets = epithets == null ? List.of() : List.copyOf(epithets);
@@ -37,6 +39,7 @@ public record Character(UUID id, String slug, String romaji, String japaneseName
 		species = species == null ? List.of() : List.copyOf(species);
 		affiliations = affiliations == null ? List.of() : List.copyOf(affiliations);
 		devilFruits = devilFruits == null ? List.of() : List.copyOf(devilFruits);
+		relatives = relatives == null ? List.of() : List.copyOf(relatives);
 		bounties = bounties == null ? List.of() : List.copyOf(bounties);
 	}
 

@@ -11,12 +11,16 @@ import dev.onepieceapi.publicapi.domain.FruitUse;
 import dev.onepieceapi.publicapi.domain.Gender;
 import dev.onepieceapi.publicapi.domain.MarineRank;
 import dev.onepieceapi.publicapi.domain.Membership;
+import dev.onepieceapi.publicapi.domain.Relative;
+import dev.onepieceapi.publicapi.domain.RelativeKind;
+import dev.onepieceapi.publicapi.domain.RelativeReference;
 import dev.onepieceapi.publicapi.domain.SpeciesReference;
 import dev.onepieceapi.publicapi.domain.StoryItemReference;
 import dev.onepieceapi.publicapi.persistence.row.CharacterRow;
 import dev.onepieceapi.publicapi.persistence.row.CharacterSummaryRow;
 import dev.onepieceapi.publicapi.persistence.row.FruitUseRow;
 import dev.onepieceapi.publicapi.persistence.row.MembershipRow;
+import dev.onepieceapi.publicapi.persistence.row.RelativeRow;
 import dev.onepieceapi.publicapi.persistence.row.SpeciesReferenceRow;
 import lombok.experimental.UtilityClass;
 
@@ -70,6 +74,14 @@ public class CharacterRowMapper {
 	/** A fruit of a character: the row names the fruit. */
 	public FruitUse toFruitUse(FruitUseRow row) {
 		return new FruitUse(new DevilFruitReference(row.id(), row.slug(), row.name()), row.former());
+	}
+
+	/**
+	 * A relative of a character: the row names the other character and the stored kind.
+	 */
+	public Relative toRelative(RelativeRow row) {
+		return new Relative(new RelativeReference(row.id(), row.slug(), row.name(), Gender.valueOf(row.gender())),
+				RelativeKind.valueOf(row.kind()));
 	}
 
 	/** Both or neither, as the version table guarantees. */

@@ -5,12 +5,14 @@ import dev.onepieceapi.publicapi.domain.FruitUse;
 import dev.onepieceapi.publicapi.domain.FruitUser;
 import dev.onepieceapi.publicapi.domain.HeldBounty;
 import dev.onepieceapi.publicapi.domain.Membership;
+import dev.onepieceapi.publicapi.domain.Relative;
 import dev.onepieceapi.publicapi.domain.SpeciesReference;
 import dev.onepieceapi.publicapi.persistence.mapper.BountyRowMapper;
 import dev.onepieceapi.publicapi.persistence.mapper.CharacterRowMapper;
 import dev.onepieceapi.publicapi.persistence.row.FruitUseRow;
 import dev.onepieceapi.publicapi.persistence.row.HeldBountyRow;
 import dev.onepieceapi.publicapi.persistence.row.MembershipRow;
+import dev.onepieceapi.publicapi.persistence.row.RelativeRow;
 import dev.onepieceapi.publicapi.persistence.row.SpeciesReferenceRow;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,6 +145,47 @@ public class PublishedCharacterListRepository {
 			.list()
 			.stream()
 			.map(row -> new FruitUser(new CharacterReference(row.id(), row.slug(), row.name()), row.former()))
+			.toList();
+	}
+
+	/**
+	 * The relatives it stores, named in the language and in the version's order, with the
+	 * kind as stored: a relative not written in it is left out.
+	 */
+	public List<Relative> findRelatives(UUID characterId, String language) {
+		return this.jdbc.sql("""
+				SELECT c.id, c.slug, c.name, c.gender, cr.kind
+				FROM published.character_relative cr
+				         JOIN published.character c ON c.id = cr.relative_id AND c.language = :language
+				WHERE cr.character_id = :id
+				ORDER BY cr.position""")
+			.param("id", characterId)
+			.param("language", language)
+			.query(RelativeRow.class)
+			.list()
+			.stream()
+			.map(CharacterRowMapper::toRelative)
+			.toList();
+	}
+
+	/**
+	 * The characters online that store it as their relative, named in the language and by
+	 * name, with the kind as they store it: the caller inverts it. A character not
+	 * written in the language is left out.
+	 */
+	public List<Relative> findNamingAsRelative(UUID characterId, String language) {
+		return this.jdbc.sql("""
+				SELECT c.id, c.slug, c.name, c.gender, cr.kind
+				FROM published.character_relative cr
+				         JOIN published.character c ON c.id = cr.character_id AND c.language = :language
+				WHERE cr.relative_id = :id
+				ORDER BY c.name, c.id""")
+			.param("id", characterId)
+			.param("language", language)
+			.query(RelativeRow.class)
+			.list()
+			.stream()
+			.map(CharacterRowMapper::toRelative)
 			.toList();
 	}
 

@@ -103,6 +103,17 @@ examples:
             "language": "",
             "name": "",
             "publishedAt": "",
+            "relatives": [
+              {
+                "character": {
+                  "gender": "MALE",
+                  "id": "",
+                  "name": "",
+                  "slug": ""
+                },
+                "kind": "PARENT"
+              }
+            ],
             "romaji": "",
             "slug": "",
             "species": [
@@ -210,6 +221,17 @@ examples:
             "language": "",
             "name": "",
             "publishedAt": "",
+            "relatives": [
+              {
+                "character": {
+                  "gender": "MALE",
+                  "id": "",
+                  "name": "",
+                  "slug": ""
+                },
+                "kind": "PARENT"
+              }
+            ],
             "romaji": "",
             "slug": "",
             "species": [

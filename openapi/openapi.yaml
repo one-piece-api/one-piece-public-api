@@ -1519,6 +1519,10 @@ components:
         publishedAt:
           type: string
           format: date-time
+        relatives:
+          type: array
+          items:
+            $ref: "#/components/schemas/RelativeResponse"
         romaji:
           type: string
         slug:
@@ -2105,6 +2109,42 @@ components:
       - status
       - title
       - type
+    RelativeReferenceResponse:
+      type: object
+      properties:
+        gender:
+          type: string
+          enum:
+          - MALE
+          - FEMALE
+          - UNKNOWN
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+    RelativeResponse:
+      type: object
+      properties:
+        character:
+          $ref: "#/components/schemas/RelativeReferenceResponse"
+        kind:
+          type: string
+          enum:
+          - PARENT
+          - CHILD
+          - GRANDPARENT
+          - GRANDCHILD
+          - UNCLE_AUNT
+          - NEPHEW_NIECE
+          - ADOPTIVE_PARENT
+          - ADOPTIVE_CHILD
+          - SIBLING
+          - COUSIN
+          - SPOUSE
+          - SWORN_SIBLING
     ReleaseResponse:
       type: object
       properties:
