@@ -20,12 +20,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * The images of the contents online (Devil Fruit plan D13). An image never changes at its
- * address, its id being the hash of its bytes: cached for long, immutable, no ETag.
+ * address, its id being the hash of its bytes: cached for long, immutable, no ETag. WebP,
+ * as content-service stores them; PNG for the images stored before (implementation plan
+ * WebP, W5 replaces them).
  */
 @RestController
 @Tag(name = "Images")
 @RequiredArgsConstructor(onConstructor_ = { @Autowired })
 class ImageController {
+
+	private static final String IMAGE_WEBP = "image/webp";
 
 	private final ImageService service;
 
@@ -33,8 +37,9 @@ class ImageController {
 
 	@Operation(description = "An image of a content online, by the id its content gives")
 	@ApiResponse(responseCode = "200", description = "OK",
-			content = @Content(mediaType = MediaType.IMAGE_PNG_VALUE,
-					schema = @Schema(type = "string", format = "binary")))
+			content = { @Content(mediaType = IMAGE_WEBP, schema = @Schema(type = "string", format = "binary")),
+					@Content(mediaType = MediaType.IMAGE_PNG_VALUE,
+							schema = @Schema(type = "string", format = "binary")) })
 	@GetMapping(ApiPaths.IMAGE)
 	ResponseEntity<byte[]> get(@PathVariable String id) {
 		Image image = this.service.find(id);

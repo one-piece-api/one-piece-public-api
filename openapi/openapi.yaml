@@ -22,7 +22,7 @@ paths:
           $ref: "#/components/responses/ServerError"
       tags:
       - Index
-  /v1/images/{id}.png:
+  /v1/images/{id}:
     get:
       description: "An image of a content online, by the id its content gives"
       operationId: imageGet
@@ -36,6 +36,10 @@ paths:
         "200":
           content:
             image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
               schema:
                 type: string
                 format: binary

@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.time.MonthDay;
@@ -30,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class PublicApiCharacterIntegrationTest extends PublishedDatabaseTest {
 
-	private static final byte[] PNG_BYTES = { (byte) 0x89, 0x50, 0x4E, 0x47, 7, 8, 9 };
+	private static final byte[] WEBP_BYTES = { 0x52, 0x49, 0x46, 0x46, 7, 8, 9 };
 
 	private static final String LUFFY_IT = "Monkey D. Rufy";
 
@@ -61,8 +60,8 @@ class PublicApiCharacterIntegrationTest extends PublishedDatabaseTest {
 		UUID arc = this.fixture.publishArc(1, saga, Translation.of("it", "Arco"), Translation.of("en", "Arc"));
 		this.chapter = this.fixture.publishChapter(1, arc, null, null, null, Translation.of("it", "Romance Dawn"),
 				Translation.of("en", "Romance Dawn"));
-		this.portrait = this.fixture.image('a', PNG_BYTES);
-		this.draftPortrait = this.fixture.image('b', PNG_BYTES);
+		this.portrait = this.fixture.image('a', WEBP_BYTES);
+		this.draftPortrait = this.fixture.image('b', WEBP_BYTES);
 		this.humans = this.fixture.publishSpecies("Ningen", null, Translation.of("it", "Umani"),
 				Translation.of("en", "Humans"));
 		this.fishMen = this.fixture.publishSpecies("Gyojin", null, Translation.of("it", "Uomini-pesce"));
@@ -106,7 +105,7 @@ class PublicApiCharacterIntegrationTest extends PublishedDatabaseTest {
 			.jsonPath("$.content[1].status")
 			.isEqualTo("ALIVE")
 			.jsonPath("$.content[1].image")
-			.isEqualTo("v1/images/" + this.portrait + ".png")
+			.isEqualTo("v1/images/" + this.portrait)
 			.jsonPath("$.content[0].image")
 			.isEmpty()
 			.jsonPath("$.content[1].description")
@@ -165,7 +164,7 @@ class PublicApiCharacterIntegrationTest extends PublishedDatabaseTest {
 				.jsonPath("$.birthday")
 				.isEqualTo("--05-05")
 				.jsonPath("$.image")
-				.isEqualTo("v1/images/" + this.portrait + ".png")
+				.isEqualTo("v1/images/" + this.portrait)
 				.jsonPath("$.epithets")
 				.isEqualTo(List.of("Cappello di paglia", "Quinto imperatore"))
 				.jsonPath("$.aliases")
@@ -237,19 +236,19 @@ class PublicApiCharacterIntegrationTest extends PublishedDatabaseTest {
 
 	@Test
 	void servesThePortraitOnlyWhileItsCharacterIsOnline() {
-		byte[] body = get("/v1/images/" + this.portrait + ".png").expectStatus()
+		byte[] body = get("/v1/images/" + this.portrait).expectStatus()
 			.isOk()
 			.expectHeader()
-			.contentType(MediaType.IMAGE_PNG)
+			.contentType("image/webp")
 			.expectBody(byte[].class)
 			.returnResult()
 			.getResponseBody();
-		assertThat(body).isEqualTo(PNG_BYTES);
-		get("/v1/images/" + this.draftPortrait + ".png").expectStatus().isNotFound();
+		assertThat(body).isEqualTo(WEBP_BYTES);
+		get("/v1/images/" + this.draftPortrait).expectStatus().isNotFound();
 
 		this.fixture.retire(this.luffy);
 
-		get("/v1/images/" + this.portrait + ".png").expectStatus().isNotFound();
+		get("/v1/images/" + this.portrait).expectStatus().isNotFound();
 		ok("/v1/en/characters").jsonPath("$.totalElements").isEqualTo(3);
 	}
 

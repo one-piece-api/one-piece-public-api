@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.util.Arrays;
@@ -26,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class PublicApiAffiliationIntegrationTest extends PublishedDatabaseTest {
 
-	private static final byte[] PNG_BYTES = { (byte) 0x89, 0x50, 0x4E, 0x47, 4, 5, 6 };
+	private static final byte[] WEBP_BYTES = { 0x52, 0x49, 0x46, 0x46, 4, 5, 6 };
 
 	private final PublishedContentFixture fixture = new PublishedContentFixture(POSTGRES);
 
@@ -51,8 +50,8 @@ class PublicApiAffiliationIntegrationTest extends PublishedDatabaseTest {
 		UUID arc = this.fixture.publishArc(1, saga, Translation.of("it", "Arco"), Translation.of("en", "Arc"));
 		this.chapter = this.fixture.publishChapter(1, arc, null, null, null, Translation.of("it", "Romance Dawn"),
 				Translation.of("en", "Romance Dawn"));
-		this.emblem = this.fixture.image('e', PNG_BYTES);
-		this.draftEmblem = this.fixture.image('f', PNG_BYTES);
+		this.emblem = this.fixture.image('e', WEBP_BYTES);
+		this.draftEmblem = this.fixture.image('f', WEBP_BYTES);
 		this.mugiwara = this.fixture.publishAffiliation("Mugiwara no Ichimi", this.emblem,
 				Translation.of("it", "Pirati di Cappello di Paglia"), Translation.of("en", "Straw Hat Pirates"));
 		this.fixture.firstAppearance(this.mugiwara, this.chapter);
@@ -84,7 +83,7 @@ class PublicApiAffiliationIntegrationTest extends PublishedDatabaseTest {
 			.jsonPath("$.content[2].romaji")
 			.isEqualTo("Mugiwara no Ichimi")
 			.jsonPath("$.content[2].image")
-			.isEqualTo("v1/images/" + this.emblem + ".png")
+			.isEqualTo("v1/images/" + this.emblem)
 			.jsonPath("$.content[0].image")
 			.isEmpty()
 			.jsonPath("$.content[2].description")
@@ -138,7 +137,7 @@ class PublicApiAffiliationIntegrationTest extends PublishedDatabaseTest {
 				.jsonPath("$.description")
 				.isEqualTo("Description of Pirati di Cappello di Paglia")
 				.jsonPath("$.image")
-				.isEqualTo("v1/images/" + this.emblem + ".png")
+				.isEqualTo("v1/images/" + this.emblem)
 				.jsonPath("$.firstAppearance.chapter.id")
 				.isEqualTo(this.chapter.toString())
 				.jsonPath("$.firstAppearance.chapter.number")
@@ -172,19 +171,19 @@ class PublicApiAffiliationIntegrationTest extends PublishedDatabaseTest {
 
 	@Test
 	void servesTheEmblemOnlyWhileItsAffiliationIsOnline() {
-		byte[] body = get("/v1/images/" + this.emblem + ".png").expectStatus()
+		byte[] body = get("/v1/images/" + this.emblem).expectStatus()
 			.isOk()
 			.expectHeader()
-			.contentType(MediaType.IMAGE_PNG)
+			.contentType("image/webp")
 			.expectBody(byte[].class)
 			.returnResult()
 			.getResponseBody();
-		assertThat(body).isEqualTo(PNG_BYTES);
-		get("/v1/images/" + this.draftEmblem + ".png").expectStatus().isNotFound();
+		assertThat(body).isEqualTo(WEBP_BYTES);
+		get("/v1/images/" + this.draftEmblem).expectStatus().isNotFound();
 
 		this.fixture.retire(this.mugiwara);
 
-		get("/v1/images/" + this.emblem + ".png").expectStatus().isNotFound();
+		get("/v1/images/" + this.emblem).expectStatus().isNotFound();
 		ok("/v1/en/affiliations").jsonPath("$.totalElements").isEqualTo(2);
 	}
 

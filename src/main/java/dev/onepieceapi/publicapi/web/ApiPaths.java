@@ -58,8 +58,11 @@ public final class ApiPaths {
 
 	public static final String CHARACTER = CHARACTERS + "/{idOrSlug}";
 
-	/** No language: an image is the same in all of them (plan D11). */
-	public static final String IMAGE = V1 + "/images/{id}.png";
+	/**
+	 * No language: an image is the same in all of them (plan D11). No extension: the
+	 * format is the {@code Content-Type} (implementation plan WebP, W-D5).
+	 */
+	public static final String IMAGE = V1 + "/images/{id}";
 
 	private ApiPaths() {
 	}

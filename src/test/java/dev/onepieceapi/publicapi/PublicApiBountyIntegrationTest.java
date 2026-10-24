@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.util.List;
@@ -26,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class PublicApiBountyIntegrationTest extends PublishedDatabaseTest {
 
-	private static final byte[] PNG_BYTES = { (byte) 0x89, 0x50, 0x4E, 0x47, 7, 8, 9 };
+	private static final byte[] WEBP_BYTES = { 0x52, 0x49, 0x46, 0x46, 7, 8, 9 };
 
 	private static final String LUFFY = "Monkey D. Luffy";
 
@@ -53,7 +52,7 @@ class PublicApiBountyIntegrationTest extends PublishedDatabaseTest {
 		UUID arc = this.fixture.publishArc(1, saga, Translation.of("it", "Arco"), Translation.of("en", "Arc"));
 		this.chapter = this.fixture.publishChapter(435, arc, null, null, null, Translation.of("it", "Capitolo"),
 				Translation.of("en", "Chapter"));
-		this.poster = this.fixture.image('d', PNG_BYTES);
+		this.poster = this.fixture.image('d', WEBP_BYTES);
 		UUID luffy30 = bounty(Poster.builder().posterName(LUFFY).amount(30_000_000L).build());
 		UUID luffy100 = bounty(Poster.builder().posterName(LUFFY).amount(100_000_000L).previousId(luffy30).build());
 		this.luffy300 = bounty(Poster.builder()
@@ -95,7 +94,7 @@ class PublicApiBountyIntegrationTest extends PublishedDatabaseTest {
 			.jsonPath("$.content[0].condition")
 			.isEqualTo("DEAD_OR_ALIVE")
 			.jsonPath("$.content[0].image")
-			.isEqualTo("v1/images/" + this.poster + ".png")
+			.isEqualTo("v1/images/" + this.poster)
 			.jsonPath("$.content[4].condition")
 			.isEqualTo("ONLY_ALIVE")
 			.jsonPath("$.content[4].image")
@@ -154,7 +153,7 @@ class PublicApiBountyIntegrationTest extends PublishedDatabaseTest {
 			.jsonPath("$.description")
 			.isEqualTo("Description of " + LUFFY + " it")
 			.jsonPath("$.image")
-			.isEqualTo("v1/images/" + this.poster + ".png")
+			.isEqualTo("v1/images/" + this.poster)
 			.jsonPath("$.firstAppearance.chapter.id")
 			.isEqualTo(this.chapter.toString())
 			.jsonPath("$.firstAppearance.chapter.number")
@@ -192,15 +191,15 @@ class PublicApiBountyIntegrationTest extends PublishedDatabaseTest {
 
 	@Test
 	void servesThePosterOfAnOnlineBountyAsAPng() {
-		byte[] body = get("/v1/images/" + this.poster + ".png").expectStatus()
+		byte[] body = get("/v1/images/" + this.poster).expectStatus()
 			.isOk()
 			.expectHeader()
-			.contentType(MediaType.IMAGE_PNG)
+			.contentType("image/webp")
 			.expectBody(byte[].class)
 			.returnResult()
 			.getResponseBody();
 
-		assertThat(body).isEqualTo(PNG_BYTES);
+		assertThat(body).isEqualTo(WEBP_BYTES);
 	}
 
 	private UUID bounty(Poster seed) {

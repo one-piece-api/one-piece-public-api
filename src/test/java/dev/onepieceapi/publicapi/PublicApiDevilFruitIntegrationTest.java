@@ -23,6 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class PublicApiDevilFruitIntegrationTest extends PublishedDatabaseTest {
 
+	private static final byte[] WEBP_BYTES = { 0x52, 0x49, 0x46, 0x46, 1, 2, 3 };
+
 	private static final byte[] PNG_BYTES = { (byte) 0x89, 0x50, 0x4E, 0x47, 1, 2, 3 };
 
 	private final PublishedContentFixture fixture = new PublishedContentFixture(POSTGRES);
@@ -55,7 +57,7 @@ class PublicApiDevilFruitIntegrationTest extends PublishedDatabaseTest {
 
 	@Test
 	void servesAFruitWithItsTypeAndImageInTheLanguageOfThePath() {
-		String image = this.fixture.image('a', PNG_BYTES);
+		String image = this.fixture.image('a', WEBP_BYTES);
 		UUID mera = this.fixture.publishFruit("Mera Mera no Mi", this.logia, image, Translation.of("it", "Foco Foco"),
 				Translation.of("en", "Flame-Flame"));
 
@@ -75,7 +77,7 @@ class PublicApiDevilFruitIntegrationTest extends PublishedDatabaseTest {
 			.jsonPath("$.type.name")
 			.isEqualTo("Logia IT")
 			.jsonPath("$.image")
-			.isEqualTo("v1/images/" + image + ".png")
+			.isEqualTo("v1/images/" + image)
 			.jsonPath("$.publishedAt")
 			.isEqualTo("2026-10-02T14:31:07Z");
 		get("/v1/en/devil-fruits/" + mera).expectStatus()
@@ -222,7 +224,7 @@ class PublicApiDevilFruitIntegrationTest extends PublishedDatabaseTest {
 
 	@Test
 	void listsTheFruitsOfATypeInItsDetailByName() {
-		String image = this.fixture.image('b', PNG_BYTES);
+		String image = this.fixture.image('b', WEBP_BYTES);
 		this.fixture.publishFruit("Mera Mera no Mi", this.logia, image, Translation.of("it", "Foco Foco"));
 		this.fixture.publishFruit("Hie Hie no Mi", this.logia, null, Translation.of("it", "Ghiaccio Ghiaccio"));
 		this.fixture.publishFruit("Inu Inu no Mi", this.zoan, null, Translation.of("it", "Cane Cane"));
@@ -238,7 +240,7 @@ class PublicApiDevilFruitIntegrationTest extends PublishedDatabaseTest {
 			.jsonPath("$.devilFruits[0].slug")
 			.isEqualTo("mera-mera-no-mi")
 			.jsonPath("$.devilFruits[0].image")
-			.isEqualTo("v1/images/" + image + ".png")
+			.isEqualTo("v1/images/" + image)
 			.jsonPath("$.devilFruits[0].type")
 			.doesNotExist()
 			.jsonPath("$.devilFruits[1].name")
@@ -252,13 +254,13 @@ class PublicApiDevilFruitIntegrationTest extends PublishedDatabaseTest {
 
 	@Test
 	void servesTheImageOfAFruitOnlineAsImmutable() {
-		String image = this.fixture.image('c', PNG_BYTES);
+		String image = this.fixture.image('c', WEBP_BYTES);
 		this.fixture.publishFruit("Mera Mera no Mi", this.logia, image, Translation.of("en", "Flame-Flame"));
 
-		byte[] body = get("/v1/images/" + image + ".png").expectStatus()
+		byte[] body = get("/v1/images/" + image).expectStatus()
 			.isOk()
 			.expectHeader()
-			.contentType(MediaType.IMAGE_PNG)
+			.contentType("image/webp")
 			.expectHeader()
 			.valueEquals(HttpHeaders.CACHE_CONTROL, "max-age=31536000, public, immutable")
 			.expectHeader()
@@ -268,18 +270,33 @@ class PublicApiDevilFruitIntegrationTest extends PublishedDatabaseTest {
 			.expectBody(byte[].class)
 			.returnResult()
 			.getResponseBody();
+		assertThat(body).isEqualTo(WEBP_BYTES);
+	}
+
+	@Test
+	void servesAnImageStoredAsPngBeforeWebpAsPng() {
+		String image = this.fixture.image('f', MediaType.IMAGE_PNG_VALUE, PNG_BYTES);
+		this.fixture.publishFruit("Mera Mera no Mi", this.logia, image, Translation.of("en", "Flame-Flame"));
+
+		byte[] body = get("/v1/images/" + image).expectStatus()
+			.isOk()
+			.expectHeader()
+			.contentType(MediaType.IMAGE_PNG)
+			.expectBody(byte[].class)
+			.returnResult()
+			.getResponseBody();
 		assertThat(body).isEqualTo(PNG_BYTES);
 	}
 
 	@Test
 	void answers404ForAnImageNotOnline() {
-		String draftImage = this.fixture.image('d', PNG_BYTES);
+		String draftImage = this.fixture.image('d', WEBP_BYTES);
 		this.fixture.draftFruit("Yami Yami no Mi", this.logia, draftImage, Translation.of("en", "Dark-Dark"));
 
 		for (String id : new String[] { draftImage, "e".repeat(64), "not-an-id", "A".repeat(64) }) {
 			this.client.get()
-				.uri("/v1/images/" + id + ".png")
-				.accept(MediaType.IMAGE_PNG, MediaType.ALL)
+				.uri("/v1/images/" + id)
+				.accept(MediaType.parseMediaType("image/webp"), MediaType.ALL)
 				.exchange()
 				.expectStatus()
 				.isEqualTo(HttpStatus.NOT_FOUND)

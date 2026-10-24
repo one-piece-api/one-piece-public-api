@@ -46,3 +46,15 @@ never break.
 - A slug shaped like a UUID would be read as an id; slugs come from romaji, so it cannot
   happen in practice.
 - `/v3/api-docs` is served to anyone: the contract is public like the data.
+
+## Addendum - Images without extension (WebP plan W2)
+
+- **Exception to "only added":** `GET /v1/images/{id}.png` is replaced by `GET /v1/images/{id}`,
+  with no alias. content-service now stores images as WebP (its ADR-0010), so a `.png` path would
+  lie about the bytes; the format is the `Content-Type` (`image/webp`, `image/png` for rows
+  stored before, converted in W5).
+- **Why no `v2`:** no image URL had been published when the change was made (the only remote image
+  was still in review), and the image ids change anyway when W5 re-encodes the PNG rows. No client
+  can hold a `.png` address.
+- oasdiff reports the removed path as breaking: accepted once, for this reason. The rule above
+  stands for every later change.

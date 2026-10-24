@@ -189,11 +189,17 @@ public class PublishedContentFixture {
 
 	/** A stored image whose id is the given hex digit repeated; returns the id. */
 	public String image(char hexDigit, byte[] bytes) {
+		return image(hexDigit, "image/webp", bytes);
+	}
+
+	/** An image stored in this format, e.g. a PNG stored before WebP. */
+	public String image(char hexDigit, String contentType, byte[] bytes) {
 		String id = String.valueOf(hexDigit).repeat(64);
 		this.owner.sql("""
 				INSERT INTO image (id, content_type, width, height, size_bytes, bytes, created_at)
-				VALUES (:id, 'image/png', 320, 400, :size, :bytes, now())""")
+				VALUES (:id, :contentType, 320, 400, :size, :bytes, now())""")
 			.param("id", id)
+			.param("contentType", contentType)
 			.param("size", bytes.length)
 			.param("bytes", bytes)
 			.update();

@@ -69,7 +69,7 @@ slug to `301`, sort, paging, conditional GET - and let the copies drift apart.
 - **Template hook** `complete(detail)` on `PublishedContentService`: what a detail adds from
   other views (embedded arcs, release days per country read by `PublishedReleaseRepository`).
   `DevilFruitTypeService` keeps its own override.
-- The cover of a volume is served by the same `v1/images/{id}.png` (PNG only today).
+- The cover of a volume is served by the same `v1/images/{id}`.
 
 ## Addendum - Bounty (Bounty plan B3)
 
@@ -85,7 +85,7 @@ slug to `301`, sort, paging, conditional GET - and let the copies drift apart.
 - **Chain:** `PublishedBountyChainRepository` reads the chain in one `WITH RECURSIVE` query on
   `published.bounty`, walking `previous_id` both ways within the language, ordered by position
   (depth), not by amount; `BountyService.complete` adds it to the detail.
-- The poster is served by the same `v1/images/{id}.png`.
+- The poster is served by the same `v1/images/{id}`.
 
 ## Addendum - Character (Character plan C2)
 

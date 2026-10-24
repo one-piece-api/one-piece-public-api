@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class PublicApiStoryIntegrationTest extends PublishedDatabaseTest {
 
-	private static final byte[] PNG_BYTES = { (byte) 0x89, 0x50, 0x4E, 0x47, 4, 5, 6 };
+	private static final byte[] WEBP_BYTES = { 0x52, 0x49, 0x46, 0x46, 4, 5, 6 };
 
 	private final PublishedContentFixture fixture = new PublishedContentFixture(POSTGRES);
 
@@ -68,7 +68,7 @@ class PublicApiStoryIntegrationTest extends PublishedDatabaseTest {
 		this.arc1 = this.fixture.publishArc(1, this.saga1, it("Alba"), en("Romance Dawn"));
 		this.arc2 = this.fixture.publishArc(2, this.saga1, it("Arancione"), en("Orange Town"));
 		this.fixture.publishArc(3, this.saga2, it("Deserto"), en("Desert"));
-		this.cover = this.fixture.image('f', PNG_BYTES);
+		this.cover = this.fixture.image('f', WEBP_BYTES);
 		this.volume1 = this.fixture.publishVolume(1, "ROMANCE DAWN", this.cover, it("Volume Alba"), en("Volume Dawn"));
 		this.volume2 = this.fixture.publishVolume(2, null, null, it("Volume Ciurma"), en("Volume Crew"));
 		this.chapter1 = this.fixture.publishChapter(1, this.arc1, this.volume1, "ROMANCE DAWN", 53, it("Alba cap"),
@@ -350,7 +350,7 @@ class PublicApiStoryIntegrationTest extends PublishedDatabaseTest {
 				.jsonPath("$.japaneseTitle")
 				.isEqualTo("ROMANCE DAWN")
 				.jsonPath("$.cover")
-				.isEqualTo("v1/images/" + this.cover + ".png")
+				.isEqualTo("v1/images/" + this.cover)
 				.jsonPath("$.releases.length()")
 				.isEqualTo(3)
 				.jsonPath("$.releases[0].country")
@@ -390,7 +390,7 @@ class PublicApiStoryIntegrationTest extends PublishedDatabaseTest {
 			.isEqualTo(0)
 			.jsonPath("$.arcs[0].number")
 			.isEqualTo(2);
-		ok("/v1/en/volumes").jsonPath("$.content[0].cover").isEqualTo("v1/images/" + this.cover + ".png");
+		ok("/v1/en/volumes").jsonPath("$.content[0].cover").isEqualTo("v1/images/" + this.cover);
 	}
 
 	@Test
@@ -417,7 +417,7 @@ class PublicApiStoryIntegrationTest extends PublishedDatabaseTest {
 				.jsonPath("$.volume.title")
 				.isEqualTo("Volume Dawn")
 				.jsonPath("$.volume.cover")
-				.isEqualTo("v1/images/" + this.cover + ".png")
+				.isEqualTo("v1/images/" + this.cover)
 				.jsonPath("$.releases.length()")
 				.isEqualTo(2)
 				.jsonPath("$.releases[0].country")
@@ -541,20 +541,20 @@ class PublicApiStoryIntegrationTest extends PublishedDatabaseTest {
 
 	@Test
 	void servesTheCoverOfAnOnlineVolumeAsAPngOnlyWhileItIsOnline() {
-		byte[] body = get("/v1/images/" + this.cover + ".png").expectStatus()
+		byte[] body = get("/v1/images/" + this.cover).expectStatus()
 			.isOk()
 			.expectHeader()
-			.contentType(MediaType.IMAGE_PNG)
+			.contentType("image/webp")
 			.expectBody(byte[].class)
 			.returnResult()
 			.getResponseBody();
-		assertThat(body).isEqualTo(PNG_BYTES);
+		assertThat(body).isEqualTo(WEBP_BYTES);
 
 		this.fixture.retire(this.volume1);
 
 		this.client.get()
-			.uri("/v1/images/" + this.cover + ".png")
-			.accept(MediaType.IMAGE_PNG, MediaType.ALL)
+			.uri("/v1/images/" + this.cover)
+			.accept(MediaType.parseMediaType("image/webp"), MediaType.ALL)
 			.exchange()
 			.expectStatus()
 			.isEqualTo(HttpStatus.NOT_FOUND)
