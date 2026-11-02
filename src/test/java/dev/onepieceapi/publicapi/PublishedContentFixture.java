@@ -7,9 +7,12 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.time.LocalDate;
 import java.time.MonthDay;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 /**
@@ -44,6 +47,9 @@ public class PublishedContentFixture {
 	private static final Entity CHARACTER = new Entity("CHARACTER", "character_version");
 
 	private static final String PUBLISHED = "PUBLISHED";
+
+	/** The story entities whose description is a list of paragraphs. */
+	private static final Set<Entity> PARAGRAPHED_STORY = Set.of(SAGA, ARC);
 
 	private final JdbcClient owner;
 
@@ -346,15 +352,7 @@ public class PublishedContentFixture {
 			.param("image", poster.imageId())
 			.param("holder", poster.holderId())
 			.update();
-		for (Translation translation : translations) {
-			this.owner.sql("""
-					INSERT INTO bounty_version_translation (version_id, language_code, description)
-					VALUES (:id, :language, :description)""")
-				.param("id", versionId)
-				.param("language", translation.language())
-				.param("description", translation.description())
-				.update();
-		}
+		paragraphs(BOUNTY, versionId, translations);
 		if (PUBLISHED.equals(poster.status())) {
 			this.owner.sql("""
 					INSERT INTO content_slug (entity_type, slug, content_id, assigned_at)
@@ -379,6 +377,9 @@ public class PublishedContentFixture {
 		ownColumns.apply(this.owner.sql(insertSql).param("id", versionId).param("number", number)).update();
 		for (Translation translation : translations) {
 			storyTranslation(entity, versionId, translation);
+		}
+		if (PARAGRAPHED_STORY.contains(entity)) {
+			paragraphs(entity, versionId, translations);
 		}
 		if (PUBLISHED.equals(status)) {
 			this.owner.sql("""
@@ -427,14 +428,14 @@ public class PublishedContentFixture {
 			.update();
 		for (Translation translation : translations) {
 			this.owner.sql("""
-					INSERT INTO affiliation_version_translation (version_id, language_code, name, description)
-					VALUES (:id, :language, :name, :description)""")
+					INSERT INTO affiliation_version_translation (version_id, language_code, name)
+					VALUES (:id, :language, :name)""")
 				.param("id", versionId)
 				.param("language", translation.language())
 				.param("name", translation.name())
-				.param("description", translation.description())
 				.update();
 		}
+		paragraphs(AFFILIATION, versionId, translations);
 		if (PUBLISHED.equals(status)) {
 			recordSlug(AFFILIATION, contentId, romaji);
 		}
@@ -484,14 +485,14 @@ public class PublishedContentFixture {
 			.update();
 		for (Translation translation : translations) {
 			this.owner.sql("""
-					INSERT INTO species_version_translation (version_id, language_code, name, description)
-					VALUES (:id, :language, :name, :description)""")
+					INSERT INTO species_version_translation (version_id, language_code, name)
+					VALUES (:id, :language, :name)""")
 				.param("id", versionId)
 				.param("language", translation.language())
 				.param("name", translation.name())
-				.param("description", translation.description())
 				.update();
 		}
+		paragraphs(SPECIES, versionId, translations);
 		if (PUBLISHED.equals(status)) {
 			recordSlug(SPECIES, contentId, romaji);
 		}
@@ -527,8 +528,8 @@ public class PublishedContentFixture {
 		MonthDay birthday = persona.birthday();
 		this.owner.sql("""
 				INSERT INTO character_version (version_id, romaji, japanese_name, status, gender, birthday_month,
-				                               birthday_day, image_id)
-				VALUES (:id, :romaji, :japaneseName, :status, :gender, :month, :day, :image)""")
+				                               birthday_day)
+				VALUES (:id, :romaji, :japaneseName, :status, :gender, :month, :day)""")
 			.param("id", versionId)
 			.param("romaji", persona.romaji())
 			.param("japaneseName", persona.japaneseName())
@@ -536,18 +537,26 @@ public class PublishedContentFixture {
 			.param("gender", persona.gender())
 			.param("month", birthday == null ? null : birthday.getMonthValue())
 			.param("day", birthday == null ? null : birthday.getDayOfMonth())
-			.param("image", persona.imageId())
 			.update();
+		if (persona.imageId() != null) {
+			this.owner.sql("""
+					INSERT INTO character_version_image (id, version_id, position, image_id, kind)
+					VALUES (:id, :version, 0, :image, 'ASPETTO')""")
+				.param("id", UUID.randomUUID())
+				.param("version", versionId)
+				.param("image", persona.imageId())
+				.update();
+		}
 		for (Translation translation : translations) {
 			this.owner.sql("""
-					INSERT INTO character_version_translation (version_id, language_code, name, description)
-					VALUES (:id, :language, :name, :description)""")
+					INSERT INTO character_version_translation (version_id, language_code, name)
+					VALUES (:id, :language, :name)""")
 				.param("id", versionId)
 				.param("language", translation.language())
 				.param("name", translation.name())
-				.param("description", translation.description())
 				.update();
 		}
+		paragraphs(CHARACTER, versionId, translations);
 		characterLists(versionId, persona);
 		devilFruitsOf(versionId, persona);
 		relativesOf(versionId, persona);
@@ -599,22 +608,29 @@ public class PublishedContentFixture {
 		for (int position = 0; position < persona.affiliations().size(); position++) {
 			Belonging belonging = persona.affiliations().get(position);
 			UUID membershipId = UUID.randomUUID();
+			UUID periodId = UUID.randomUUID();
 			this.owner.sql("""
-					INSERT INTO character_version_affiliation (id, version_id, position, affiliation_content_id,
-					                                           marine_rank, former)
-					VALUES (:id, :version, :at, :affiliation, :rank, :former)""")
+					INSERT INTO character_version_affiliation (id, version_id, position, affiliation_content_id)
+					VALUES (:id, :version, :at, :affiliation)""")
 				.param("id", membershipId)
 				.param("version", versionId)
 				.param("at", position)
 				.param("affiliation", belonging.affiliationId())
+				.update();
+			this.owner.sql("""
+					INSERT INTO character_version_affiliation_period (id, membership_id, position, marine_rank,
+					                                                  ended_chapter_id)
+					VALUES (:id, :membership, 0, :rank, :ended)""")
+				.param("id", periodId)
+				.param("membership", membershipId)
 				.param("rank", belonging.marineRank())
-				.param("former", belonging.former())
+				.param("ended", endedIf(belonging.former()))
 				.update();
 			belonging.role()
 				.forEach((language, role) -> this.owner.sql("""
-						INSERT INTO character_version_affiliation_translation (membership_id, language_code, role)
+						INSERT INTO character_version_affiliation_period_translation (period_id, language_code, role)
 						VALUES (:id, :language, :role)""")
-					.param("id", membershipId)
+					.param("id", periodId)
 					.param("language", language)
 					.param("role", role)
 					.update());
@@ -625,12 +641,13 @@ public class PublishedContentFixture {
 		for (int position = 0; position < persona.devilFruits().size(); position++) {
 			Having having = persona.devilFruits().get(position);
 			this.owner.sql("""
-					INSERT INTO character_version_devil_fruit (version_id, position, devil_fruit_content_id, former)
-					VALUES (:version, :at, :fruit, :former)""")
+					INSERT INTO character_version_devil_fruit (version_id, position, devil_fruit_content_id,
+					                                           ended_chapter_id)
+					VALUES (:version, :at, :fruit, :ended)""")
 				.param("version", versionId)
 				.param("at", position)
 				.param("fruit", having.devilFruitId())
-				.param("former", having.former())
+				.param("ended", endedIf(having.former()))
 				.update();
 		}
 	}
@@ -659,7 +676,7 @@ public class PublishedContentFixture {
 	}
 
 	private void storyTranslation(Entity entity, UUID versionId, Translation translation) {
-		boolean described = !VOLUME.equals(entity);
+		boolean described = !VOLUME.equals(entity) && !PARAGRAPHED_STORY.contains(entity);
 		this.owner
 			.sql("INSERT INTO " + entity.table() + "_translation (version_id, language_code, title"
 					+ (described ? ", description" : "") + ") VALUES (:id, :language, :title"
@@ -718,6 +735,7 @@ public class PublishedContentFixture {
 		for (Translation translation : translations) {
 			insertTranslation(entity, versionId, translation);
 		}
+		paragraphs(entity, versionId, translations);
 		return versionId;
 	}
 
@@ -741,16 +759,77 @@ public class PublishedContentFixture {
 
 	private void insertTranslation(Entity entity, UUID versionId, Translation translation) {
 		this.owner
-			.sql("INSERT INTO " + entity.table() + "_translation"
-					+ " (version_id, language_code, name, description, advantages, disadvantages)"
-					+ " VALUES (:id, :language, :name, :description, :advantages, :disadvantages)")
+			.sql("INSERT INTO " + entity.table() + "_translation (version_id, language_code, name)"
+					+ " VALUES (:id, :language, :name)")
 			.param("id", versionId)
 			.param("language", translation.language())
 			.param("name", translation.name())
-			.param("description", translation.description())
-			.param("advantages", translation.advantages())
-			.param("disadvantages", translation.disadvantages())
 			.update();
+	}
+
+	/**
+	 * The long texts of a version as content-service stores them: one paragraph per
+	 * section written in some language, open on the reader axis, its text per language.
+	 */
+	private void paragraphs(Entity entity, UUID versionId, Translation... translations) {
+		int position = 0;
+		for (Section section : Section.values()) {
+			Map<String, String> texts = new LinkedHashMap<>();
+			for (Translation translation : translations) {
+				String text = section.of(translation);
+				if (text != null) {
+					texts.put(translation.language(), text);
+				}
+			}
+			if (!texts.isEmpty()) {
+				paragraph(entity, versionId, position++, section, texts);
+			}
+		}
+	}
+
+	private void paragraph(Entity entity, UUID versionId, int position, Section section, Map<String, String> texts) {
+		UUID paragraphId = UUID.randomUUID();
+		this.owner
+			.sql("INSERT INTO " + entity.table() + "_paragraph (id, version_id, position, section)"
+					+ " VALUES (:id, :version, :at, :section)")
+			.param("id", paragraphId)
+			.param("version", versionId)
+			.param("at", position)
+			.param("section", section.name())
+			.update();
+		texts.forEach((language, text) -> this.owner
+			.sql("INSERT INTO " + entity.table() + "_paragraph_translation (paragraph_id, language_code, text)"
+					+ " VALUES (:id, :language, :text)")
+			.param("id", paragraphId)
+			.param("language", language)
+			.param("text", text)
+			.update());
+	}
+
+	/**
+	 * A chapter that ends a former membership or fruit use: content-service derives
+	 * {@code former} from the end of the window. Null for a current one.
+	 */
+	private UUID endedIf(boolean former) {
+		return former ? insertContent(CHAPTER) : null;
+	}
+
+	/** The sections of the long texts, in the order of a version. */
+	private enum Section {
+
+		DESCRIPTION(Translation::description), ADVANTAGES(Translation::advantages),
+		DISADVANTAGES(Translation::disadvantages);
+
+		private final Function<Translation, String> text;
+
+		Section(Function<Translation, String> text) {
+			this.text = text;
+		}
+
+		String of(Translation translation) {
+			return this.text.apply(translation);
+		}
+
 	}
 
 	/**
