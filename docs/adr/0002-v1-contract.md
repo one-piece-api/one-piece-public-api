@@ -12,7 +12,8 @@ never break.
 - **Paths:** `GET /v1`, `/v1/languages`, `/v1/{lang}/devil-fruit-types[/{idOrSlug}]`. Version
   first, language right after: an unknown language is a `404`, never a default.
 - **Within `v1`, fields and endpoints are only added.** CI compares the generated
-  `openapi/openapi.yaml` with main's and fails on a breaking change (oasdiff).
+  `openapi/openapi.yaml` with the committed `openapi/v1-baseline.yaml` and fails on a breaking
+  change (oasdiff; see the R7 addendum).
 - **Identifier:** the content UUID; the slug of the romaji is accepted on the same path
   (a UUID is recognised by its format). An old slug answers `301` with the current slug as
   a *relative* `Location`, so it holds behind any prefix the gateway strips.
@@ -58,3 +59,22 @@ never break.
   can hold a `.png` address.
 - oasdiff reports the removed path as breaking: accepted once, for this reason. The rule above
   stands for every later change.
+
+## Addendum - The reader axis in `v1` (reveals plan R7, D2)
+
+- **Second exception to "only added", taken once:** the reader axis (content-service ADR-0011,
+  0012, 0013) changes the shape of existing fields:
+  - epithets and aliases become `{value, former, discovered, ended}`; species, Devil Fruits,
+    fruit users and relatives gain `former`, `discovered`, `ended`;
+  - a membership is `{affiliation, former, periods[{role, marineRank, former, discovered, ended}]}`;
+  - `description`, `advantages`, `disadvantages` become lists of `{text, discovered}`; an ended
+    paragraph is not shown;
+  - a character gains `gallery`; its `image` is the main portrait (workflow 3.5.1);
+  - Character, Devil Fruit and Bounty gain `initialKnowledge` and `reveals`.
+  A point is `{chapter, episode}` as numbers; `former` is derived from `ended`, never stored.
+- **Why no `v2`:** one consumer (the frontend, same owner), no published client, the remote down
+  when it ships. A `v2` beside `v1` would double every view and test for no reader.
+- **Guard from now on:** oasdiff compares `openapi/openapi.yaml` with the committed
+  `openapi/v1-baseline.yaml` on every push and PR. Before, it ran on PRs only, and work goes to
+  `main` without PRs: the rule was never checked. A break is accepted only by a separate commit
+  that copies the spec over the baseline, with an addendum here.
