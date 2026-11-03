@@ -17,13 +17,18 @@ import java.util.UUID;
  * @param arcs its arcs online, by number; empty until added
  * @param publishedAt when the online version was published
  */
-@Builder
+@Builder(toBuilder = true)
 public record Saga(UUID id, String slug, int number, String language, String title, String description,
 		StorySpan chapters, StorySpan episodes, @With List<ArcSummary> arcs,
-		Instant publishedAt) implements PublishedContent {
+		Instant publishedAt) implements PublishedContent, SeenByReader<Saga> {
 
 	public Saga {
 		arcs = arcs == null ? List.of() : List.copyOf(arcs);
+	}
+
+	@Override
+	public Saga seenBy(ReaderSight sight) {
+		return toBuilder().arcs(sight.shown(this.arcs)).build();
 	}
 
 }

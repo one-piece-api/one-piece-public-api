@@ -7,6 +7,12 @@ import java.util.UUID;
  *
  * @param coverImageId the cover's identifier; null when the volume has none
  */
-public record VolumeSummary(UUID id, String slug, int number, String title, String coverImageId) {
+public record VolumeSummary(UUID id, String slug, int number, String title,
+		String coverImageId) implements SeenByReader<VolumeSummary> {
+
+	@Override
+	public VolumeSummary seenBy(ReaderSight sight) {
+		return this;
+	}
 
 }

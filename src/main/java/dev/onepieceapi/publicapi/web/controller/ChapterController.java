@@ -14,6 +14,7 @@ import dev.onepieceapi.publicapi.service.ChapterService;
 import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.ContentResponses;
 import dev.onepieceapi.publicapi.web.dto.request.ContentListRequest;
+import dev.onepieceapi.publicapi.web.dto.request.ReaderAxisRequest;
 import dev.onepieceapi.publicapi.web.dto.response.ChapterResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ChapterSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.PageResponse;
@@ -52,7 +53,7 @@ class ChapterController {
 	@Operation(description = "Lists the chapters online, one page at a time")
 	@GetMapping(ApiPaths.CHAPTERS)
 	ResponseEntity<PageResponse<ChapterSummaryResponse>> list(@PathVariable String lang,
-			@ParameterObject @Valid ContentListRequest request,
+			@ParameterObject @Valid ContentListRequest request, @ParameterObject @Valid ReaderAxisRequest readerAxis,
 			@Parameter(description = "Only the chapters of this arc: its id or number, an old slug included;"
 					+ " an unknown arc lists nothing") @RequestParam Optional<String> arc,
 			@Parameter(description = "Only the chapters of this volume: its id or number, an old slug included;"
@@ -62,7 +63,7 @@ class ChapterController {
 			.toFilters(Map.of(PublishedViews.ARC_FILTER, arc, PublishedViews.VOLUME_FILTER, volume));
 		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters,
 				ContentSort.BY_NUMBER);
-		return this.responses.page(webRequest, () -> this.service.search(lang, search),
+		return this.responses.page(webRequest, () -> this.service.search(lang, search, readerAxis.position()),
 				PublicResponseMapper::toResponse);
 	}
 
@@ -77,8 +78,8 @@ class ChapterController {
 			description = "An old slug: Location is the current slug, relative to this address", content = @Content)
 	@GetMapping(ApiPaths.CHAPTER)
 	ResponseEntity<ChapterResponse> get(@PathVariable String lang, @PathVariable String idOrSlug,
-			WebRequest webRequest) {
-		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug),
+			@ParameterObject @Valid ReaderAxisRequest readerAxis, WebRequest webRequest) {
+		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug, readerAxis.position()),
 				PublicResponseMapper::toResponse);
 	}
 

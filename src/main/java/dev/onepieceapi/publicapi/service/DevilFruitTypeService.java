@@ -1,7 +1,6 @@
 package dev.onepieceapi.publicapi.service;
 
 import dev.onepieceapi.publicapi.domain.ContentFilterValue;
-import dev.onepieceapi.publicapi.domain.ContentLookup;
 import dev.onepieceapi.publicapi.domain.DevilFruitType;
 import dev.onepieceapi.publicapi.domain.DevilFruitTypeSummary;
 import dev.onepieceapi.publicapi.persistence.PublishedContentRepository;
@@ -21,22 +20,15 @@ public class DevilFruitTypeService extends PublishedContentService<DevilFruitTyp
 
 	private final PublishedSubcategoryRepository subcategories;
 
-	DevilFruitTypeService(LanguageService languages, PublishedContentRepository repository,
+	DevilFruitTypeService(LanguageService languages, PublishedContentRepository repository, ReaderSightService sights,
 			PublishedSubcategoryRepository subcategories) {
-		super(languages, repository, PublishedViews.DEVIL_FRUIT_TYPE);
+		super(languages, repository, sights, PublishedViews.DEVIL_FRUIT_TYPE);
 		this.repository = repository;
 		this.subcategories = subcategories;
 	}
 
 	@Override
-	public ContentLookup<DevilFruitType> find(String language, String idOrSlug) {
-		return switch (super.find(language, idOrSlug)) {
-			case ContentLookup.Found<DevilFruitType> found -> new ContentLookup.Found<>(withRelations(found.content()));
-			case ContentLookup.Moved<DevilFruitType> moved -> moved;
-		};
-	}
-
-	private DevilFruitType withRelations(DevilFruitType type) {
+	protected DevilFruitType complete(DevilFruitType type) {
 		var ofThisType = new ContentFilterValue(PublishedViews.TYPE_FILTER, type.id().toString());
 		return type.withSubcategories(this.subcategories.findOfType(type.id(), type.language()))
 			.withDevilFruits(this.repository.listAll(PublishedViews.DEVIL_FRUIT, type.language(), ofThisType));

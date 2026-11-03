@@ -16,6 +16,7 @@ import dev.onepieceapi.publicapi.service.BountyService;
 import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.ContentResponses;
 import dev.onepieceapi.publicapi.web.dto.request.ContentListRequest;
+import dev.onepieceapi.publicapi.web.dto.request.ReaderAxisRequest;
 import dev.onepieceapi.publicapi.web.dto.response.BountyResponse;
 import dev.onepieceapi.publicapi.web.dto.response.BountySummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.PageResponse;
@@ -62,7 +63,7 @@ class BountyController {
 	@Operation(description = "Lists the bounties online, one page at a time")
 	@GetMapping(ApiPaths.BOUNTIES)
 	ResponseEntity<PageResponse<BountySummaryResponse>> list(@PathVariable String lang,
-			@ParameterObject @Valid ContentListRequest request,
+			@ParameterObject @Valid ContentListRequest request, @ParameterObject @Valid ReaderAxisRequest readerAxis,
 			@Parameter(description = VALIDITY_DESCRIPTION) @RequestParam Optional<BountyValidity> validity,
 			@Parameter(description = CONDITION_DESCRIPTION) @RequestParam Optional<BountyCondition> condition,
 			@Parameter(description = HOLDER_DESCRIPTION) @RequestParam Optional<String> holder, WebRequest webRequest) {
@@ -71,7 +72,7 @@ class BountyController {
 				condition.map(BountyCondition::name), PublishedViews.HOLDER_FILTER, holder));
 		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters,
 				ContentSort.BY_AMOUNT_DESCENDING);
-		return this.responses.page(webRequest, () -> this.service.search(lang, search),
+		return this.responses.page(webRequest, () -> this.service.search(lang, search, readerAxis.position()),
 				PublicResponseMapper::toResponse);
 	}
 
@@ -84,8 +85,8 @@ class BountyController {
 			description = "An old slug: Location is the current slug, relative to this address", content = @Content)
 	@GetMapping(ApiPaths.BOUNTY)
 	ResponseEntity<BountyResponse> get(@PathVariable String lang, @PathVariable String idOrSlug,
-			WebRequest webRequest) {
-		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug),
+			@ParameterObject @Valid ReaderAxisRequest readerAxis, WebRequest webRequest) {
+		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug, readerAxis.position()),
 				PublicResponseMapper::toResponse);
 	}
 

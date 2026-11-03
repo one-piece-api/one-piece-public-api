@@ -10,8 +10,13 @@ import java.util.UUID;
  * @param kind null for a version written before kinds existed
  * @param imageId the emblem's identifier; null when it has none
  */
-@Builder
+@Builder(toBuilder = true)
 public record AffiliationSummary(UUID id, String slug, String romaji, String name, AffiliationKind kind,
-		String imageId) {
+		String imageId) implements SeenByReader<AffiliationSummary> {
+
+	@Override
+	public AffiliationSummary seenBy(ReaderSight sight) {
+		return this;
+	}
 
 }

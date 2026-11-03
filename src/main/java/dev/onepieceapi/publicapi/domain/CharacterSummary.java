@@ -9,8 +9,13 @@ import java.util.UUID;
  *
  * @param imageId the portrait's identifier; null when it has none
  */
-@Builder
+@Builder(toBuilder = true)
 public record CharacterSummary(UUID id, String slug, String romaji, String name, CharacterStatus status,
-		String imageId) {
+		String imageId) implements SeenByReader<CharacterSummary> {
+
+	@Override
+	public CharacterSummary seenBy(ReaderSight sight) {
+		return this;
+	}
 
 }

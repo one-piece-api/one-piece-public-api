@@ -16,9 +16,9 @@ public class EpisodeService extends PublishedContentService<Episode, EpisodeSumm
 
 	private final PublishedReleaseRepository releases;
 
-	EpisodeService(LanguageService languages, PublishedContentRepository repository,
+	EpisodeService(LanguageService languages, PublishedContentRepository repository, ReaderSightService sights,
 			PublishedReleaseRepository releases) {
-		super(languages, repository, PublishedViews.EPISODE);
+		super(languages, repository, sights, PublishedViews.EPISODE);
 		this.releases = releases;
 	}
 

@@ -10,6 +10,7 @@ import dev.onepieceapi.publicapi.domain.EpisodeSummary;
 import dev.onepieceapi.publicapi.domain.Release;
 import dev.onepieceapi.publicapi.domain.Saga;
 import dev.onepieceapi.publicapi.domain.SagaSummary;
+import dev.onepieceapi.publicapi.domain.StoryDay;
 import dev.onepieceapi.publicapi.domain.StorySpan;
 import dev.onepieceapi.publicapi.domain.Volume;
 import dev.onepieceapi.publicapi.domain.VolumeSummary;
@@ -22,6 +23,7 @@ import dev.onepieceapi.publicapi.persistence.row.EpisodeSummaryRow;
 import dev.onepieceapi.publicapi.persistence.row.ReleaseRow;
 import dev.onepieceapi.publicapi.persistence.row.SagaRow;
 import dev.onepieceapi.publicapi.persistence.row.SagaSummaryRow;
+import dev.onepieceapi.publicapi.persistence.row.StoryDayRow;
 import dev.onepieceapi.publicapi.persistence.row.VolumeRow;
 import dev.onepieceapi.publicapi.persistence.row.VolumeSummaryRow;
 import lombok.experimental.UtilityClass;
@@ -144,6 +146,10 @@ public class StoryRowMapper {
 
 	public Release toDomain(ReleaseRow row) {
 		return new Release(row.country(), row.date());
+	}
+
+	public StoryDay toDomain(StoryDayRow row) {
+		return new StoryDay(row.number(), row.date());
 	}
 
 	/** The view leaves these null for a chapter with no volume (or no text for it). */

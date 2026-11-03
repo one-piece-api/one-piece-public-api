@@ -128,8 +128,10 @@ public class PublicResponseMapper {
 			.build();
 	}
 
+	/** {@code null} when the reader has not met the type yet (reveals plan R7). */
 	public DevilFruitTypeReferenceResponse toResponse(DevilFruitTypeReference type) {
-		return new DevilFruitTypeReferenceResponse(type.id(), type.slug(), type.romaji(), type.name());
+		return type == null ? null
+				: new DevilFruitTypeReferenceResponse(type.id(), type.slug(), type.romaji(), type.name());
 	}
 
 	/** {@code null} when the content has none (a subcategory's is optional). */
@@ -214,8 +216,10 @@ public class PublicResponseMapper {
 			.build();
 	}
 
+	/** {@code null} when the reader has not met the saga yet (reveals plan R7). */
 	public SagaSummaryResponse toResponse(SagaSummary summary) {
-		return new SagaSummaryResponse(summary.id(), summary.slug(), summary.number(), summary.title());
+		return summary == null ? null
+				: new SagaSummaryResponse(summary.id(), summary.slug(), summary.number(), summary.title());
 	}
 
 	public ArcResponse toResponse(Arc arc) {

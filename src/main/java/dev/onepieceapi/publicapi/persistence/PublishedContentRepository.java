@@ -39,16 +39,9 @@ public class PublishedContentRepository {
 	private final JdbcClient jdbc;
 
 	public <D, S> Page<S> search(PublishedView<D, S> view, String language, ContentSearch search) {
-		Map<String, Object> parameters = new HashMap<>(
-				Map.of("language", language, "pattern", containsPattern(search.text())));
-		StringBuilder where = new StringBuilder(LANGUAGE_FILTER);
-		if (search.filtered()) {
-			where.append(TEXT_FILTER.formatted(view.naturalKey()));
-		}
-		appendFilters(view, search.filters(), where, parameters);
-		var content = this.jdbc
-			.sql("SELECT " + view.summaryColumns() + " FROM " + view.view() + " WHERE " + where + " ORDER BY "
-					+ orderBy(view, search.sort()) + ", id LIMIT :limit OFFSET :offset")
+		Map<String, Object> parameters = searchParameters(language, search);
+		String where = searchCondition(view, search, parameters);
+		var content = this.jdbc.sql(searchQuery(view, search, where) + " LIMIT :limit OFFSET :offset")
 			.params(parameters)
 			.param("limit", search.size())
 			.param("offset", search.offset())
@@ -59,6 +52,16 @@ public class PublishedContentRepository {
 			.query(Long.class)
 			.single();
 		return new Page<>(content, search.page(), search.size(), total);
+	}
+
+	/**
+	 * Every row of the search, in its order, with no page: the spoiler filter hides rows
+	 * before paging (reveals plan R7 D1).
+	 */
+	public <D, S> List<S> searchAll(PublishedView<D, S> view, String language, ContentSearch search) {
+		Map<String, Object> parameters = searchParameters(language, search);
+		String where = searchCondition(view, search, parameters);
+		return this.jdbc.sql(searchQuery(view, search, where)).params(parameters).query(view.summary()).list();
 	}
 
 	/**
@@ -98,6 +101,25 @@ public class PublishedContentRepository {
 			.param("slug", slug)
 			.query(view.detail())
 			.optional();
+	}
+
+	private static Map<String, Object> searchParameters(String language, ContentSearch search) {
+		return new HashMap<>(Map.of("language", language, "pattern", containsPattern(search.text())));
+	}
+
+	private static String searchCondition(PublishedView<?, ?> view, ContentSearch search,
+			Map<String, Object> parameters) {
+		StringBuilder where = new StringBuilder(LANGUAGE_FILTER);
+		if (search.filtered()) {
+			where.append(TEXT_FILTER.formatted(view.naturalKey()));
+		}
+		appendFilters(view, search.filters(), where, parameters);
+		return where.toString();
+	}
+
+	private static String searchQuery(PublishedView<?, ?> view, ContentSearch search, String where) {
+		return "SELECT " + view.summaryColumns() + " FROM " + view.view() + " WHERE " + where + " ORDER BY "
+				+ orderBy(view, search.sort()) + ", id";
 	}
 
 	/**

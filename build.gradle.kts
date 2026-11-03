@@ -35,11 +35,14 @@ fun RepositoryHandler.gitHubPackages(repository: String) = maven {
 repositories {
 	mavenCentral()
 	gitHubPackages("one-piece-exception")
+	gitHubPackages("one-piece-reader-time")
 	gitHubPackages("one-piece-content-service")
 }
 
 dependencies {
 	implementation("dev.onepieceapi:one-piece-exception:0.5.0")
+	// The rules of the reader axis, shared with content-service (reveals plan D10).
+	implementation("dev.onepieceapi:one-piece-reader-time:0.1.0")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-validation")

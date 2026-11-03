@@ -13,6 +13,7 @@ import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.ContentResponses;
 import dev.onepieceapi.publicapi.web.dto.request.CharacterFilterRequest;
 import dev.onepieceapi.publicapi.web.dto.request.ContentListRequest;
+import dev.onepieceapi.publicapi.web.dto.request.ReaderAxisRequest;
 import dev.onepieceapi.publicapi.web.dto.response.CharacterResponse;
 import dev.onepieceapi.publicapi.web.dto.response.CharacterSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.PageResponse;
@@ -47,11 +48,11 @@ class CharacterController {
 	@Operation(description = "Lists the characters online, one page at a time")
 	@GetMapping(ApiPaths.CHARACTERS)
 	ResponseEntity<PageResponse<CharacterSummaryResponse>> list(@PathVariable String lang,
-			@ParameterObject @Valid ContentListRequest request, @ParameterObject CharacterFilterRequest filter,
-			WebRequest webRequest) {
+			@ParameterObject @Valid ContentListRequest request, @ParameterObject @Valid ReaderAxisRequest readerAxis,
+			@ParameterObject CharacterFilterRequest filter, WebRequest webRequest) {
 		var filters = ContentSearchMapper.toFilters(filter.asked());
 		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters);
-		return this.responses.page(webRequest, () -> this.service.search(lang, search),
+		return this.responses.page(webRequest, () -> this.service.search(lang, search, readerAxis.position()),
 				PublicResponseMapper::toResponse);
 	}
 
@@ -64,8 +65,8 @@ class CharacterController {
 			description = "An old slug: Location is the current slug, relative to this address", content = @Content)
 	@GetMapping(ApiPaths.CHARACTER)
 	ResponseEntity<CharacterResponse> get(@PathVariable String lang, @PathVariable String idOrSlug,
-			WebRequest webRequest) {
-		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug),
+			@ParameterObject @Valid ReaderAxisRequest readerAxis, WebRequest webRequest) {
+		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug, readerAxis.position()),
 				PublicResponseMapper::toResponse);
 	}
 

@@ -16,9 +16,9 @@ public class BountyService extends PublishedContentService<Bounty, BountySummary
 
 	private final PublishedBountyChainRepository chains;
 
-	BountyService(LanguageService languages, PublishedContentRepository repository,
+	BountyService(LanguageService languages, PublishedContentRepository repository, ReaderSightService sights,
 			PublishedBountyChainRepository chains) {
-		super(languages, repository, PublishedViews.BOUNTY);
+		super(languages, repository, sights, PublishedViews.BOUNTY);
 		this.chains = chains;
 	}
 

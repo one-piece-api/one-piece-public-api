@@ -21,15 +21,25 @@ import java.util.UUID;
  * @param users the characters online that have eaten it, those who have its power now
  * first
  */
-@Builder
+@Builder(toBuilder = true)
 public record DevilFruit(UUID id, String slug, String romaji, String language, String name, String description,
 		String advantages, String disadvantages, DevilFruitTypeReference type,
 		DevilFruitSubcategoryReference subcategory, String imageId, Instant publishedAt,
 		FirstAppearance firstAppearance, boolean multipleUsers,
-		@With List<FruitUser> users) implements PublishedContent {
+		@With List<FruitUser> users) implements PublishedContent, SeenByReader<DevilFruit> {
 
 	public DevilFruit {
 		users = users == null ? List.of() : List.copyOf(users);
+	}
+
+	@Override
+	public DevilFruit seenBy(ReaderSight sight) {
+		DevilFruitTypeReference typeSeen = sight.ifSeen(this.type, DevilFruitTypeReference::id);
+		return toBuilder().type(typeSeen)
+			.subcategory((typeSeen != null) ? sight.ifSeen(this.subcategory, DevilFruitSubcategoryReference::id) : null)
+			.firstAppearance(sight.onAxis(this.firstAppearance))
+			.users(sight.seen(this.users, FruitUser::characterId))
+			.build();
 	}
 
 }

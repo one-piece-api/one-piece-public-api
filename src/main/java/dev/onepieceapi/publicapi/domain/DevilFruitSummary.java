@@ -12,8 +12,18 @@ import java.util.UUID;
  * @param imageId the image's identifier; null when the fruit has none
  * @param firstAppearance where the reader first meets it
  */
-@Builder
+@Builder(toBuilder = true)
 public record DevilFruitSummary(UUID id, String slug, String romaji, String name, DevilFruitTypeReference type,
-		DevilFruitSubcategorySummary subcategory, String imageId, FirstAppearance firstAppearance) {
+		DevilFruitSubcategorySummary subcategory, String imageId,
+		FirstAppearance firstAppearance) implements SeenByReader<DevilFruitSummary> {
+
+	@Override
+	public DevilFruitSummary seenBy(ReaderSight sight) {
+		DevilFruitTypeReference typeSeen = sight.ifSeen(this.type, DevilFruitTypeReference::id);
+		return toBuilder().type(typeSeen)
+			.subcategory((typeSeen != null) ? sight.ifSeen(this.subcategory, DevilFruitSubcategorySummary::id) : null)
+			.firstAppearance(sight.onAxis(this.firstAppearance))
+			.build();
+	}
 
 }

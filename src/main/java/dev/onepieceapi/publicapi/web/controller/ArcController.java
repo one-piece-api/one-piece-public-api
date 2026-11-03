@@ -14,6 +14,7 @@ import dev.onepieceapi.publicapi.service.ArcService;
 import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.ContentResponses;
 import dev.onepieceapi.publicapi.web.dto.request.ContentListRequest;
+import dev.onepieceapi.publicapi.web.dto.request.ReaderAxisRequest;
 import dev.onepieceapi.publicapi.web.dto.response.ArcResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ArcSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.PageResponse;
@@ -52,14 +53,14 @@ class ArcController {
 	@Operation(description = "Lists the arcs online, one page at a time")
 	@GetMapping(ApiPaths.ARCS)
 	ResponseEntity<PageResponse<ArcSummaryResponse>> list(@PathVariable String lang,
-			@ParameterObject @Valid ContentListRequest request,
+			@ParameterObject @Valid ContentListRequest request, @ParameterObject @Valid ReaderAxisRequest readerAxis,
 			@Parameter(description = "Only the arcs of this saga: its id or number, an old slug included;"
 					+ " an unknown saga lists nothing") @RequestParam Optional<String> saga,
 			WebRequest webRequest) {
 		var filters = ContentSearchMapper.toFilters(Map.of(PublishedViews.SAGA_FILTER, saga));
 		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters,
 				ContentSort.BY_NUMBER);
-		return this.responses.page(webRequest, () -> this.service.search(lang, search),
+		return this.responses.page(webRequest, () -> this.service.search(lang, search, readerAxis.position()),
 				PublicResponseMapper::toResponse);
 	}
 
@@ -73,8 +74,9 @@ class ArcController {
 	@ApiResponse(responseCode = "301",
 			description = "An old slug: Location is the current slug, relative to this address", content = @Content)
 	@GetMapping(ApiPaths.ARC)
-	ResponseEntity<ArcResponse> get(@PathVariable String lang, @PathVariable String idOrSlug, WebRequest webRequest) {
-		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug),
+	ResponseEntity<ArcResponse> get(@PathVariable String lang, @PathVariable String idOrSlug,
+			@ParameterObject @Valid ReaderAxisRequest readerAxis, WebRequest webRequest) {
+		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug, readerAxis.position()),
 				PublicResponseMapper::toResponse);
 	}
 

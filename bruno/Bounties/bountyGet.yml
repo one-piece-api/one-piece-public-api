@@ -15,6 +15,16 @@ http:
     - name: idOrSlug
       value: ""
       type: path
+    - name: asOfChapter
+      value: ""
+      type: query
+      description: "Spoiler filter: the last chapter read, inclusive, 1 or more; not with asOfEpisode. What the reader meets after it is left out of lists, searches and counts, its detail answers 404, a link to it is null; episodes are hidden. Missing: nothing is hidden"
+      disabled: true
+    - name: asOfEpisode
+      value: ""
+      type: query
+      description: "Spoiler filter: the last episode watched, inclusive, 1 or more; not with asOfChapter. As asOfChapter, on the anime: chapters and volumes are hidden. Missing: nothing is hidden"
+      disabled: true
   auth: inherit
 
 settings:
@@ -37,6 +47,16 @@ examples:
         - name: idOrSlug
           value: ""
           type: path
+        - name: asOfChapter
+          value: ""
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive, 1 or more; not with asOfEpisode. What the reader meets after it is left out of lists, searches and counts, its detail answers 404, a link to it is null; episodes are hidden. Missing: nothing is hidden"
+          disabled: true
+        - name: asOfEpisode
+          value: ""
+          type: query
+          description: "Spoiler filter: the last episode watched, inclusive, 1 or more; not with asOfChapter. As asOfChapter, on the anime: chapters and volumes are hidden. Missing: nothing is hidden"
+          disabled: true
     response:
       status: 200
       statusText: OK
@@ -105,6 +125,16 @@ examples:
         - name: idOrSlug
           value: ""
           type: path
+        - name: asOfChapter
+          value: ""
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive, 1 or more; not with asOfEpisode. What the reader meets after it is left out of lists, searches and counts, its detail answers 404, a link to it is null; episodes are hidden. Missing: nothing is hidden"
+          disabled: true
+        - name: asOfEpisode
+          value: ""
+          type: query
+          description: "Spoiler filter: the last episode watched, inclusive, 1 or more; not with asOfChapter. As asOfChapter, on the anime: chapters and volumes are hidden. Missing: nothing is hidden"
+          disabled: true
     response:
       status: 301
       statusText: Moved Permanently
@@ -123,6 +153,16 @@ examples:
         - name: idOrSlug
           value: ""
           type: path
+        - name: asOfChapter
+          value: ""
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive, 1 or more; not with asOfEpisode. What the reader meets after it is left out of lists, searches and counts, its detail answers 404, a link to it is null; episodes are hidden. Missing: nothing is hidden"
+          disabled: true
+        - name: asOfEpisode
+          value: ""
+          type: query
+          description: "Spoiler filter: the last episode watched, inclusive, 1 or more; not with asOfChapter. As asOfChapter, on the anime: chapters and volumes are hidden. Missing: nothing is hidden"
+          disabled: true
     response:
       status: 304
       statusText: Not Modified
@@ -191,6 +231,16 @@ examples:
         - name: idOrSlug
           value: ""
           type: path
+        - name: asOfChapter
+          value: ""
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive, 1 or more; not with asOfEpisode. What the reader meets after it is left out of lists, searches and counts, its detail answers 404, a link to it is null; episodes are hidden. Missing: nothing is hidden"
+          disabled: true
+        - name: asOfEpisode
+          value: ""
+          type: query
+          description: "Spoiler filter: the last episode watched, inclusive, 1 or more; not with asOfChapter. As asOfChapter, on the anime: chapters and volumes are hidden. Missing: nothing is hidden"
+          disabled: true
     response:
       headers:
         - name: Content-Type
@@ -226,6 +276,16 @@ examples:
         - name: idOrSlug
           value: ""
           type: path
+        - name: asOfChapter
+          value: ""
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive, 1 or more; not with asOfEpisode. What the reader meets after it is left out of lists, searches and counts, its detail answers 404, a link to it is null; episodes are hidden. Missing: nothing is hidden"
+          disabled: true
+        - name: asOfEpisode
+          value: ""
+          type: query
+          description: "Spoiler filter: the last episode watched, inclusive, 1 or more; not with asOfChapter. As asOfChapter, on the anime: chapters and volumes are hidden. Missing: nothing is hidden"
+          disabled: true
     response:
       headers:
         - name: Content-Type

@@ -21,9 +21,9 @@ public class CharacterService extends PublishedContentService<Character, Charact
 
 	private final PublishedCharacterListRepository lists;
 
-	CharacterService(LanguageService languages, PublishedContentRepository repository,
+	CharacterService(LanguageService languages, PublishedContentRepository repository, ReaderSightService sights,
 			PublishedCharacterListRepository lists) {
-		super(languages, repository, PublishedViews.CHARACTER);
+		super(languages, repository, sights, PublishedViews.CHARACTER);
 		this.lists = lists;
 	}
 

@@ -104,6 +104,27 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       - description: Only the affiliations of this kind
         in: query
         name: kind
@@ -150,6 +171,27 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       responses:
         "200":
           content:
@@ -207,6 +249,27 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       - description: "Only the arcs of this saga: its id or number, an old slug included;\
           \ an unknown saga lists nothing"
         in: query
@@ -249,6 +312,27 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       responses:
         "200":
           content:
@@ -306,6 +390,27 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       - description: "Only the bounties of this validity, derived from the bounties\
           \ online"
         in: query
@@ -369,6 +474,27 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       responses:
         "200":
           content:
@@ -426,6 +552,27 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       - description: "Only the chapters of this arc: its id or number, an old slug\
           \ included; an unknown arc lists nothing"
         in: query
@@ -475,6 +622,27 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       responses:
         "200":
           content:
@@ -532,6 +700,27 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       - description: Only the characters of this status
         in: query
         name: status
@@ -613,6 +802,27 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       responses:
         "200":
           content:
@@ -670,6 +880,27 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       - description: "name, romaji or publishedAt, then asc or desc; default name,asc"
         in: query
         name: sort
@@ -704,6 +935,27 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       responses:
         "200":
           content:
@@ -761,6 +1013,27 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       - description: "Only the fruits of this type: its id or slug, an old slug included;\
           \ an unknown type lists nothing"
         in: query
@@ -802,6 +1075,27 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       responses:
         "200":
           content:
@@ -859,6 +1153,27 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       - description: "Only the episodes of this arc: its id or number, an old slug\
           \ included; an unknown arc lists nothing"
         in: query
@@ -900,6 +1215,27 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       responses:
         "200":
           content:
@@ -957,6 +1293,27 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       - description: "name, number or publishedAt, then asc or desc; default number,asc"
         in: query
         name: sort
@@ -992,6 +1349,27 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       responses:
         "200":
           content:
@@ -1049,6 +1427,27 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       - description: "name, romaji or publishedAt, then asc or desc; default name,asc"
         in: query
         name: sort
@@ -1083,6 +1482,27 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       responses:
         "200":
           content:
@@ -1140,6 +1560,27 @@ paths:
           type: string
           maxLength: 100
           minLength: 0
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       - description: "name, number or publishedAt, then asc or desc; default number,asc"
         in: query
         name: sort
@@ -1175,6 +1616,27 @@ paths:
         required: true
         schema:
           type: string
+      - description: "Spoiler filter: the last chapter read, inclusive, 1 or more;\
+          \ not with asOfEpisode. What the reader meets after it is left out of lists,\
+          \ searches and counts, its detail answers 404, a link to it is null; episodes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfChapter
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
+      - description: "Spoiler filter: the last episode watched, inclusive, 1 or more;\
+          \ not with asOfChapter. As asOfChapter, on the anime: chapters and volumes\
+          \ are hidden. Missing: nothing is hidden"
+        in: query
+        name: asOfEpisode
+        required: false
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: 0
       responses:
         "200":
           content:

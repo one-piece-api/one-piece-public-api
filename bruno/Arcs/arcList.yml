@@ -27,6 +27,16 @@ http:
       type: query
       description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
       disabled: true
+    - name: asOfChapter
+      value: ""
+      type: query
+      description: "Spoiler filter: the last chapter read, inclusive, 1 or more; not with asOfEpisode. What the reader meets after it is left out of lists, searches and counts, its detail answers 404, a link to it is null; episodes are hidden. Missing: nothing is hidden"
+      disabled: true
+    - name: asOfEpisode
+      value: ""
+      type: query
+      description: "Spoiler filter: the last episode watched, inclusive, 1 or more; not with asOfChapter. As asOfChapter, on the anime: chapters and volumes are hidden. Missing: nothing is hidden"
+      disabled: true
     - name: saga
       value: ""
       type: query
@@ -69,6 +79,16 @@ examples:
           value: ""
           type: query
           description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
+          disabled: true
+        - name: asOfChapter
+          value: ""
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive, 1 or more; not with asOfEpisode. What the reader meets after it is left out of lists, searches and counts, its detail answers 404, a link to it is null; episodes are hidden. Missing: nothing is hidden"
+          disabled: true
+        - name: asOfEpisode
+          value: ""
+          type: query
+          description: "Spoiler filter: the last episode watched, inclusive, 1 or more; not with asOfChapter. As asOfChapter, on the anime: chapters and volumes are hidden. Missing: nothing is hidden"
           disabled: true
         - name: saga
           value: ""
@@ -132,6 +152,16 @@ examples:
           type: query
           description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
           disabled: true
+        - name: asOfChapter
+          value: ""
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive, 1 or more; not with asOfEpisode. What the reader meets after it is left out of lists, searches and counts, its detail answers 404, a link to it is null; episodes are hidden. Missing: nothing is hidden"
+          disabled: true
+        - name: asOfEpisode
+          value: ""
+          type: query
+          description: "Spoiler filter: the last episode watched, inclusive, 1 or more; not with asOfChapter. As asOfChapter, on the anime: chapters and volumes are hidden. Missing: nothing is hidden"
+          disabled: true
         - name: saga
           value: ""
           type: query
@@ -187,6 +217,16 @@ examples:
           value: ""
           type: query
           description: Text the name or the romaji or number contains, case-insensitive; 100 characters at most
+          disabled: true
+        - name: asOfChapter
+          value: ""
+          type: query
+          description: "Spoiler filter: the last chapter read, inclusive, 1 or more; not with asOfEpisode. What the reader meets after it is left out of lists, searches and counts, its detail answers 404, a link to it is null; episodes are hidden. Missing: nothing is hidden"
+          disabled: true
+        - name: asOfEpisode
+          value: ""
+          type: query
+          description: "Spoiler filter: the last episode watched, inclusive, 1 or more; not with asOfChapter. As asOfChapter, on the anime: chapters and volumes are hidden. Missing: nothing is hidden"
           disabled: true
         - name: saga
           value: ""

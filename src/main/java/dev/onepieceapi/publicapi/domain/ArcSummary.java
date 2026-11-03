@@ -7,6 +7,12 @@ import java.util.UUID;
  *
  * @param saga its saga, in the same language
  */
-public record ArcSummary(UUID id, String slug, int number, String title, SagaSummary saga) {
+public record ArcSummary(UUID id, String slug, int number, String title,
+		SagaSummary saga) implements SeenByReader<ArcSummary> {
+
+	@Override
+	public ArcSummary seenBy(ReaderSight sight) {
+		return new ArcSummary(this.id, this.slug, this.number, this.title, sight.ifSeen(this.saga, SagaSummary::id));
+	}
 
 }

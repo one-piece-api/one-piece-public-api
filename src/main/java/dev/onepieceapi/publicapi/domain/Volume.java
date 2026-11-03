@@ -20,14 +20,19 @@ import java.util.UUID;
  * @param releases its release day in every country it has one; empty until added
  * @param publishedAt when the online version was published
  */
-@Builder
+@Builder(toBuilder = true)
 public record Volume(UUID id, String slug, int number, String language, String title, String japaneseTitle,
 		String coverImageId, StorySpan chapters, @With List<ArcSummary> arcs, @With List<Release> releases,
-		Instant publishedAt) implements PublishedContent {
+		Instant publishedAt) implements PublishedContent, SeenByReader<Volume> {
 
 	public Volume {
 		arcs = arcs == null ? List.of() : List.copyOf(arcs);
 		releases = releases == null ? List.of() : List.copyOf(releases);
+	}
+
+	@Override
+	public Volume seenBy(ReaderSight sight) {
+		return toBuilder().arcs(sight.shown(this.arcs)).build();
 	}
 
 }

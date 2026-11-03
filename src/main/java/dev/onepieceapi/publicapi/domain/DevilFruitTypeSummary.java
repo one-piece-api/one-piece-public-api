@@ -9,7 +9,13 @@ import java.util.UUID;
  *
  * @param firstAppearance where the reader first meets it
  */
-@Builder
-public record DevilFruitTypeSummary(UUID id, String slug, String romaji, String name, FirstAppearance firstAppearance) {
+@Builder(toBuilder = true)
+public record DevilFruitTypeSummary(UUID id, String slug, String romaji, String name,
+		FirstAppearance firstAppearance) implements SeenByReader<DevilFruitTypeSummary> {
+
+	@Override
+	public DevilFruitTypeSummary seenBy(ReaderSight sight) {
+		return toBuilder().firstAppearance(sight.onAxis(this.firstAppearance)).build();
+	}
 
 }

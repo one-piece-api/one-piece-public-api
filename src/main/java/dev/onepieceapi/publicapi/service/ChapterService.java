@@ -16,9 +16,9 @@ public class ChapterService extends PublishedContentService<Chapter, ChapterSumm
 
 	private final PublishedReleaseRepository releases;
 
-	ChapterService(LanguageService languages, PublishedContentRepository repository,
+	ChapterService(LanguageService languages, PublishedContentRepository repository, ReaderSightService sights,
 			PublishedReleaseRepository releases) {
-		super(languages, repository, PublishedViews.CHAPTER);
+		super(languages, repository, sights, PublishedViews.CHAPTER);
 		this.releases = releases;
 	}
 

@@ -17,9 +17,14 @@ import java.util.UUID;
  * @param memberCount how many characters online belong to it now, those who left it not
  * counted
  */
-@Builder
+@Builder(toBuilder = true)
 public record Affiliation(UUID id, String slug, String romaji, String language, String name, String description,
 		AffiliationKind kind, String imageId, Instant publishedAt, FirstAppearance firstAppearance,
-		@With long memberCount) implements PublishedContent {
+		@With long memberCount) implements PublishedContent, SeenByReader<Affiliation> {
+
+	@Override
+	public Affiliation seenBy(ReaderSight sight) {
+		return toBuilder().firstAppearance(sight.onAxis(this.firstAppearance)).build();
+	}
 
 }

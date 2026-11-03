@@ -14,6 +14,7 @@ import dev.onepieceapi.publicapi.service.DevilFruitService;
 import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.ContentResponses;
 import dev.onepieceapi.publicapi.web.dto.request.ContentListRequest;
+import dev.onepieceapi.publicapi.web.dto.request.ReaderAxisRequest;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitResponse;
 import dev.onepieceapi.publicapi.web.dto.response.DevilFruitSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.PageResponse;
@@ -52,7 +53,7 @@ class DevilFruitController {
 	@Operation(description = "Lists the Devil Fruits online, one page at a time")
 	@GetMapping(ApiPaths.DEVIL_FRUITS)
 	ResponseEntity<PageResponse<DevilFruitSummaryResponse>> list(@PathVariable String lang,
-			@ParameterObject @Valid ContentListRequest request,
+			@ParameterObject @Valid ContentListRequest request, @ParameterObject @Valid ReaderAxisRequest readerAxis,
 			@Parameter(description = "Only the fruits of this type: its id or slug, an old slug included;"
 					+ " an unknown type lists nothing") @RequestParam Optional<String> type,
 			WebRequest webRequest) {
@@ -61,7 +62,7 @@ class DevilFruitController {
 			.stream()
 			.toList();
 		var search = ContentSearchMapper.toSearch(request, this.properties.pagination(), filters);
-		return this.responses.page(webRequest, () -> this.service.search(lang, search),
+		return this.responses.page(webRequest, () -> this.service.search(lang, search, readerAxis.position()),
 				PublicResponseMapper::toResponse);
 	}
 
@@ -73,8 +74,8 @@ class DevilFruitController {
 			description = "An old slug: Location is the current slug, relative to this address", content = @Content)
 	@GetMapping(ApiPaths.DEVIL_FRUIT)
 	ResponseEntity<DevilFruitResponse> get(@PathVariable String lang, @PathVariable String idOrSlug,
-			WebRequest webRequest) {
-		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug),
+			@ParameterObject @Valid ReaderAxisRequest readerAxis, WebRequest webRequest) {
+		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug, readerAxis.position()),
 				PublicResponseMapper::toResponse);
 	}
 

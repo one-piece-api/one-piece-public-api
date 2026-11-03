@@ -12,8 +12,13 @@ import java.util.UUID;
  * @param imageId the poster's identifier; null when the bounty has none
  * @param holder the character the poster is about, as it is online; null when none
  */
-@Builder
+@Builder(toBuilder = true)
 public record BountySummary(UUID id, String slug, String posterName, long amount, BountyCondition condition,
-		BountyValidity validity, String imageId, CharacterReference holder) {
+		BountyValidity validity, String imageId, CharacterReference holder) implements SeenByReader<BountySummary> {
+
+	@Override
+	public BountySummary seenBy(ReaderSight sight) {
+		return toBuilder().holder(sight.ifSeen(this.holder, CharacterReference::id)).build();
+	}
 
 }

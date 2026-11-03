@@ -18,13 +18,18 @@ import java.util.UUID;
  * @param broadcasts its broadcast day in every country it has one; empty until added
  * @param publishedAt when the online version was published
  */
-@Builder
+@Builder(toBuilder = true)
 public record Episode(UUID id, String slug, int number, String language, String title, String description,
 		String japaneseTitle, ArcReference arc, @With List<Release> broadcasts,
-		Instant publishedAt) implements PublishedContent {
+		Instant publishedAt) implements PublishedContent, SeenByReader<Episode> {
 
 	public Episode {
 		broadcasts = broadcasts == null ? List.of() : List.copyOf(broadcasts);
+	}
+
+	@Override
+	public Episode seenBy(ReaderSight sight) {
+		return toBuilder().arc(sight.ifSeen(this.arc, ArcReference::id)).build();
 	}
 
 }

@@ -13,8 +13,14 @@ import java.util.UUID;
  * @param publishedAt when the online version was published
  * @param firstAppearance where the reader first meets it
  */
-@Builder
+@Builder(toBuilder = true)
 public record Species(UUID id, String slug, String romaji, String language, String name, String description,
-		String imageId, Instant publishedAt, FirstAppearance firstAppearance) implements PublishedContent {
+		String imageId, Instant publishedAt,
+		FirstAppearance firstAppearance) implements PublishedContent, SeenByReader<Species> {
+
+	@Override
+	public Species seenBy(ReaderSight sight) {
+		return toBuilder().firstAppearance(sight.onAxis(this.firstAppearance)).build();
+	}
 
 }

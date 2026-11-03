@@ -15,8 +15,13 @@ import java.util.UUID;
  * @param episodes what its episodes online amount to
  * @param publishedAt when the online version was published
  */
-@Builder
+@Builder(toBuilder = true)
 public record Arc(UUID id, String slug, int number, String language, String title, String description, SagaSummary saga,
-		StorySpan chapters, StorySpan episodes, Instant publishedAt) implements PublishedContent {
+		StorySpan chapters, StorySpan episodes, Instant publishedAt) implements PublishedContent, SeenByReader<Arc> {
+
+	@Override
+	public Arc seenBy(ReaderSight sight) {
+		return toBuilder().saga(sight.ifSeen(this.saga, SagaSummary::id)).build();
+	}
 
 }

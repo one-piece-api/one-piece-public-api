@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class SpeciesService extends PublishedContentService<Species, SpeciesSummary> {
 
-	SpeciesService(LanguageService languages, PublishedContentRepository repository) {
-		super(languages, repository, PublishedViews.SPECIES);
+	SpeciesService(LanguageService languages, PublishedContentRepository repository, ReaderSightService sights) {
+		super(languages, repository, sights, PublishedViews.SPECIES);
 	}
 
 }

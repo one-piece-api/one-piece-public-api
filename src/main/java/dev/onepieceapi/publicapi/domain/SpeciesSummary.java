@@ -9,7 +9,13 @@ import java.util.UUID;
  *
  * @param imageId the picture's identifier; null when it has none
  */
-@Builder
-public record SpeciesSummary(UUID id, String slug, String romaji, String name, String imageId) {
+@Builder(toBuilder = true)
+public record SpeciesSummary(UUID id, String slug, String romaji, String name,
+		String imageId) implements SeenByReader<SpeciesSummary> {
+
+	@Override
+	public SpeciesSummary seenBy(ReaderSight sight) {
+		return this;
+	}
 
 }

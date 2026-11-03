@@ -26,12 +26,13 @@ import java.util.UUID;
  * that name it, by name, each through the inverse kind (Character plan D13)
  * @param bounties its bounties online, highest amount first
  */
-@Builder
+@Builder(toBuilder = true)
 public record Character(UUID id, String slug, String romaji, String japaneseName, String language, String name,
 		String description, CharacterStatus status, Gender gender, MonthDay birthday, String imageId,
 		Instant publishedAt, FirstAppearance firstAppearance, @With List<String> epithets, @With List<String> aliases,
 		@With List<SpeciesReference> species, @With List<Membership> affiliations, @With List<FruitUse> devilFruits,
-		@With List<Relative> relatives, @With List<HeldBounty> bounties) implements PublishedContent {
+		@With List<Relative> relatives,
+		@With List<HeldBounty> bounties) implements PublishedContent, SeenByReader<Character> {
 
 	public Character {
 		epithets = epithets == null ? List.of() : List.copyOf(epithets);
@@ -41,6 +42,17 @@ public record Character(UUID id, String slug, String romaji, String japaneseName
 		devilFruits = devilFruits == null ? List.of() : List.copyOf(devilFruits);
 		relatives = relatives == null ? List.of() : List.copyOf(relatives);
 		bounties = bounties == null ? List.of() : List.copyOf(bounties);
+	}
+
+	@Override
+	public Character seenBy(ReaderSight sight) {
+		return toBuilder().firstAppearance(sight.onAxis(this.firstAppearance))
+			.species(sight.seen(this.species, SpeciesReference::id))
+			.affiliations(sight.seen(this.affiliations, Membership::affiliationId))
+			.devilFruits(sight.seen(this.devilFruits, FruitUse::devilFruitId))
+			.relatives(sight.seen(this.relatives, Relative::characterId))
+			.bounties(sight.seen(this.bounties, HeldBounty::id))
+			.build();
 	}
 
 }

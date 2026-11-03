@@ -17,14 +17,23 @@ import java.util.UUID;
  * @param devilFruits its fruits online, by name (plan D12); empty until added
  * @param firstAppearance where the reader first meets it
  */
-@Builder
+@Builder(toBuilder = true)
 public record DevilFruitType(UUID id, String slug, String romaji, String language, String name, String description,
 		String advantages, String disadvantages, Instant publishedAt, @With List<DevilFruitSubcategory> subcategories,
-		@With List<DevilFruitSummary> devilFruits, FirstAppearance firstAppearance) implements PublishedContent {
+		@With List<DevilFruitSummary> devilFruits,
+		FirstAppearance firstAppearance) implements PublishedContent, SeenByReader<DevilFruitType> {
 
 	public DevilFruitType {
 		subcategories = subcategories == null ? List.of() : List.copyOf(subcategories);
 		devilFruits = devilFruits == null ? List.of() : List.copyOf(devilFruits);
+	}
+
+	@Override
+	public DevilFruitType seenBy(ReaderSight sight) {
+		return toBuilder().subcategories(sight.shown(this.subcategories))
+			.devilFruits(sight.shown(this.devilFruits))
+			.firstAppearance(sight.onAxis(this.firstAppearance))
+			.build();
 	}
 
 }

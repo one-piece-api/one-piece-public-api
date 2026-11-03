@@ -16,9 +16,9 @@ public class DevilFruitService extends PublishedContentService<DevilFruit, Devil
 
 	private final PublishedCharacterListRepository characters;
 
-	DevilFruitService(LanguageService languages, PublishedContentRepository repository,
+	DevilFruitService(LanguageService languages, PublishedContentRepository repository, ReaderSightService sights,
 			PublishedCharacterListRepository characters) {
-		super(languages, repository, PublishedViews.DEVIL_FRUIT);
+		super(languages, repository, sights, PublishedViews.DEVIL_FRUIT);
 		this.characters = characters;
 	}
 

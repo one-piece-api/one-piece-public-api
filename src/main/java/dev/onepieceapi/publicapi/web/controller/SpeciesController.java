@@ -12,6 +12,7 @@ import dev.onepieceapi.publicapi.service.SpeciesService;
 import dev.onepieceapi.publicapi.web.ApiPaths;
 import dev.onepieceapi.publicapi.web.ContentResponses;
 import dev.onepieceapi.publicapi.web.dto.request.ContentListRequest;
+import dev.onepieceapi.publicapi.web.dto.request.ReaderAxisRequest;
 import dev.onepieceapi.publicapi.web.dto.response.SpeciesResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SpeciesSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.PageResponse;
@@ -46,9 +47,10 @@ class SpeciesController {
 	@Operation(description = "Lists the species online, one page at a time")
 	@GetMapping(ApiPaths.SPECIES)
 	ResponseEntity<PageResponse<SpeciesSummaryResponse>> list(@PathVariable String lang,
-			@ParameterObject @Valid ContentListRequest request, WebRequest webRequest) {
+			@ParameterObject @Valid ContentListRequest request, @ParameterObject @Valid ReaderAxisRequest readerAxis,
+			WebRequest webRequest) {
 		var search = ContentSearchMapper.toSearch(request, this.properties.pagination());
-		return this.responses.page(webRequest, () -> this.service.search(lang, search),
+		return this.responses.page(webRequest, () -> this.service.search(lang, search, readerAxis.position()),
 				PublicResponseMapper::toResponse);
 	}
 
@@ -60,8 +62,8 @@ class SpeciesController {
 			description = "An old slug: Location is the current slug, relative to this address", content = @Content)
 	@GetMapping(ApiPaths.SPECIES_ITEM)
 	ResponseEntity<SpeciesResponse> get(@PathVariable String lang, @PathVariable String idOrSlug,
-			WebRequest webRequest) {
-		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug),
+			@ParameterObject @Valid ReaderAxisRequest readerAxis, WebRequest webRequest) {
+		return this.responses.lookup(webRequest, () -> this.service.find(lang, idOrSlug, readerAxis.position()),
 				PublicResponseMapper::toResponse);
 	}
 
