@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.With;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,8 +65,22 @@ public record DevilFruit(UUID id, String slug, String romaji, String language, S
 		return toBuilder().type(typeSeen)
 			.subcategory((typeSeen != null) ? sight.ifSeen(this.subcategory, DevilFruitSubcategoryReference::id) : null)
 			.firstAppearance(sight.onAxis(this.firstAppearance))
-			.users(sight.seen(this.users, FruitUser::characterId))
+			.users(usersSeenBy(sight))
 			.build();
+	}
+
+	/**
+	 * The users the reader knows of, those who have its power at N first, then by name
+	 * (reveals plan R7 S13).
+	 */
+	private List<FruitUser> usersSeenBy(ReaderSight sight) {
+		Comparator<FruitUser> order = Comparator.comparing(FruitUser::former)
+			.thenComparing(FruitUser::name, NameOrder.in(this.language))
+			.thenComparing(FruitUser::characterId);
+		return sight.discovered(this.users, FruitUser::characterId, FruitUser::withWindow)
+			.stream()
+			.sorted(order)
+			.toList();
 	}
 
 }

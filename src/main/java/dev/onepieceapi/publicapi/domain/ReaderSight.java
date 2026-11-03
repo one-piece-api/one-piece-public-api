@@ -3,12 +3,15 @@ package dev.onepieceapi.publicapi.domain;
 import dev.onepieceapi.readertime.Axis;
 import dev.onepieceapi.readertime.Point;
 import dev.onepieceapi.readertime.ReaderPosition;
+import dev.onepieceapi.readertime.RevealWindow;
 import dev.onepieceapi.readertime.Visibility;
+import dev.onepieceapi.readertime.Windowed;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -67,6 +70,35 @@ public final class ReaderSight {
 		return entries.stream().filter((entry) -> sees(id.apply(entry))).toList();
 	}
 
+	/**
+	 * The entries whose window the reader has discovered, current or former (workflow
+	 * 3.7.2), in their order, each with its window as the reader sees it.
+	 * @param withWindow the entry with another window
+	 */
+	public <T extends Windowed> List<T> discovered(List<T> entries, BiFunction<T, RevealWindow, T> withWindow) {
+		return entries.stream()
+			.filter((entry) -> entry.window().isDiscoveredAt(this.position))
+			.map((entry) -> withWindow.apply(entry, onAxis(entry.window())))
+			.toList();
+	}
+
+	/**
+	 * The entries pointing to a content the reader has met whose window the reader has
+	 * discovered (workflow 3.8), each with its window as the reader sees it.
+	 */
+	public <T extends Windowed> List<T> discovered(List<T> entries, Function<T, UUID> id,
+			BiFunction<T, RevealWindow, T> withWindow) {
+		return discovered(seen(entries, id), withWindow);
+	}
+
+	/**
+	 * A window as the reader sees it: only the parts on the reader's axis, the end only
+	 * once reached (workflow 3.8). Its unfiltered state is then its state at N.
+	 */
+	public RevealWindow onAxis(RevealWindow window) {
+		return new RevealWindow(reachedPart(window.discovered()), reachedPart(window.ended()));
+	}
+
 	/** The contents the reader has met, in their order, each as the reader sees it. */
 	public <T extends SeenByReader<T>> List<T> shown(List<T> contents) {
 		return contents.stream().filter((content) -> sees(content.id())).map(this::shownOne).toList();
@@ -92,6 +124,14 @@ public final class ReaderSight {
 	/** What the episodes online of a parent amount to, up to the reader's position. */
 	public StorySpan episodeSpan(List<StoryDay> episodes) {
 		return StorySpan.of(episodes.stream().filter(this::reachedEpisode).toList());
+	}
+
+	private Point reachedPart(Point point) {
+		if (!reached(point)) {
+			return Point.NONE;
+		}
+		int part = point.on(axis()).getAsInt();
+		return (axis() == Axis.CHAPTER) ? Point.ofChapter(part) : Point.ofEpisode(part);
 	}
 
 	private boolean reachedChapter(StoryDay chapter) {

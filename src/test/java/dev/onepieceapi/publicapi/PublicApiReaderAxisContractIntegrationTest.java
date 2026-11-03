@@ -1,9 +1,11 @@
 package dev.onepieceapi.publicapi;
 
+import dev.onepieceapi.publicapi.PublishedContentFixture.CharacterList;
 import dev.onepieceapi.publicapi.PublishedContentFixture.Having;
 import dev.onepieceapi.publicapi.PublishedContentFixture.Persona;
 import dev.onepieceapi.publicapi.PublishedContentFixture.Poster;
 import dev.onepieceapi.publicapi.PublishedContentFixture.Translation;
+import dev.onepieceapi.publicapi.PublishedContentFixture.Window;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,6 +61,7 @@ class PublicApiReaderAxisContractIntegrationTest extends PublishedDatabaseTest {
 				en("Monkey D. Luffy"));
 		this.fixture.firstAppearance(gomu, chapter1);
 		this.fixture.firstAppearance(luffy, chapter1);
+		this.fixture.window(luffy, CharacterList.DEVIL_FRUIT, 0, Window.builder().discoveredChapter(chapter1).build());
 		this.childhood = this.fixture.image('a', new byte[] { 1 });
 		String gear5 = this.fixture.image('b', new byte[] { 2 });
 		this.portrait = this.fixture.image('c', new byte[] { 3 });

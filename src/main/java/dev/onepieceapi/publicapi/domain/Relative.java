@@ -1,6 +1,7 @@
 package dev.onepieceapi.publicapi.domain;
 
 import dev.onepieceapi.readertime.RevealWindow;
+import lombok.With;
 
 import java.util.UUID;
 
@@ -10,7 +11,8 @@ import java.util.UUID;
  *
  * @param kind what the relative is to the character
  */
-public record Relative(RelativeReference character, RelativeKind kind, RevealWindow window) implements WindowedEntry {
+public record Relative(RelativeReference character, RelativeKind kind,
+		@With RevealWindow window) implements WindowedEntry {
 
 	/**
 	 * The same link read from the relative's side: the relative holds this character as

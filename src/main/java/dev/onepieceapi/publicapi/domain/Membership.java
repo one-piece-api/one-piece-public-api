@@ -1,5 +1,7 @@
 package dev.onepieceapi.publicapi.domain;
 
+import lombok.With;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -7,7 +9,7 @@ import java.util.UUID;
  * A character's place in an affiliation online (Character plan D10): its periods, in
  * order (workflow 3.4.7).
  */
-public record Membership(AffiliationReference affiliation, List<MembershipPeriod> periods) {
+public record Membership(AffiliationReference affiliation, @With List<MembershipPeriod> periods) {
 
 	public Membership {
 		periods = List.copyOf(periods);
@@ -16,6 +18,16 @@ public record Membership(AffiliationReference affiliation, List<MembershipPeriod
 	/** The affiliation it is a membership of. */
 	public UUID affiliationId() {
 		return this.affiliation.id();
+	}
+
+	/** The periods the reader has discovered, each as the reader sees it. */
+	public Membership seenBy(ReaderSight sight) {
+		return withPeriods(sight.discovered(this.periods, MembershipPeriod::withWindow));
+	}
+
+	/** Whether the reader knows of at least one of its periods. */
+	public boolean known() {
+		return !this.periods.isEmpty();
 	}
 
 	/** Whether the character no longer belongs to it: none of its periods is current. */

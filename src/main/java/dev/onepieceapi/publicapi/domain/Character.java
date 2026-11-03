@@ -81,12 +81,23 @@ public record Character(UUID id, String slug, String romaji, String japaneseName
 	@Override
 	public Character seenBy(ReaderSight sight) {
 		return toBuilder().firstAppearance(sight.onAxis(this.firstAppearance))
-			.species(sight.seen(this.species, SpeciesEntry::speciesId))
-			.affiliations(sight.seen(this.affiliations, Membership::affiliationId))
-			.devilFruits(sight.seen(this.devilFruits, FruitUse::devilFruitId))
-			.relatives(sight.seen(this.relatives, Relative::characterId))
+			.epithets(sight.discovered(this.epithets, TextEntry::withWindow))
+			.aliases(sight.discovered(this.aliases, TextEntry::withWindow))
+			.species(sight.discovered(this.species, SpeciesEntry::speciesId, SpeciesEntry::withWindow))
+			.affiliations(membershipsSeenBy(sight))
+			.devilFruits(sight.discovered(this.devilFruits, FruitUse::devilFruitId, FruitUse::withWindow))
+			.relatives(sight.discovered(this.relatives, Relative::characterId, Relative::withWindow))
 			.bounties(sight.seen(this.bounties, HeldBounty::id))
 			.build();
+	}
+
+	/** The memberships in affiliations met with at least one period discovered. */
+	private List<Membership> membershipsSeenBy(ReaderSight sight) {
+		return sight.seen(this.affiliations, Membership::affiliationId)
+			.stream()
+			.map((membership) -> membership.seenBy(sight))
+			.filter(Membership::known)
+			.toList();
 	}
 
 }

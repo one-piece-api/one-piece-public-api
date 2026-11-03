@@ -51,6 +51,11 @@ public class PublishedContentFixture {
 
 	private static final String PUBLISHED = "PUBLISHED";
 
+	/** The four points of a window row, bound by {@link Window#parameters()}. */
+	private static final String WINDOW_COLUMNS = "discovered_chapter_id = :discoveredChapter,"
+			+ " discovered_episode_id = :discoveredEpisode, ended_chapter_id = :endedChapter,"
+			+ " ended_episode_id = :endedEpisode";
+
 	/** The story entities whose description is a list of paragraphs. */
 	private static final Set<Entity> PARAGRAPHED_STORY = Set.of(SAGA, ARC);
 
@@ -677,6 +682,36 @@ public class PublishedContentFixture {
 	}
 
 	/**
+	 * The window of an entry of a list of the character online (workflow 3.7.2), by its
+	 * position in the list.
+	 */
+	public void window(UUID characterId, CharacterList list, int position, Window window) {
+		this.owner.sql("UPDATE " + list.table() + " t SET " + WINDOW_COLUMNS + """
+				 FROM content_version v
+				WHERE t.version_id = v.id AND v.content_id = :id AND v.status = 'PUBLISHED' AND t.position = :at""")
+			.params(window.parameters())
+			.param("id", characterId)
+			.param("at", position)
+			.update();
+	}
+
+	/**
+	 * The window of a period of a membership of the character online (workflow 3.4.7), by
+	 * the positions of the membership and of the period.
+	 */
+	public void periodWindow(UUID characterId, int membershipPosition, int periodPosition, Window window) {
+		this.owner.sql("UPDATE character_version_affiliation_period t SET " + WINDOW_COLUMNS + """
+				 FROM character_version_affiliation a JOIN content_version v ON v.id = a.version_id
+				WHERE t.membership_id = a.id AND v.content_id = :id AND v.status = 'PUBLISHED'
+				  AND a.position = :membership AND t.position = :at""")
+			.params(window.parameters())
+			.param("id", characterId)
+			.param("membership", membershipPosition)
+			.param("at", periodPosition)
+			.update();
+	}
+
+	/**
 	 * An image of the gallery of the character online (workflow 3.5.1), discovered at a
 	 * chapter online or nowhere, and ended when former; its caption by language.
 	 */
@@ -1026,6 +1061,41 @@ public class PublishedContentFixture {
 			affiliations = affiliations == null ? List.of() : affiliations;
 			devilFruits = devilFruits == null ? List.of() : devilFruits;
 			relatives = relatives == null ? List.of() : relatives;
+		}
+
+	}
+
+	/** The lists of a character with one window per entry (workflow 3.7.2). */
+	public enum CharacterList {
+
+		EPITHET("character_version_epithet"), ALIAS("character_version_alias"), SPECIES("character_version_species"),
+		DEVIL_FRUIT("character_version_devil_fruit"), RELATIVE("character_version_relative");
+
+		private final String table;
+
+		CharacterList(String table) {
+			this.table = table;
+		}
+
+		String table() {
+			return this.table;
+		}
+
+	}
+
+	/**
+	 * A window as chapters and episodes online (workflow 3.7.2); a null part is missing.
+	 */
+	@Builder
+	public record Window(UUID discoveredChapter, UUID discoveredEpisode, UUID endedChapter, UUID endedEpisode) {
+
+		Map<String, Object> parameters() {
+			Map<String, Object> parameters = new LinkedHashMap<>();
+			parameters.put("discoveredChapter", this.discoveredChapter);
+			parameters.put("discoveredEpisode", this.discoveredEpisode);
+			parameters.put("endedChapter", this.endedChapter);
+			parameters.put("endedEpisode", this.endedEpisode);
+			return parameters;
 		}
 
 	}
