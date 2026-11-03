@@ -66,7 +66,7 @@ dependencies {
 	// this service never migrates anything.
 	testImplementation("org.springframework.boot:spring-boot-starter-flyway")
 	testRuntimeOnly("org.flywaydb:flyway-database-postgresql")
-	testRuntimeOnly("dev.onepieceapi:one-piece-content-service-migrations:42")
+	testRuntimeOnly("dev.onepieceapi:one-piece-content-service-migrations:43")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
