@@ -71,6 +71,13 @@ Dopo una modifica all'API, in quest'ordine, poi si committano entrambi i risulta
 La CI fallisce se uno dei due è disallineato, e su una PR se la spec introduce una modifica
 incompatibile rispetto a `main` (ADR-0002).
 
+## Filtro sulla posizione del lettore
+
+`asOfChapter=N` o `asOfEpisode=N` (mai entrambi) su ogni risorsa: la risposta mostra solo quello che un
+lettore arrivato a N conosce (contenuti incontrati, nomi, tipi e stati rivelati, voci e paragrafi
+scoperti). Un contenuto non visto è assente dalle liste e ha `404` nel dettaglio. Senza parametro la
+risposta è la verità intera. Regole e alternative: ADR-0005.
+
 ## Prestazioni
 
 Scenari [Gatling](https://docs.gatling.io/) in `src/gatling/` (piano, D16), eseguiti a mano sul

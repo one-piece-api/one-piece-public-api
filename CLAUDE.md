@@ -24,7 +24,7 @@ Port 8083, actuator 8093. In the cluster only through Envoy on host `api.localho
 
 ## Key ideas (ADRs in `docs/adr/`)
 
-- 0001 separate read service on the published views; 0002 `v1` contract, oasdiff fails CI on breaking changes; 0003 HTTP caching, ETag and `304`; 0004 one descriptor per published content type.
+- 0001 separate read service on the published views; 0002 `v1` contract, oasdiff fails CI on breaking changes; 0003 HTTP caching, ETag and `304`; 0004 one descriptor per published content type; 0005 reader-position filter (`asOfChapter`/`asOfEpisode`).
 
 ## Gotchas
 
