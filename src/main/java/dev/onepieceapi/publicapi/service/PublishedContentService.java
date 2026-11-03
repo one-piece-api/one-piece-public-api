@@ -3,6 +3,7 @@ package dev.onepieceapi.publicapi.service;
 import dev.onepieceapi.publicapi.domain.ContentAddress;
 import dev.onepieceapi.publicapi.domain.ContentLookup;
 import dev.onepieceapi.publicapi.domain.ContentSearch;
+import dev.onepieceapi.publicapi.domain.LongTexts;
 import dev.onepieceapi.publicapi.domain.Page;
 import dev.onepieceapi.publicapi.domain.PublishedContent;
 import dev.onepieceapi.publicapi.domain.ReaderSight;
@@ -71,7 +72,7 @@ public abstract class PublishedContentService<D extends PublishedContent & SeenB
 		D found = findOnline(language, idOrSlug).filter((content) -> sight == null || sight.sees(content.id()))
 			.orElseThrow(() -> new ContentNotFoundException(idOrSlug));
 		if (ContentAddress.isId(idOrSlug) || idOrSlug.equals(found.slug())) {
-			D described = withParagraphs(found, language);
+			D described = withParagraphs(found, language, sight);
 			return new ContentLookup.Found<>((sight == null) ? complete(described) : completeFor(described, sight));
 		}
 		// An old slug of a content whose romaji now leaves no slug has nowhere to point
@@ -110,14 +111,16 @@ public abstract class PublishedContentService<D extends PublishedContent & SeenB
 	}
 
 	/**
-	 * Its long texts, the paragraphs without an end (workflow 3.7.3; at N with R7b), for
-	 * an entity that has them.
+	 * Its long texts, for an entity that has them (workflow 3.7.3): the paragraphs
+	 * without an end, or those the reader reads at N.
+	 * @param sight null for no spoiler filter
 	 */
-	private D withParagraphs(D content, String language) {
+	private D withParagraphs(D content, String language, ReaderSight sight) {
 		if (!this.view.paragraphed()) {
 			return content;
 		}
-		return this.view.paragraphs().apply(content, this.repository.findParagraphs(content.id(), language).current());
+		LongTexts texts = this.repository.findParagraphs(content.id(), language);
+		return this.view.paragraphs().apply(content, (sight == null) ? texts.current() : texts.seenBy(sight));
 	}
 
 	private Optional<D> findOnline(String language, String idOrSlug) {

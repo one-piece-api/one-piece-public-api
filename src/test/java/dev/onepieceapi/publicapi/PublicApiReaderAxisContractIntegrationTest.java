@@ -62,6 +62,7 @@ class PublicApiReaderAxisContractIntegrationTest extends PublishedDatabaseTest {
 		this.fixture.firstAppearance(gomu, chapter1);
 		this.fixture.firstAppearance(luffy, chapter1);
 		this.fixture.window(luffy, CharacterList.DEVIL_FRUIT, 0, Window.builder().discoveredChapter(chapter1).build());
+		this.fixture.paragraphWindow(luffy, 0, Window.builder().discoveredChapter(chapter1).build());
 		this.childhood = this.fixture.image('a', new byte[] { 1 });
 		String gear5 = this.fixture.image('b', new byte[] { 2 });
 		this.portrait = this.fixture.image('c', new byte[] { 3 });

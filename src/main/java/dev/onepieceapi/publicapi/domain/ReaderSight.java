@@ -1,6 +1,7 @@
 package dev.onepieceapi.publicapi.domain;
 
 import dev.onepieceapi.readertime.Axis;
+import dev.onepieceapi.readertime.Paragraphs;
 import dev.onepieceapi.readertime.Point;
 import dev.onepieceapi.readertime.ReaderPosition;
 import dev.onepieceapi.readertime.RevealWindow;
@@ -89,6 +90,18 @@ public final class ReaderSight {
 	public <T extends Windowed> List<T> discovered(List<T> entries, Function<T, UUID> id,
 			BiFunction<T, RevealWindow, T> withWindow) {
 		return discovered(seen(entries, id), withWindow);
+	}
+
+	/**
+	 * The paragraphs of a section the reader reads at N, in their order: discovered and
+	 * not ended, an ended one being superseded (workflow 3.7.3); each as the reader sees
+	 * it.
+	 */
+	public List<Paragraph> paragraphs(List<Paragraph> section) {
+		return Paragraphs.visibleAt(section, this.position)
+			.stream()
+			.map((paragraph) -> paragraph.withWindow(onAxis(paragraph.window())))
+			.toList();
 	}
 
 	/**

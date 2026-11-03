@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.MonthDay;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -80,6 +81,10 @@ public class PublishedContentFixture {
 		// A character points to its relatives: those links go before any character
 		// content.
 		this.owner.sql("DELETE FROM character_version_relative").update();
+		// A paragraph of a saga or an arc may point to a chapter or an episode, which go
+		// first.
+		this.owner.sql("DELETE FROM saga_version_paragraph").update();
+		this.owner.sql("DELETE FROM arc_version_paragraph").update();
 		for (Entity entity : new Entity[] { BOUNTY, CHARACTER, FRUIT, TYPE, AFFILIATION, SPECIES, CHAPTER, EPISODE, ARC,
 				VOLUME, SAGA }) {
 			this.owner.sql("DELETE FROM content WHERE entity_type = :type").param("type", entity.type()).update();
@@ -765,6 +770,61 @@ public class PublishedContentFixture {
 			.param("language", language)
 			.param("text", text)
 			.update();
+	}
+
+	/**
+	 * The window of a paragraph of the content online (workflow 3.7.3), by its position
+	 * among all its paragraphs.
+	 */
+	public void paragraphWindow(UUID contentId, int position, Window window) {
+		this.owner.sql("UPDATE " + paragraphTable(contentId) + " t SET " + WINDOW_COLUMNS + """
+				 FROM content_version v
+				WHERE t.version_id = v.id AND v.content_id = :id AND v.status = 'PUBLISHED' AND t.position = :at""")
+			.params(window.parameters())
+			.param("id", contentId)
+			.param("at", position)
+			.update();
+	}
+
+	/**
+	 * One more paragraph of a section of the content online, in one language, inside its
+	 * window: the last of its paragraphs.
+	 * @param section {@code DESCRIPTION}, {@code ADVANTAGES} or {@code DISADVANTAGES}
+	 */
+	public void windowedParagraph(UUID contentId, String section, String language, String text, Window window) {
+		String table = paragraphTable(contentId);
+		UUID paragraphId = UUID.randomUUID();
+		this.owner
+			.sql("INSERT INTO " + table + " (id, version_id, position, section) SELECT :paragraphId, v.id,"
+					+ " (SELECT count(*) FROM " + table + " p WHERE p.version_id = v.id), :section"
+					+ " FROM content_version v WHERE v.content_id = :id AND v.status = 'PUBLISHED'")
+			.param("paragraphId", paragraphId)
+			.param("id", contentId)
+			.param("section", section)
+			.update();
+		this.owner.sql("UPDATE " + table + " SET " + WINDOW_COLUMNS + " WHERE id = :paragraphId")
+			.params(window.parameters())
+			.param("paragraphId", paragraphId)
+			.update();
+		this.owner
+			.sql("INSERT INTO " + table + "_translation (paragraph_id, language_code, text)"
+					+ " VALUES (:id, :language, :text)")
+			.param("id", paragraphId)
+			.param("language", language)
+			.param("text", text)
+			.update();
+	}
+
+	/**
+	 * The paragraph table of the entity of a content, such as
+	 * {@code saga_version_paragraph}.
+	 */
+	private String paragraphTable(UUID contentId) {
+		String entityType = this.owner.sql("SELECT entity_type FROM content WHERE id = :id")
+			.param("id", contentId)
+			.query(String.class)
+			.single();
+		return entityType.toLowerCase(Locale.ROOT) + "_version_paragraph";
 	}
 
 	/** What the reader believes of the character online at its first appearance. */
