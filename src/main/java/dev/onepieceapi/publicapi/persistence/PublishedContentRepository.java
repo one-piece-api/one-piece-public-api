@@ -4,7 +4,10 @@ import dev.onepieceapi.publicapi.domain.ContentAddress;
 import dev.onepieceapi.publicapi.domain.ContentFilterValue;
 import dev.onepieceapi.publicapi.domain.ContentSearch;
 import dev.onepieceapi.publicapi.domain.ContentSort;
+import dev.onepieceapi.publicapi.domain.LongTexts;
 import dev.onepieceapi.publicapi.domain.Page;
+import dev.onepieceapi.publicapi.persistence.mapper.ReaderAxisRowMapper;
+import dev.onepieceapi.publicapi.persistence.row.ParagraphRow;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -101,6 +104,23 @@ public class PublishedContentRepository {
 			.param("slug", slug)
 			.query(view.detail())
 			.optional();
+	}
+
+	/**
+	 * Every paragraph of a content, in the language, each section in its order (workflow
+	 * 3.7.3): ended ones included, the caller decides which are seen.
+	 */
+	public LongTexts findParagraphs(UUID contentId, String language) {
+		var rows = this.jdbc.sql("""
+				SELECT section, text, discovered_chapter, discovered_episode, ended_chapter, ended_episode
+				FROM published.paragraph
+				WHERE content_id = :id AND language = :language
+				ORDER BY section, position""")
+			.param("id", contentId)
+			.param("language", language)
+			.query(ParagraphRow.class)
+			.list();
+		return ReaderAxisRowMapper.toLongTexts(rows);
 	}
 
 	private static Map<String, Object> searchParameters(String language, ContentSearch search) {

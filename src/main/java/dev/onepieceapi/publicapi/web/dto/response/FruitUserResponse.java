@@ -1,10 +1,14 @@
 package dev.onepieceapi.publicapi.web.dto.response;
 
 /**
- * A character that has eaten a Devil Fruit.
+ * A character that has eaten a Devil Fruit, inside the window the character stores for it
+ * (workflow 3.7.2).
  *
  * @param former whether the character no longer has its power
+ * @param discovered where the reader learns it
+ * @param ended where the reader learns it is over; {@code null} for none
  */
-public record FruitUserResponse(CharacterReferenceResponse character, boolean former) {
+public record FruitUserResponse(CharacterReferenceResponse character, boolean former, StoryPointResponse discovered,
+		StoryPointResponse ended) {
 
 }

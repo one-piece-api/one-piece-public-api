@@ -4,6 +4,7 @@ import dev.onepieceapi.publicapi.domain.AffiliationKind;
 import lombok.Builder;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -17,8 +18,8 @@ import java.util.UUID;
  * counted
  */
 @Builder
-public record AffiliationResponse(UUID id, String slug, String romaji, String language, String name, String description,
-		AffiliationKind kind, String image, Instant publishedAt, FirstAppearanceResponse firstAppearance,
-		long memberCount) {
+public record AffiliationResponse(UUID id, String slug, String romaji, String language, String name,
+		List<ParagraphResponse> description, AffiliationKind kind, String image, Instant publishedAt,
+		FirstAppearanceResponse firstAppearance, long memberCount) {
 
 }

@@ -1,12 +1,14 @@
 package dev.onepieceapi.publicapi.persistence;
 
 import dev.onepieceapi.publicapi.domain.ContentSort;
+import dev.onepieceapi.publicapi.domain.LongTexts;
 import lombok.Builder;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -29,18 +31,25 @@ import java.util.function.Function;
  * @param sorts the columns a sort field orders by on this entity, where the entity
  * declares it or orders it its own way; a field that is not common is available only when
  * declared here; none when null
+ * @param paragraphs puts the long texts, as paragraphs (workflow 3.7.3), into a detail;
+ * null for an entity without them
  * @param <D> the detail
  * @param <S> the list row
  */
 @Builder
 public record PublishedView<D, S>(String entityType, String view, String detailColumns, String summaryColumns,
 		String naturalKey, RowMapper<D> detail, RowMapper<S> summary, Map<String, ContentFilter> filters,
-		String embeddedOrder, Map<ContentSort.Field, List<String>> sorts) {
+		String embeddedOrder, Map<ContentSort.Field, List<String>> sorts, BiFunction<D, LongTexts, D> paragraphs) {
 
 	public PublishedView {
 		embeddedOrder = embeddedOrder == null ? "name" : embeddedOrder;
 		filters = filters == null ? Map.of() : Map.copyOf(filters);
 		sorts = sorts == null ? Map.of() : Map.copyOf(sorts);
+	}
+
+	/** Whether its contents have long texts written as paragraphs. */
+	public boolean paragraphed() {
+		return this.paragraphs != null;
 	}
 
 	/** Whether the list of this entity can be ordered by the field. */

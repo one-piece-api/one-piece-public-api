@@ -8,7 +8,7 @@ import java.util.UUID;
 /** A row of {@code published.bounty}. */
 @Builder
 public record BountyRow(UUID id, String slug, String posterName, long amount, String condition, String validity,
-		String imageId, UUID holderId, String holderSlug, String holderName, String language, String description,
+		String imageId, UUID holderId, String holderSlug, String holderName, String language,
 		OffsetDateTime publishedAt, UUID firstAppearanceChapterId, String firstAppearanceChapterSlug,
 		Integer firstAppearanceChapterNumber, String firstAppearanceChapterTitle, UUID firstAppearanceEpisodeId,
 		String firstAppearanceEpisodeSlug, Integer firstAppearanceEpisodeNumber, String firstAppearanceEpisodeTitle) {

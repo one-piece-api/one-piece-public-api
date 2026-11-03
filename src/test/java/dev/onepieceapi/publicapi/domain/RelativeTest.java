@@ -1,5 +1,7 @@
 package dev.onepieceapi.publicapi.domain;
 
+import dev.onepieceapi.readertime.Point;
+import dev.onepieceapi.readertime.RevealWindow;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -10,6 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** The kinds of relative and the link read from the other side (Character plan D13). */
 class RelativeTest {
+
+	private static final RevealWindow WINDOW = new RevealWindow(new Point(1, null), new Point(null, null));
 
 	@ParameterizedTest
 	@CsvSource({ "PARENT,CHILD", "CHILD,PARENT", "GRANDPARENT,GRANDCHILD", "GRANDCHILD,GRANDPARENT",
@@ -31,10 +35,11 @@ class RelativeTest {
 	void anInvertedLinkKeepsTheCharacterAndInvertsTheKind(RelativeKind kind) {
 		var character = new RelativeReference(UUID.randomUUID(), "garp", "Garp", Gender.MALE);
 
-		var inverted = new Relative(character, kind).inverted();
+		var inverted = new Relative(character, kind, WINDOW).inverted();
 
 		assertThat(inverted.character()).isEqualTo(character);
 		assertThat(inverted.kind()).isEqualTo(kind.inverse());
+		assertThat(inverted.window()).isEqualTo(WINDOW);
 	}
 
 }

@@ -17,11 +17,16 @@ import java.util.UUID;
  * @param multipleUsers whether several characters may have its power at once (the SMILE
  * fruits)
  * @param users the characters that have eaten it, those who have its power now first
+ * @param initialKnowledge what the reader believes at the first appearance; {@code null}
+ * when nothing is revealed later
+ * @param reveals what the reader learns later, in order
  */
 @Builder
-public record DevilFruitResponse(UUID id, String slug, String romaji, String language, String name, String description,
-		String advantages, String disadvantages, DevilFruitTypeReferenceResponse type,
-		DevilFruitSubcategoryReferenceResponse subcategory, String image, Instant publishedAt,
-		FirstAppearanceResponse firstAppearance, boolean multipleUsers, List<FruitUserResponse> users) {
+public record DevilFruitResponse(UUID id, String slug, String romaji, String language, String name,
+		List<ParagraphResponse> description, List<ParagraphResponse> advantages, List<ParagraphResponse> disadvantages,
+		DevilFruitTypeReferenceResponse type, DevilFruitSubcategoryReferenceResponse subcategory, String image,
+		Instant publishedAt, FirstAppearanceResponse firstAppearance, boolean multipleUsers,
+		List<FruitUserResponse> users, DevilFruitKnowledgeResponse initialKnowledge,
+		List<DevilFruitRevealResponse> reveals) {
 
 }

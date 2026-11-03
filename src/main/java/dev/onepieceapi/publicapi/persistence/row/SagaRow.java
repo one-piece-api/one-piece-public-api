@@ -8,9 +8,9 @@ import java.util.UUID;
 
 /** A row of {@code published.saga}. */
 @Builder
-public record SagaRow(UUID id, String slug, int number, String language, String name, String description,
-		OffsetDateTime publishedAt, int chapterCount, Integer firstChapterNumber, Integer lastChapterNumber,
-		LocalDate firstChapterDate, LocalDate lastChapterDate, int episodeCount, Integer firstEpisodeNumber,
-		Integer lastEpisodeNumber, LocalDate firstEpisodeDate, LocalDate lastEpisodeDate) {
+public record SagaRow(UUID id, String slug, int number, String language, String name, OffsetDateTime publishedAt,
+		int chapterCount, Integer firstChapterNumber, Integer lastChapterNumber, LocalDate firstChapterDate,
+		LocalDate lastChapterDate, int episodeCount, Integer firstEpisodeNumber, Integer lastEpisodeNumber,
+		LocalDate firstEpisodeDate, LocalDate lastEpisodeDate) {
 
 }

@@ -16,7 +16,9 @@ import java.util.UUID;
  *
  * @param japaneseName as published
  * @param birthday ISO 8601 day and month, no year
- * @param image the portrait's path relative to the API root; {@code null} when none
+ * @param description its paragraphs, in order (workflow 3.7.3)
+ * @param image the main portrait's path relative to the API root (workflow 3.5.1);
+ * {@code null} when none
  * @param epithets those written in the language of the path, in order
  * @param aliases the same in every language, in order
  * @param species its species online, in order
@@ -26,14 +28,20 @@ import java.util.UUID;
  * ones it stores in order, then the others by name
  * @param bounties its bounties online, highest amount first
  * @param firstAppearance where the reader first meets it
+ * @param gallery its images, in order
+ * @param initialKnowledge what the reader believes at the first appearance; {@code null}
+ * when nothing is revealed later
+ * @param reveals what the reader learns later, in order
  */
 @Builder
 public record CharacterResponse(UUID id, String slug, String romaji, String japaneseName, String language, String name,
-		String description, CharacterStatus status, Gender gender,
+		List<ParagraphResponse> description, CharacterStatus status, Gender gender,
 		@Schema(type = "string", description = "Day and month, ISO 8601 without year", example = "--05-05",
 				pattern = "^--\\d{2}-\\d{2}$") MonthDay birthday,
-		String image, List<String> epithets, List<String> aliases, List<SpeciesReferenceResponse> species,
-		List<MembershipResponse> affiliations, List<FruitUseResponse> devilFruits, List<RelativeResponse> relatives,
-		List<HeldBountyResponse> bounties, Instant publishedAt, FirstAppearanceResponse firstAppearance) {
+		String image, List<TextEntryResponse> epithets, List<TextEntryResponse> aliases,
+		List<SpeciesEntryResponse> species, List<MembershipResponse> affiliations, List<FruitUseResponse> devilFruits,
+		List<RelativeResponse> relatives, List<HeldBountyResponse> bounties, Instant publishedAt,
+		FirstAppearanceResponse firstAppearance, List<GalleryImageResponse> gallery,
+		CharacterKnowledgeResponse initialKnowledge, List<CharacterRevealResponse> reveals) {
 
 }

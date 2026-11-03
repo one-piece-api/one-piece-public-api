@@ -22,6 +22,9 @@ import java.util.function.UnaryOperator;
  */
 public class PublishedContentFixture {
 
+	/** The number of the chapter that ends a former window. */
+	public static final int ENDING_CHAPTER = 900;
+
 	private static final String AUTHOR = "fixture-author";
 
 	private static final Entity TYPE = new Entity("DEVIL_FRUIT_TYPE", "devil_fruit_type_version");
@@ -608,7 +611,6 @@ public class PublishedContentFixture {
 		for (int position = 0; position < persona.affiliations().size(); position++) {
 			Belonging belonging = persona.affiliations().get(position);
 			UUID membershipId = UUID.randomUUID();
-			UUID periodId = UUID.randomUUID();
 			this.owner.sql("""
 					INSERT INTO character_version_affiliation (id, version_id, position, affiliation_content_id)
 					VALUES (:id, :version, :at, :affiliation)""")
@@ -617,24 +619,32 @@ public class PublishedContentFixture {
 				.param("at", position)
 				.param("affiliation", belonging.affiliationId())
 				.update();
-			this.owner.sql("""
-					INSERT INTO character_version_affiliation_period (id, membership_id, position, marine_rank,
-					                                                  ended_chapter_id)
-					VALUES (:id, :membership, 0, :rank, :ended)""")
-				.param("id", periodId)
-				.param("membership", membershipId)
-				.param("rank", belonging.marineRank())
-				.param("ended", endedIf(belonging.former()))
-				.update();
-			belonging.role()
-				.forEach((language, role) -> this.owner.sql("""
-						INSERT INTO character_version_affiliation_period_translation (period_id, language_code, role)
-						VALUES (:id, :language, :role)""")
-					.param("id", periodId)
-					.param("language", language)
-					.param("role", role)
-					.update());
+			for (int at = 0; at < belonging.periods().size(); at++) {
+				period(membershipId, at, belonging.periods().get(at));
+			}
 		}
+	}
+
+	private void period(UUID membershipId, int position, Stay stay) {
+		UUID periodId = UUID.randomUUID();
+		this.owner.sql("""
+				INSERT INTO character_version_affiliation_period (id, membership_id, position, marine_rank,
+				                                                  ended_chapter_id)
+				VALUES (:id, :membership, :at, :rank, :ended)""")
+			.param("id", periodId)
+			.param("membership", membershipId)
+			.param("at", position)
+			.param("rank", stay.marineRank())
+			.param("ended", endedIf(stay.former()))
+			.update();
+		stay.role()
+			.forEach((language, role) -> this.owner.sql("""
+					INSERT INTO character_version_affiliation_period_translation (period_id, language_code, role)
+					VALUES (:id, :language, :role)""")
+				.param("id", periodId)
+				.param("language", language)
+				.param("role", role)
+				.update());
 	}
 
 	private void devilFruitsOf(UUID versionId, Persona persona) {
@@ -664,6 +674,146 @@ public class PublishedContentFixture {
 				.param("kind", related.kind())
 				.update();
 		}
+	}
+
+	/**
+	 * An image of the gallery of the character online (workflow 3.5.1), discovered at a
+	 * chapter online or nowhere, and ended when former; its caption by language.
+	 */
+	public void galleryImage(UUID characterId, String imageId, String kind, UUID discoveredChapterId, boolean former,
+			Map<String, String> captions) {
+		UUID imageRowId = UUID.randomUUID();
+		this.owner.sql("""
+				INSERT INTO character_version_image (id, version_id, position, image_id, kind, discovered_chapter_id,
+				                                     ended_chapter_id)
+				SELECT :rowId, v.id, (SELECT count(*) FROM character_version_image i WHERE i.version_id = v.id), :image,
+				       :kind, :discovered, :ended
+				FROM content_version v
+				WHERE v.content_id = :id AND v.status = 'PUBLISHED'""")
+			.param("rowId", imageRowId)
+			.param("id", characterId)
+			.param("image", imageId)
+			.param("kind", kind)
+			.param("discovered", discoveredChapterId)
+			.param("ended", endedIf(former))
+			.update();
+		captions.forEach((language, caption) -> this.owner.sql("""
+				INSERT INTO character_version_image_translation (gallery_image_id, language_code, caption)
+				VALUES (:id, :language, :caption)""")
+			.param("id", imageRowId)
+			.param("language", language)
+			.param("caption", caption)
+			.update());
+	}
+
+	/**
+	 * A paragraph of the description of the character online, after the others, that the
+	 * reader learns no longer holds: its text superseded (workflow 3.7.3).
+	 */
+	public void formerParagraph(UUID characterId, String language, String text) {
+		UUID paragraphId = UUID.randomUUID();
+		this.owner
+			.sql("""
+					INSERT INTO character_version_paragraph (id, version_id, position, section, ended_chapter_id)
+					SELECT :paragraphId, v.id, (SELECT count(*) FROM character_version_paragraph p WHERE p.version_id = v.id),
+					       'DESCRIPTION', :ended
+					FROM content_version v
+					WHERE v.content_id = :id AND v.status = 'PUBLISHED'""")
+			.param("paragraphId", paragraphId)
+			.param("id", characterId)
+			.param("ended", endedIf(true))
+			.update();
+		this.owner.sql("""
+				INSERT INTO character_version_paragraph_translation (paragraph_id, language_code, text)
+				VALUES (:id, :language, :text)""")
+			.param("id", paragraphId)
+			.param("language", language)
+			.param("text", text)
+			.update();
+	}
+
+	/** What the reader believes of the character online at its first appearance. */
+	public void characterInitialKnowledge(UUID characterId, String status) {
+		this.owner.sql("""
+				INSERT INTO character_version_initial_knowledge (version_id, status)
+				SELECT id, :status FROM content_version WHERE content_id = :id AND status = 'PUBLISHED'""")
+			.param("id", characterId)
+			.param("status", status)
+			.update();
+	}
+
+	/**
+	 * What the reader believes of the fruit online at its first appearance: its romaji,
+	 * its type and its name by language.
+	 */
+	public void devilFruitInitialKnowledge(UUID fruitId, String romaji, UUID typeId, Map<String, String> names) {
+		this.owner.sql("""
+				INSERT INTO devil_fruit_version_initial_knowledge (version_id, romaji, type_content_id)
+				SELECT id, :romaji, :type FROM content_version WHERE content_id = :id AND status = 'PUBLISHED'""")
+			.param("id", fruitId)
+			.param("romaji", romaji)
+			.param("type", typeId)
+			.update();
+		names.forEach((language, name) -> this.owner.sql("""
+				INSERT INTO devil_fruit_version_initial_knowledge_translation (version_id, language_code, name)
+				SELECT id, :language, :name FROM content_version WHERE content_id = :id AND status = 'PUBLISHED'""")
+			.param("id", fruitId)
+			.param("language", language)
+			.param("name", name)
+			.update());
+	}
+
+	/** What the reader believes of the bounty online at its first appearance. */
+	public void bountyInitialKnowledge(UUID bountyId, boolean inactive) {
+		this.owner.sql("""
+				INSERT INTO bounty_version_initial_knowledge (version_id, inactive)
+				SELECT id, :inactive FROM content_version WHERE content_id = :id AND status = 'PUBLISHED'""")
+			.param("id", bountyId)
+			.param("inactive", inactive)
+			.update();
+	}
+
+	/**
+	 * A reveal of the character online at a chapter online: the fields named, no value of
+	 * its own, so it reveals the current one; its English title.
+	 */
+	public void characterReveal(UUID characterId, UUID chapterId, String title, String... fields) {
+		reveal(CHARACTER, characterId, chapterId, title, fields);
+	}
+
+	/** A reveal of the fruit online, as {@link #characterReveal}. */
+	public void devilFruitReveal(UUID fruitId, UUID chapterId, String title, String... fields) {
+		reveal(FRUIT, fruitId, chapterId, title, fields);
+	}
+
+	/** A reveal of the bounty online, as {@link #characterReveal}. */
+	public void bountyReveal(UUID bountyId, UUID chapterId, String title, String... fields) {
+		reveal(BOUNTY, bountyId, chapterId, title, fields);
+	}
+
+	private void reveal(Entity entity, UUID contentId, UUID chapterId, String title, String... fields) {
+		UUID revealId = UUID.randomUUID();
+		String table = entity.table() + "_reveal";
+		this.owner
+			.sql("INSERT INTO " + table + " (id, version_id, position, revealed_chapter_id)"
+					+ " SELECT :revealId, v.id, (SELECT count(*) FROM " + table
+					+ " r WHERE r.version_id = v.id), :chapter"
+					+ " FROM content_version v WHERE v.content_id = :id AND v.status = 'PUBLISHED'")
+			.param("revealId", revealId)
+			.param("id", contentId)
+			.param("chapter", chapterId)
+			.update();
+		for (String field : fields) {
+			this.owner.sql("INSERT INTO " + table + "_field (reveal_id, field) VALUES (:id, :field)")
+				.param("id", revealId)
+				.param("field", field)
+				.update();
+		}
+		this.owner
+			.sql("INSERT INTO " + table + "_translation (reveal_id, language_code, title) VALUES (:id, 'en', :title)")
+			.param("id", revealId)
+			.param("title", title)
+			.update();
 	}
 
 	/** Whether several characters may have the power of the fruit online at once. */
@@ -807,11 +957,12 @@ public class PublishedContentFixture {
 	}
 
 	/**
-	 * A chapter that ends a former membership or fruit use: content-service derives
-	 * {@code former} from the end of the window. Null for a current one.
+	 * A chapter online that ends a former membership or fruit use, in no arc nor volume:
+	 * the window ends at its number (workflow 3.7.2). Null for a current one.
 	 */
 	private UUID endedIf(boolean former) {
-		return former ? insertContent(CHAPTER) : null;
+		return former ? story(CHAPTER, PUBLISHED, ENDING_CHAPTER, chapterSql(),
+				(spec) -> chapterLinks(spec, null, null, null, null)) : null;
 	}
 
 	/** The sections of the long texts, in the order of a version. */
@@ -890,12 +1041,24 @@ public class PublishedContentFixture {
 	}
 
 	/**
-	 * A membership of a character version: the affiliation, its role by language and its
-	 * rank.
+	 * A membership of a character version: the affiliation and its periods, in order
+	 * (workflow 3.4.7).
 	 */
-	public record Belonging(UUID affiliationId, Map<String, String> role, String marineRank, boolean former) {
+	public record Belonging(UUID affiliationId, List<Stay> periods) {
 
-		public Belonging {
+		/** A membership of one period. */
+		public Belonging(UUID affiliationId, Map<String, String> role, String marineRank, boolean former) {
+			this(affiliationId, List.of(new Stay(role, marineRank, former)));
+		}
+
+	}
+
+	/**
+	 * A period of a membership: its role by language, its rank and whether it ended.
+	 */
+	public record Stay(Map<String, String> role, String marineRank, boolean former) {
+
+		public Stay {
 			role = role == null ? Map.of() : role;
 		}
 

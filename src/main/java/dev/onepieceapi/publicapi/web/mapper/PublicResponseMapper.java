@@ -16,7 +16,6 @@ import dev.onepieceapi.publicapi.domain.FruitUser;
 import dev.onepieceapi.publicapi.domain.Relative;
 import dev.onepieceapi.publicapi.domain.HeldBounty;
 import dev.onepieceapi.publicapi.domain.Membership;
-import dev.onepieceapi.publicapi.domain.SpeciesReference;
 import dev.onepieceapi.publicapi.domain.Species;
 import dev.onepieceapi.publicapi.domain.SpeciesSummary;
 import dev.onepieceapi.publicapi.domain.StoryItemReference;
@@ -38,9 +37,23 @@ import dev.onepieceapi.publicapi.domain.Release;
 import dev.onepieceapi.publicapi.domain.Saga;
 import dev.onepieceapi.publicapi.domain.SagaSummary;
 import dev.onepieceapi.publicapi.domain.StorySpan;
+import dev.onepieceapi.publicapi.domain.BountyField;
+import dev.onepieceapi.publicapi.domain.BountyValues;
+import dev.onepieceapi.publicapi.domain.CharacterField;
+import dev.onepieceapi.publicapi.domain.CharacterImage;
+import dev.onepieceapi.publicapi.domain.CharacterValues;
+import dev.onepieceapi.publicapi.domain.DevilFruitField;
+import dev.onepieceapi.publicapi.domain.DevilFruitValues;
+import dev.onepieceapi.publicapi.domain.GalleryImageKind;
+import dev.onepieceapi.publicapi.domain.MembershipPeriod;
+import dev.onepieceapi.publicapi.domain.Paragraph;
+import dev.onepieceapi.publicapi.domain.Reveal;
+import dev.onepieceapi.publicapi.domain.SpeciesEntry;
+import dev.onepieceapi.publicapi.domain.TextEntry;
 import dev.onepieceapi.publicapi.domain.Volume;
 import dev.onepieceapi.publicapi.domain.VolumeSummary;
 import dev.onepieceapi.publicapi.web.ApiPaths;
+import dev.onepieceapi.readertime.Point;
 import dev.onepieceapi.publicapi.web.dto.response.AffiliationReferenceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.AffiliationResponse;
 import dev.onepieceapi.publicapi.web.dto.response.AffiliationSummaryResponse;
@@ -80,6 +93,18 @@ import dev.onepieceapi.publicapi.web.dto.response.FirstAppearanceResponse;
 import dev.onepieceapi.publicapi.web.dto.response.LanguageResponse;
 import dev.onepieceapi.publicapi.web.dto.response.PageResponse;
 import dev.onepieceapi.publicapi.web.dto.response.ReleaseResponse;
+import dev.onepieceapi.publicapi.web.dto.response.BountyKnowledgeResponse;
+import dev.onepieceapi.publicapi.web.dto.response.BountyRevealResponse;
+import dev.onepieceapi.publicapi.web.dto.response.CharacterKnowledgeResponse;
+import dev.onepieceapi.publicapi.web.dto.response.CharacterRevealResponse;
+import dev.onepieceapi.publicapi.web.dto.response.DevilFruitKnowledgeResponse;
+import dev.onepieceapi.publicapi.web.dto.response.DevilFruitRevealResponse;
+import dev.onepieceapi.publicapi.web.dto.response.GalleryImageResponse;
+import dev.onepieceapi.publicapi.web.dto.response.MembershipPeriodResponse;
+import dev.onepieceapi.publicapi.web.dto.response.ParagraphResponse;
+import dev.onepieceapi.publicapi.web.dto.response.SpeciesEntryResponse;
+import dev.onepieceapi.publicapi.web.dto.response.StoryPointResponse;
+import dev.onepieceapi.publicapi.web.dto.response.TextEntryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SagaResponse;
 import dev.onepieceapi.publicapi.web.dto.response.SagaSummaryResponse;
 import dev.onepieceapi.publicapi.web.dto.response.StorySpanResponse;
@@ -87,6 +112,8 @@ import dev.onepieceapi.publicapi.web.dto.response.VolumeResponse;
 import dev.onepieceapi.publicapi.web.dto.response.VolumeSummaryResponse;
 import lombok.experimental.UtilityClass;
 
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -108,9 +135,9 @@ public class PublicResponseMapper {
 			.romaji(devilFruitType.romaji())
 			.language(devilFruitType.language())
 			.name(devilFruitType.name())
-			.description(devilFruitType.description())
-			.advantages(devilFruitType.advantages())
-			.disadvantages(devilFruitType.disadvantages())
+			.description(toParagraphResponses(devilFruitType.description()))
+			.advantages(toParagraphResponses(devilFruitType.advantages()))
+			.disadvantages(toParagraphResponses(devilFruitType.disadvantages()))
 			.publishedAt(devilFruitType.publishedAt())
 			.subcategories(devilFruitType.subcategories().stream().map(PublicResponseMapper::toResponse).toList())
 			.devilFruits(devilFruitType.devilFruits().stream().map(PublicResponseMapper::toTypeFruitResponse).toList())
@@ -152,9 +179,9 @@ public class PublicResponseMapper {
 			.romaji(devilFruit.romaji())
 			.language(devilFruit.language())
 			.name(devilFruit.name())
-			.description(devilFruit.description())
-			.advantages(devilFruit.advantages())
-			.disadvantages(devilFruit.disadvantages())
+			.description(toParagraphResponses(devilFruit.description()))
+			.advantages(toParagraphResponses(devilFruit.advantages()))
+			.disadvantages(toParagraphResponses(devilFruit.disadvantages()))
 			.type(toResponse(devilFruit.type()))
 			.subcategory(toResponse(devilFruit.subcategory()))
 			.image(imagePath(devilFruit.imageId()))
@@ -162,6 +189,12 @@ public class PublicResponseMapper {
 			.firstAppearance(toResponse(devilFruit.firstAppearance()))
 			.multipleUsers(devilFruit.multipleUsers())
 			.users(devilFruit.users().stream().map(PublicResponseMapper::toResponse).toList())
+			.initialKnowledge(toKnowledgeResponse(devilFruit.reveals().initialKnowledge()))
+			.reveals(devilFruit.reveals()
+				.reveals()
+				.stream()
+				.map(PublicResponseMapper::toDevilFruitRevealResponse)
+				.toList())
 			.build();
 	}
 
@@ -208,7 +241,7 @@ public class PublicResponseMapper {
 			.number(saga.number())
 			.language(saga.language())
 			.title(saga.title())
-			.description(saga.description())
+			.description(toParagraphResponses(saga.description()))
 			.chapters(toResponse(saga.chapters()))
 			.episodes(toResponse(saga.episodes()))
 			.arcs(saga.arcs().stream().map(PublicResponseMapper::toArcReferenceResponse).toList())
@@ -229,7 +262,7 @@ public class PublicResponseMapper {
 			.number(arc.number())
 			.language(arc.language())
 			.title(arc.title())
-			.description(arc.description())
+			.description(toParagraphResponses(arc.description()))
 			.saga(toResponse(arc.saga()))
 			.chapters(toResponse(arc.chapters()))
 			.episodes(toResponse(arc.episodes()))
@@ -343,12 +376,14 @@ public class PublicResponseMapper {
 			.condition(bounty.condition())
 			.validity(bounty.validity())
 			.language(bounty.language())
-			.description(bounty.description())
+			.description(toParagraphResponses(bounty.description()))
 			.image(imagePath(bounty.imageId()))
 			.publishedAt(bounty.publishedAt())
 			.firstAppearance(toResponse(bounty.firstAppearance()))
 			.holder(toResponse(bounty.holder()))
 			.chain(bounty.chain().stream().map(PublicResponseMapper::toResponse).toList())
+			.initialKnowledge(toKnowledgeResponse(bounty.reveals().initialKnowledge()))
+			.reveals(bounty.reveals().reveals().stream().map(PublicResponseMapper::toBountyRevealResponse).toList())
 			.build();
 	}
 
@@ -372,7 +407,7 @@ public class PublicResponseMapper {
 			.romaji(affiliation.romaji())
 			.language(affiliation.language())
 			.name(affiliation.name())
-			.description(affiliation.description())
+			.description(toParagraphResponses(affiliation.description()))
 			.kind(affiliation.kind())
 			.image(imagePath(affiliation.imageId()))
 			.publishedAt(affiliation.publishedAt())
@@ -399,7 +434,7 @@ public class PublicResponseMapper {
 			.romaji(species.romaji())
 			.language(species.language())
 			.name(species.name())
-			.description(species.description())
+			.description(toParagraphResponses(species.description()))
 			.image(imagePath(species.imageId()))
 			.publishedAt(species.publishedAt())
 			.firstAppearance(toResponse(species.firstAppearance()))
@@ -424,13 +459,13 @@ public class PublicResponseMapper {
 			.japaneseName(character.japaneseName())
 			.language(character.language())
 			.name(character.name())
-			.description(character.description())
+			.description(toParagraphResponses(character.description()))
 			.status(character.status())
 			.gender(character.gender())
 			.birthday(character.birthday())
 			.image(imagePath(character.imageId()))
-			.epithets(character.epithets())
-			.aliases(character.aliases())
+			.epithets(character.epithets().stream().map(PublicResponseMapper::toResponse).toList())
+			.aliases(character.aliases().stream().map(PublicResponseMapper::toResponse).toList())
 			.species(character.species().stream().map(PublicResponseMapper::toResponse).toList())
 			.affiliations(character.affiliations().stream().map(PublicResponseMapper::toResponse).toList())
 			.devilFruits(character.devilFruits().stream().map(PublicResponseMapper::toResponse).toList())
@@ -438,6 +473,13 @@ public class PublicResponseMapper {
 			.bounties(character.bounties().stream().map(PublicResponseMapper::toResponse).toList())
 			.publishedAt(character.publishedAt())
 			.firstAppearance(toResponse(character.firstAppearance()))
+			.gallery(character.gallery().stream().map(PublicResponseMapper::toResponse).toList())
+			.initialKnowledge(toKnowledgeResponse(character.reveals().initialKnowledge()))
+			.reveals(character.reveals()
+				.reveals()
+				.stream()
+				.map(PublicResponseMapper::toCharacterRevealResponse)
+				.toList())
 			.build();
 	}
 
@@ -464,30 +506,101 @@ public class PublicResponseMapper {
 
 	public MembershipResponse toResponse(Membership membership) {
 		var affiliation = membership.affiliation();
-		return new MembershipResponse(new AffiliationReferenceResponse(affiliation.id(), affiliation.slug(),
-				affiliation.name(), affiliation.kind()), membership.role(), membership.marineRank(),
-				membership.former());
+		return new MembershipResponse(
+				new AffiliationReferenceResponse(affiliation.id(), affiliation.slug(), affiliation.name(),
+						affiliation.kind()),
+				membership.former(), membership.periods().stream().map(PublicResponseMapper::toResponse).toList());
+	}
+
+	public MembershipPeriodResponse toResponse(MembershipPeriod period) {
+		return new MembershipPeriodResponse(period.role(), period.marineRank(), period.former(),
+				toResponse(period.window().discovered()), toResponse(period.window().ended()));
 	}
 
 	public FruitUseResponse toResponse(FruitUse use) {
 		var fruit = use.devilFruit();
 		return new FruitUseResponse(new DevilFruitReferenceResponse(fruit.id(), fruit.slug(), fruit.name()),
-				use.former());
+				use.former(), toResponse(use.window().discovered()), toResponse(use.window().ended()));
 	}
 
 	public RelativeResponse toResponse(Relative relative) {
 		var character = relative.character();
 		return new RelativeResponse(
 				new RelativeReferenceResponse(character.id(), character.slug(), character.name(), character.gender()),
-				relative.kind());
+				relative.kind(), relative.former(), toResponse(relative.window().discovered()),
+				toResponse(relative.window().ended()));
 	}
 
 	public FruitUserResponse toResponse(FruitUser user) {
-		return new FruitUserResponse(toResponse(user.character()), user.former());
+		return new FruitUserResponse(toResponse(user.character()), user.former(),
+				toResponse(user.window().discovered()), toResponse(user.window().ended()));
 	}
 
-	public SpeciesReferenceResponse toResponse(SpeciesReference species) {
-		return new SpeciesReferenceResponse(species.id(), species.slug(), species.name());
+	public SpeciesEntryResponse toResponse(SpeciesEntry entry) {
+		var species = entry.species();
+		return new SpeciesEntryResponse(new SpeciesReferenceResponse(species.id(), species.slug(), species.name()),
+				entry.former(), toResponse(entry.window().discovered()), toResponse(entry.window().ended()));
+	}
+
+	public TextEntryResponse toResponse(TextEntry entry) {
+		return new TextEntryResponse(entry.value(), entry.former(), toResponse(entry.window().discovered()),
+				toResponse(entry.window().ended()));
+	}
+
+	public GalleryImageResponse toResponse(CharacterImage image) {
+		return new GalleryImageResponse(imagePath(image.imageId()), GalleryImageKind.of(image.kind()), image.caption(),
+				image.former(), toResponse(image.window().discovered()), toResponse(image.window().ended()));
+	}
+
+	/** {@code null} for a point with no part: an end not known. */
+	public StoryPointResponse toResponse(Point point) {
+		return (point == null || point.isMissing()) ? null : new StoryPointResponse(point.chapter(), point.episode());
+	}
+
+	public List<ParagraphResponse> toParagraphResponses(List<Paragraph> paragraphs) {
+		return paragraphs.stream()
+			.map((paragraph) -> new ParagraphResponse(paragraph.text(), toResponse(paragraph.window().discovered())))
+			.toList();
+	}
+
+	/** {@code null} when nothing is revealed later. */
+	public CharacterKnowledgeResponse toKnowledgeResponse(CharacterValues values) {
+		return (values == null) ? null : new CharacterKnowledgeResponse(values.name(), values.romaji(), values.slug(),
+				values.japaneseName(), values.status());
+	}
+
+	public CharacterRevealResponse toCharacterRevealResponse(Reveal<CharacterField, CharacterValues> reveal) {
+		var values = reveal.values();
+		return new CharacterRevealResponse(reveal.title(), toResponse(reveal.revealed()), sorted(reveal.fields()),
+				values.name(), values.romaji(), values.slug(), values.japaneseName(), values.status());
+	}
+
+	/** {@code null} when nothing is revealed later. */
+	public DevilFruitKnowledgeResponse toKnowledgeResponse(DevilFruitValues values) {
+		return (values == null) ? null : new DevilFruitKnowledgeResponse(values.name(), values.romaji(), values.slug(),
+				toResponse(values.type()), toResponse(values.subcategory()));
+	}
+
+	public DevilFruitRevealResponse toDevilFruitRevealResponse(Reveal<DevilFruitField, DevilFruitValues> reveal) {
+		var values = reveal.values();
+		return new DevilFruitRevealResponse(reveal.title(), toResponse(reveal.revealed()), sorted(reveal.fields()),
+				values.name(), values.romaji(), values.slug(), toResponse(values.type()),
+				toResponse(values.subcategory()));
+	}
+
+	/** {@code null} when nothing is revealed later. */
+	public BountyKnowledgeResponse toKnowledgeResponse(BountyValues values) {
+		return (values == null) ? null : new BountyKnowledgeResponse(values.inactive());
+	}
+
+	public BountyRevealResponse toBountyRevealResponse(Reveal<BountyField, BountyValues> reveal) {
+		return new BountyRevealResponse(reveal.title(), toResponse(reveal.revealed()), sorted(reveal.fields()),
+				reveal.values().inactive());
+	}
+
+	/** The fields of a reveal in their declared order: the same JSON every time. */
+	private <F extends Enum<F>> List<F> sorted(Set<F> fields) {
+		return fields.stream().sorted().toList();
 	}
 
 	private String imagePath(String imageId) {

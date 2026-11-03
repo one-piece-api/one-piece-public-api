@@ -51,11 +51,11 @@ public abstract class PublishedContentService<D extends PublishedContent & SeenB
 			throw new SortNotAvailableException(search.sort().field());
 		}
 		if (position == null) {
-			return this.repository.search(this.view, language, search);
+			return completeRows(this.repository.search(this.view, language, search), language);
 		}
 		ReaderSight sight = this.sights.at(position, language);
-		return Page.of(sight.shown(this.repository.searchAll(this.view, language, search)), search.page(),
-				search.size());
+		return completeRows(Page.of(sight.shown(this.repository.searchAll(this.view, language, search)), search.page(),
+				search.size()), language);
 	}
 
 	/**
@@ -71,7 +71,8 @@ public abstract class PublishedContentService<D extends PublishedContent & SeenB
 		D found = findOnline(language, idOrSlug).filter((content) -> sight == null || sight.sees(content.id()))
 			.orElseThrow(() -> new ContentNotFoundException(idOrSlug));
 		if (ContentAddress.isId(idOrSlug) || idOrSlug.equals(found.slug())) {
-			return new ContentLookup.Found<>((sight == null) ? complete(found) : completeFor(found, sight));
+			D described = withParagraphs(found, language);
+			return new ContentLookup.Found<>((sight == null) ? complete(described) : completeFor(described, sight));
 		}
 		// An old slug of a content whose romaji now leaves no slug has nowhere to point
 		// to.
@@ -79,6 +80,15 @@ public abstract class PublishedContentService<D extends PublishedContent & SeenB
 			throw new ContentNotFoundException(idOrSlug);
 		}
 		return new ContentLookup.Moved<>(found.slug());
+	}
+
+	/**
+	 * What an entity adds to the rows of a page from other views, such as a portrait
+	 * derived from a gallery; the page itself when it adds nothing (hook of the
+	 * template).
+	 */
+	protected Page<S> completeRows(Page<S> page, String language) {
+		return page;
 	}
 
 	/**
@@ -97,6 +107,17 @@ public abstract class PublishedContentService<D extends PublishedContent & SeenB
 	 */
 	protected D completeFor(D content, ReaderSight sight) {
 		return complete(content).seenBy(sight);
+	}
+
+	/**
+	 * Its long texts, the paragraphs without an end (workflow 3.7.3; at N with R7b), for
+	 * an entity that has them.
+	 */
+	private D withParagraphs(D content, String language) {
+		if (!this.view.paragraphed()) {
+			return content;
+		}
+		return this.view.paragraphs().apply(content, this.repository.findParagraphs(content.id(), language).current());
 	}
 
 	private Optional<D> findOnline(String language, String idOrSlug) {

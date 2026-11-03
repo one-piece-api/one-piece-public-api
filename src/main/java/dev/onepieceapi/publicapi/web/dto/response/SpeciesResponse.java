@@ -3,6 +3,7 @@ package dev.onepieceapi.publicapi.web.dto.response;
 import lombok.Builder;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -13,7 +14,8 @@ import java.util.UUID;
  * @param firstAppearance where the reader first meets it
  */
 @Builder
-public record SpeciesResponse(UUID id, String slug, String romaji, String language, String name, String description,
-		String image, Instant publishedAt, FirstAppearanceResponse firstAppearance) {
+public record SpeciesResponse(UUID id, String slug, String romaji, String language, String name,
+		List<ParagraphResponse> description, String image, Instant publishedAt,
+		FirstAppearanceResponse firstAppearance) {
 
 }

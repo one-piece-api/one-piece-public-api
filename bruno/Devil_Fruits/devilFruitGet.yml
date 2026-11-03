@@ -67,9 +67,33 @@ examples:
         type: json
         data: |-
           {
-            "advantages": "",
-            "description": "",
-            "disadvantages": "",
+            "advantages": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
+            "description": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
+            "disadvantages": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
             "firstAppearance": {
               "chapter": {
                 "id": "",
@@ -86,10 +110,52 @@ examples:
             },
             "id": "",
             "image": "",
+            "initialKnowledge": {
+              "name": "",
+              "romaji": "",
+              "slug": "",
+              "subcategory": {
+                "description": "",
+                "id": "",
+                "name": ""
+              },
+              "type": {
+                "id": "",
+                "name": "",
+                "romaji": "",
+                "slug": ""
+              }
+            },
             "language": "",
             "multipleUsers": false,
             "name": "",
             "publishedAt": "",
+            "reveals": [
+              {
+                "fields": [
+                  "NAME"
+                ],
+                "name": "",
+                "revealed": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "romaji": "",
+                "slug": "",
+                "subcategory": {
+                  "description": "",
+                  "id": "",
+                  "name": ""
+                },
+                "title": "",
+                "type": {
+                  "id": "",
+                  "name": "",
+                  "romaji": "",
+                  "slug": ""
+                }
+              }
+            ],
             "romaji": "",
             "slug": "",
             "subcategory": {
@@ -109,6 +175,14 @@ examples:
                   "id": "",
                   "name": "",
                   "slug": ""
+                },
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "ended": {
+                  "chapter": 0,
+                  "episode": 0
                 },
                 "former": false
               }
@@ -174,9 +248,33 @@ examples:
         type: json
         data: |-
           {
-            "advantages": "",
-            "description": "",
-            "disadvantages": "",
+            "advantages": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
+            "description": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
+            "disadvantages": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
             "firstAppearance": {
               "chapter": {
                 "id": "",
@@ -193,10 +291,52 @@ examples:
             },
             "id": "",
             "image": "",
+            "initialKnowledge": {
+              "name": "",
+              "romaji": "",
+              "slug": "",
+              "subcategory": {
+                "description": "",
+                "id": "",
+                "name": ""
+              },
+              "type": {
+                "id": "",
+                "name": "",
+                "romaji": "",
+                "slug": ""
+              }
+            },
             "language": "",
             "multipleUsers": false,
             "name": "",
             "publishedAt": "",
+            "reveals": [
+              {
+                "fields": [
+                  "NAME"
+                ],
+                "name": "",
+                "revealed": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "romaji": "",
+                "slug": "",
+                "subcategory": {
+                  "description": "",
+                  "id": "",
+                  "name": ""
+                },
+                "title": "",
+                "type": {
+                  "id": "",
+                  "name": "",
+                  "romaji": "",
+                  "slug": ""
+                }
+              }
+            ],
             "romaji": "",
             "slug": "",
             "subcategory": {
@@ -216,6 +356,14 @@ examples:
                   "id": "",
                   "name": "",
                   "slug": ""
+                },
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "ended": {
+                  "chapter": 0,
+                  "episode": 0
                 },
                 "former": false
               }

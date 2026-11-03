@@ -3,6 +3,7 @@ package dev.onepieceapi.publicapi.web.dto.response;
 import lombok.Builder;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -13,7 +14,8 @@ import java.util.UUID;
  * @param episodes what its episodes online amount to
  */
 @Builder
-public record ArcResponse(UUID id, String slug, int number, String language, String title, String description,
-		SagaSummaryResponse saga, StorySpanResponse chapters, StorySpanResponse episodes, Instant publishedAt) {
+public record ArcResponse(UUID id, String slug, int number, String language, String title,
+		List<ParagraphResponse> description, SagaSummaryResponse saga, StorySpanResponse chapters,
+		StorySpanResponse episodes, Instant publishedAt) {
 
 }

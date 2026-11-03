@@ -36,9 +36,6 @@ public class PublishedRowMapper {
 			.romaji(row.romaji())
 			.language(row.language())
 			.name(row.name())
-			.description(row.description())
-			.advantages(row.advantages())
-			.disadvantages(row.disadvantages())
 			.publishedAt(row.publishedAt().toInstant().truncatedTo(ChronoUnit.SECONDS))
 			.firstAppearance(FirstAppearance.of(
 					StoryItemReference.of(row.firstAppearanceChapterId(), row.firstAppearanceChapterSlug(),
@@ -69,9 +66,6 @@ public class PublishedRowMapper {
 			.romaji(row.romaji())
 			.language(row.language())
 			.name(row.name())
-			.description(row.description())
-			.advantages(row.advantages())
-			.disadvantages(row.disadvantages())
 			.type(new DevilFruitTypeReference(row.typeId(), row.typeSlug(), row.typeRomaji(), row.typeName()))
 			.subcategory(subcategoryOf(row))
 			.imageId(row.imageId())

@@ -1,17 +1,18 @@
 package dev.onepieceapi.publicapi.domain;
 
 import lombok.Builder;
+import lombok.With;
 
 import java.util.UUID;
 
 /**
  * A Character as a row of the list.
  *
- * @param imageId the portrait's identifier; null when it has none
+ * @param imageId the main portrait's identifier (workflow 3.5.1); null when it has none
  */
 @Builder(toBuilder = true)
 public record CharacterSummary(UUID id, String slug, String romaji, String name, CharacterStatus status,
-		String imageId) implements SeenByReader<CharacterSummary> {
+		@With String imageId) implements SeenByReader<CharacterSummary> {
 
 	@Override
 	public CharacterSummary seenBy(ReaderSight sight) {

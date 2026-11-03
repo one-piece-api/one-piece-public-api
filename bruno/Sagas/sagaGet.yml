@@ -82,7 +82,15 @@ examples:
               "lastDate": "",
               "lastNumber": 0
             },
-            "description": "",
+            "description": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
             "episodes": {
               "count": 0,
               "firstDate": "",
@@ -172,7 +180,15 @@ examples:
               "lastDate": "",
               "lastNumber": 0
             },
-            "description": "",
+            "description": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
             "episodes": {
               "count": 0,
               "firstDate": "",

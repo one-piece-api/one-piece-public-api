@@ -16,16 +16,21 @@ import java.util.UUID;
  * @param posterName the name printed on the poster
  * @param amount in Berry
  * @param validity derived from the bounties online
- * @param description why it was issued, raised or made inactive
+ * @param description why it was issued, raised or made inactive, in paragraphs
  * @param image the poster's path relative to the API root; {@code null} when none
  * @param firstAppearance where the reader first meets it
  * @param holder the character the poster is about; {@code null} when none
  * @param chain the bounties it replaces and that replace it, newest first, itself
  * included
+ * @param initialKnowledge what the reader believes at the first appearance; {@code null}
+ * when nothing is revealed later
+ * @param reveals what the reader learns later, in order
  */
 @Builder
 public record BountyResponse(UUID id, String slug, String posterName, long amount, BountyCondition condition,
-		BountyValidity validity, String language, String description, String image, Instant publishedAt,
-		FirstAppearanceResponse firstAppearance, CharacterReferenceResponse holder, List<BountySummaryResponse> chain) {
+		BountyValidity validity, String language, List<ParagraphResponse> description, String image,
+		Instant publishedAt, FirstAppearanceResponse firstAppearance, CharacterReferenceResponse holder,
+		List<BountySummaryResponse> chain, BountyKnowledgeResponse initialKnowledge,
+		List<BountyRevealResponse> reveals) {
 
 }

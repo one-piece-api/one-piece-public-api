@@ -7,12 +7,11 @@ import java.util.UUID;
 
 /** A row of {@code published.devil_fruit}. */
 @Builder
-public record DevilFruitRow(UUID id, String slug, String romaji, String language, String name, String description,
-		String advantages, String disadvantages, UUID typeId, String typeSlug, String typeRomaji, String typeName,
-		String imageId, OffsetDateTime publishedAt, UUID subcategoryId, String subcategoryName,
-		String subcategoryDescription, UUID firstAppearanceChapterId, String firstAppearanceChapterSlug,
-		Integer firstAppearanceChapterNumber, String firstAppearanceChapterTitle, UUID firstAppearanceEpisodeId,
-		String firstAppearanceEpisodeSlug, Integer firstAppearanceEpisodeNumber, String firstAppearanceEpisodeTitle,
-		boolean multipleUsers) {
+public record DevilFruitRow(UUID id, String slug, String romaji, String language, String name, UUID typeId,
+		String typeSlug, String typeRomaji, String typeName, String imageId, OffsetDateTime publishedAt,
+		UUID subcategoryId, String subcategoryName, String subcategoryDescription, UUID firstAppearanceChapterId,
+		String firstAppearanceChapterSlug, Integer firstAppearanceChapterNumber, String firstAppearanceChapterTitle,
+		UUID firstAppearanceEpisodeId, String firstAppearanceEpisodeSlug, Integer firstAppearanceEpisodeNumber,
+		String firstAppearanceEpisodeTitle, boolean multipleUsers) {
 
 }

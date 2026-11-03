@@ -2,6 +2,7 @@ package dev.onepieceapi.publicapi;
 
 import dev.onepieceapi.publicapi.PublishedContentFixture.Belonging;
 import dev.onepieceapi.publicapi.PublishedContentFixture.Persona;
+import dev.onepieceapi.publicapi.PublishedContentFixture.Stay;
 import dev.onepieceapi.publicapi.PublishedContentFixture.Translation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -73,10 +75,17 @@ class PublicApiMembershipIntegrationTest extends PublishedDatabaseTest {
 			.romaji("Roronoa Zoro")
 			.affiliations(List.of(new Belonging(this.mugiwara, Map.of(), null, false)))
 			.build(), Translation.of("it", "Roronoa Zoro"), Translation.of("en", "Roronoa Zoro"));
-		this.fixture.draftCharacter(Persona.builder()
+		// Usopp leaves the crew at Water Seven and comes back: one membership, two
+		// periods.
+		this.fixture.publishCharacter(Persona.builder()
 			.romaji("Usopp")
-			.affiliations(List.of(new Belonging(this.mugiwara, Map.of(), null, false)))
+			.affiliations(List.of(new Belonging(this.mugiwara,
+					List.of(new Stay(Map.of("en", "Sniper"), null, true), new Stay(Map.of(), null, false)))))
 			.build(), Translation.of("it", "Usopp"), Translation.of("en", "Usopp"));
+		this.fixture.draftCharacter(Persona.builder()
+			.romaji("Sanji")
+			.affiliations(List.of(new Belonging(this.mugiwara, Map.of(), null, false)))
+			.build(), Translation.of("it", "Sanji"), Translation.of("en", "Sanji"));
 	}
 
 	@Test
@@ -91,23 +100,49 @@ class PublicApiMembershipIntegrationTest extends PublishedDatabaseTest {
 			.isEqualTo("Straw Hat Pirates")
 			.jsonPath("$.affiliations[0].affiliation.kind")
 			.isEqualTo("PIRATE_CREW")
-			.jsonPath("$.affiliations[0].role")
-			.isEqualTo("Navigator")
-			.jsonPath("$.affiliations[0].marineRank")
-			.isEmpty()
 			.jsonPath("$.affiliations[0].former")
-			.isEqualTo(false);
+			.isEqualTo(false)
+			.jsonPath("$.affiliations[0].periods.length()")
+			.isEqualTo(1)
+			.jsonPath("$.affiliations[0].periods[0].role")
+			.isEqualTo("Navigator")
+			.jsonPath("$.affiliations[0].periods[0].marineRank")
+			.isEmpty()
+			.jsonPath("$.affiliations[0].periods[0].former")
+			.isEqualTo(false)
+			.jsonPath("$.affiliations[0].periods[0].ended")
+			.isEmpty();
 		// In the version's order: Baroque Works, which Nami left, then the Straw Hats.
 		ok("/v1/it/characters/nami").jsonPath("$.affiliations[0].affiliation.name")
 			.isEqualTo("Baroque Works")
 			.jsonPath("$.affiliations[0].former")
 			.isEqualTo(true)
-			.jsonPath("$.affiliations[0].role")
+			.jsonPath("$.affiliations[0].periods[0].role")
+			.isEmpty()
+			.jsonPath("$.affiliations[0].periods[0].former")
+			.isEqualTo(true)
+			.jsonPath("$.affiliations[0].periods[0].ended.chapter")
+			.isEqualTo(PublishedContentFixture.ENDING_CHAPTER)
+			.jsonPath("$.affiliations[0].periods[0].ended.episode")
 			.isEmpty()
 			.jsonPath("$.affiliations[1].affiliation.name")
 			.isEqualTo("Pirati di Cappello di Paglia")
-			.jsonPath("$.affiliations[1].role")
+			.jsonPath("$.affiliations[1].periods[0].role")
 			.isEqualTo("Navigatrice");
+	}
+
+	@Test
+	void aMembershipIsCurrentWhileOneOfItsPeriodsHasNoEnd() {
+		ok("/v1/en/characters/usopp").jsonPath("$.affiliations.length()")
+			.isEqualTo(1)
+			.jsonPath("$.affiliations[0].former")
+			.isEqualTo(false)
+			.jsonPath("$.affiliations[0].periods[*].former")
+			.isEqualTo(List.of(true, false))
+			.jsonPath("$.affiliations[0].periods[*].role")
+			.isEqualTo(Arrays.asList("Sniper", null))
+			.jsonPath("$.affiliations[0].periods[0].ended.chapter")
+			.isEqualTo(PublishedContentFixture.ENDING_CHAPTER);
 	}
 
 	@Test
@@ -120,19 +155,19 @@ class PublicApiMembershipIntegrationTest extends PublishedDatabaseTest {
 
 	@Test
 	void showsTheRankOfAMarine() {
-		ok("/v1/en/characters/koby").jsonPath("$.affiliations[0].marineRank")
+		ok("/v1/en/characters/koby").jsonPath("$.affiliations[0].periods[0].marineRank")
 			.isEqualTo("CAPTAIN")
-			.jsonPath("$.affiliations[0].role")
+			.jsonPath("$.affiliations[0].periods[0].role")
 			.isEqualTo("Hero of the Navy")
 			.jsonPath("$.affiliations[0].affiliation.kind")
 			.isEqualTo("NAVY");
-		ok("/v1/it/characters/koby").jsonPath("$.affiliations[0].role").isEmpty();
+		ok("/v1/it/characters/koby").jsonPath("$.affiliations[0].periods[0].role").isEmpty();
 	}
 
 	@Test
 	void filtersTheListByTheAffiliationTheyCurrentlyBelongToByIdOrSlug() {
 		ok("/v1/en/characters?affiliation=mugiwara-no-ichimi").jsonPath("$.content[*].name")
-			.isEqualTo(List.of("Nami", "Roronoa Zoro"));
+			.isEqualTo(List.of("Nami", "Roronoa Zoro", "Usopp"));
 		ok("/v1/en/characters?affiliation=" + this.marina).jsonPath("$.content[*].name").isEqualTo(List.of("Koby"));
 		// Nami left Baroque Works.
 		ok("/v1/en/characters?affiliation=" + this.baroque).jsonPath("$.totalElements").isEqualTo(0);
@@ -142,7 +177,7 @@ class PublicApiMembershipIntegrationTest extends PublishedDatabaseTest {
 	@Test
 	void filtersTheListByTheKindOfTheAffiliationTheyCurrentlyBelongTo() {
 		ok("/v1/en/characters?affiliationKind=PIRATE_CREW").jsonPath("$.content[*].name")
-			.isEqualTo(List.of("Nami", "Roronoa Zoro"));
+			.isEqualTo(List.of("Nami", "Roronoa Zoro", "Usopp"));
 		ok("/v1/en/characters?affiliationKind=NAVY").jsonPath("$.content[*].name").isEqualTo(List.of("Koby"));
 		ok("/v1/en/characters?affiliationKind=NAVY&affiliation=mugiwara-no-ichimi").jsonPath("$.totalElements")
 			.isEqualTo(0);
@@ -158,8 +193,8 @@ class PublicApiMembershipIntegrationTest extends PublishedDatabaseTest {
 
 	@Test
 	void anAffiliationCountsItsCurrentMembersOnline() {
-		// Nami and Zoro; Usopp is a draft.
-		ok("/v1/en/affiliations/mugiwara-no-ichimi").jsonPath("$.memberCount").isEqualTo(2);
+		// Nami, Zoro and Usopp, who came back; Sanji is a draft.
+		ok("/v1/en/affiliations/mugiwara-no-ichimi").jsonPath("$.memberCount").isEqualTo(3);
 		ok("/v1/en/affiliations/kaigun").jsonPath("$.memberCount").isEqualTo(1);
 		// Nami left it, and nobody else ever belonged to it.
 		ok("/v1/it/affiliations/baroque-works").jsonPath("$.memberCount").isEqualTo(0);

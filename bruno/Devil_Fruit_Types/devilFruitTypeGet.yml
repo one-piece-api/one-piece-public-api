@@ -67,8 +67,24 @@ examples:
         type: json
         data: |-
           {
-            "advantages": "",
-            "description": "",
+            "advantages": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
+            "description": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
             "devilFruits": [
               {
                 "id": "",
@@ -78,7 +94,15 @@ examples:
                 "slug": ""
               }
             ],
-            "disadvantages": "",
+            "disadvantages": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
             "firstAppearance": {
               "chapter": {
                 "id": "",
@@ -181,8 +205,24 @@ examples:
         type: json
         data: |-
           {
-            "advantages": "",
-            "description": "",
+            "advantages": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
+            "description": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
             "devilFruits": [
               {
                 "id": "",
@@ -192,7 +232,15 @@ examples:
                 "slug": ""
               }
             ],
-            "disadvantages": "",
+            "disadvantages": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
             "firstAppearance": {
               "chapter": {
                 "id": "",

@@ -1,15 +1,15 @@
 package dev.onepieceapi.publicapi.web.dto.response;
 
-import dev.onepieceapi.publicapi.domain.MarineRank;
+import java.util.List;
 
 /**
- * A membership of a character: its affiliation, and what it is in it.
+ * A membership of a character: its affiliation and its periods (workflow 3.4.7).
  *
- * @param role in the language of the path; null when none is written in it
- * @param marineRank null for none; only in a Navy affiliation
- * @param former whether the character no longer belongs to it
+ * @param former whether the character no longer belongs to it: none of its periods is
+ * current
+ * @param periods its stays, in order
  */
-public record MembershipResponse(AffiliationReferenceResponse affiliation, String role, MarineRank marineRank,
-		boolean former) {
+public record MembershipResponse(AffiliationReferenceResponse affiliation, boolean former,
+		List<MembershipPeriodResponse> periods) {
 
 }

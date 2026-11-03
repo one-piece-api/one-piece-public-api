@@ -16,8 +16,8 @@ import java.util.UUID;
  */
 @Builder
 public record DevilFruitTypeResponse(UUID id, String slug, String romaji, String language, String name,
-		String description, String advantages, String disadvantages, Instant publishedAt,
-		List<DevilFruitSubcategoryResponse> subcategories, List<DevilFruitOfTypeResponse> devilFruits,
-		FirstAppearanceResponse firstAppearance) {
+		List<ParagraphResponse> description, List<ParagraphResponse> advantages, List<ParagraphResponse> disadvantages,
+		Instant publishedAt, List<DevilFruitSubcategoryResponse> subcategories,
+		List<DevilFruitOfTypeResponse> devilFruits, FirstAppearanceResponse firstAppearance) {
 
 }

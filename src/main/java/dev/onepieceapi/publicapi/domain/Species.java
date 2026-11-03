@@ -3,6 +3,7 @@ package dev.onepieceapi.publicapi.domain;
 import lombok.Builder;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -14,9 +15,18 @@ import java.util.UUID;
  * @param firstAppearance where the reader first meets it
  */
 @Builder(toBuilder = true)
-public record Species(UUID id, String slug, String romaji, String language, String name, String description,
+public record Species(UUID id, String slug, String romaji, String language, String name, List<Paragraph> description,
 		String imageId, Instant publishedAt,
 		FirstAppearance firstAppearance) implements PublishedContent, SeenByReader<Species> {
+
+	public Species {
+		description = description == null ? List.of() : List.copyOf(description);
+	}
+
+	/** Its description as paragraphs (workflow 3.7.3). */
+	public Species withParagraphs(LongTexts texts) {
+		return toBuilder().description(texts.description()).build();
+	}
 
 	@Override
 	public Species seenBy(ReaderSight sight) {

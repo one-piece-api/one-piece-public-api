@@ -29,7 +29,6 @@ public class BountyRowMapper {
 			.condition(BountyCondition.valueOf(row.condition()))
 			.validity(BountyValidity.valueOf(row.validity()))
 			.language(row.language())
-			.description(row.description())
 			.imageId(row.imageId())
 			.publishedAt(row.publishedAt().toInstant().truncatedTo(ChronoUnit.SECONDS))
 			.firstAppearance(firstAppearanceOf(row))

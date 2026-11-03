@@ -155,7 +155,9 @@ class PublicApiCharacterIntegrationTest extends PublishedDatabaseTest {
 				.isEqualTo("it")
 				.jsonPath("$.name")
 				.isEqualTo(LUFFY_IT)
-				.jsonPath("$.description")
+				.jsonPath("$.description.length()")
+				.isEqualTo(1)
+				.jsonPath("$.description[0].text")
 				.isEqualTo("Description of " + LUFFY_IT)
 				.jsonPath("$.status")
 				.isEqualTo("ALIVE")
@@ -165,16 +167,24 @@ class PublicApiCharacterIntegrationTest extends PublishedDatabaseTest {
 				.isEqualTo("--05-05")
 				.jsonPath("$.image")
 				.isEqualTo("v1/images/" + this.portrait)
-				.jsonPath("$.epithets")
+				.jsonPath("$.epithets[*].value")
 				.isEqualTo(List.of("Cappello di paglia", "Quinto imperatore"))
-				.jsonPath("$.aliases")
+				.jsonPath("$.aliases[*].value")
 				.isEqualTo(List.of("Lucy", "Mugiwara"))
-				.jsonPath("$.species[*].name")
+				.jsonPath("$.species[*].species.name")
 				.isEqualTo(List.of("Uomini-pesce", "Umani"))
-				.jsonPath("$.species[1].id")
+				.jsonPath("$.species[1].species.id")
 				.isEqualTo(this.humans.toString())
-				.jsonPath("$.species[1].slug")
+				.jsonPath("$.species[1].species.slug")
 				.isEqualTo("ningen")
+				.jsonPath("$.species[1].former")
+				.isEqualTo(false)
+				.jsonPath("$.epithets[0].former")
+				.isEqualTo(false)
+				.jsonPath("$.epithets[0].discovered")
+				.isEmpty()
+				.jsonPath("$.aliases[0].ended")
+				.isEmpty()
 				.jsonPath("$.firstAppearance.chapter.id")
 				.isEqualTo(this.chapter.toString())
 				.jsonPath("$.firstAppearance.chapter.title")
@@ -186,11 +196,11 @@ class PublicApiCharacterIntegrationTest extends PublishedDatabaseTest {
 
 	@Test
 	void showsInEachLanguageOnlyTheEpithetsAndSpeciesWrittenInIt() {
-		ok("/v1/en/characters/monkey-d-luffy").jsonPath("$.epithets")
+		ok("/v1/en/characters/monkey-d-luffy").jsonPath("$.epithets[*].value")
 			.isEqualTo(List.of("Straw Hat"))
-			.jsonPath("$.aliases")
+			.jsonPath("$.aliases[*].value")
 			.isEqualTo(List.of("Lucy", "Mugiwara"))
-			.jsonPath("$.species[*].name")
+			.jsonPath("$.species[*].species.name")
 			.isEqualTo(List.of("Humans"));
 	}
 
@@ -210,7 +220,7 @@ class PublicApiCharacterIntegrationTest extends PublishedDatabaseTest {
 			.isEmpty()
 			.jsonPath("$.aliases")
 			.isEmpty()
-			.jsonPath("$.species[*].slug")
+			.jsonPath("$.species[*].species.slug")
 			.isEqualTo(List.of("ningen"));
 	}
 

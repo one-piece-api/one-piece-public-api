@@ -18,12 +18,18 @@ import java.util.UUID;
  * @param publishedAt when the online version was published
  */
 @Builder(toBuilder = true)
-public record Saga(UUID id, String slug, int number, String language, String title, String description,
+public record Saga(UUID id, String slug, int number, String language, String title, List<Paragraph> description,
 		StorySpan chapters, StorySpan episodes, @With List<ArcSummary> arcs,
 		Instant publishedAt) implements PublishedContent, SeenByReader<Saga> {
 
 	public Saga {
+		description = description == null ? List.of() : List.copyOf(description);
 		arcs = arcs == null ? List.of() : List.copyOf(arcs);
+	}
+
+	/** Its description as paragraphs (workflow 3.7.3). */
+	public Saga withParagraphs(LongTexts texts) {
+		return toBuilder().description(texts.description()).build();
 	}
 
 	@Override

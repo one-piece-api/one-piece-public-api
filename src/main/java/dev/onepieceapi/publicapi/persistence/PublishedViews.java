@@ -70,6 +70,12 @@ public final class PublishedViews {
 			+ " first_appearance_chapter_number, first_appearance_chapter_title, first_appearance_episode_id,"
 			+ " first_appearance_episode_slug, first_appearance_episode_number, first_appearance_episode_title";
 
+	/**
+	 * A window row (workflow 3.7.2) with no end on either axis: current without a filter;
+	 * {@code former} is derived, never stored.
+	 */
+	public static final String NOT_ENDED = "ended_chapter IS NULL AND ended_episode IS NULL";
+
 	/** The name of the filter of the fruits by their type (plan D11). */
 	public static final String TYPE_FILTER = "type";
 
@@ -77,8 +83,8 @@ public final class PublishedViews {
 		.<DevilFruitType, DevilFruitTypeSummary>builder()
 		.entityType("DEVIL_FRUIT_TYPE")
 		.view("published.devil_fruit_type")
-		.detailColumns("id, slug, romaji, language, name, description, advantages, disadvantages, published_at"
-				+ FIRST_APPEARANCE_COLUMNS)
+		.paragraphs(DevilFruitType::withParagraphs)
+		.detailColumns("id, slug, romaji, language, name, published_at" + FIRST_APPEARANCE_COLUMNS)
 		.summaryColumns("id, slug, romaji, name" + FIRST_APPEARANCE_COLUMNS)
 		.naturalKey("romaji")
 		.detail(PublishedView.reading(DevilFruitTypeRow.class, PublishedRowMapper::toDomain))
@@ -89,10 +95,11 @@ public final class PublishedViews {
 		.<DevilFruit, DevilFruitSummary>builder()
 		.entityType("DEVIL_FRUIT")
 		.view("published.devil_fruit")
-		.detailColumns("id, slug, romaji, language, name, description, advantages, disadvantages,"
-				+ " type_id, type_slug, type_romaji, type_name, image_id, published_at,"
-				+ " subcategory_id, subcategory_name, subcategory_description, multiple_users"
-				+ FIRST_APPEARANCE_COLUMNS)
+		.paragraphs(DevilFruit::withParagraphs)
+		.detailColumns(
+				"id, slug, romaji, language, name, type_id, type_slug, type_romaji, type_name, image_id, published_at,"
+						+ " subcategory_id, subcategory_name, subcategory_description, multiple_users"
+						+ FIRST_APPEARANCE_COLUMNS)
 		.summaryColumns("id, slug, romaji, name, type_id, type_slug, type_romaji, type_name, image_id,"
 				+ " subcategory_id, subcategory_name" + FIRST_APPEARANCE_COLUMNS)
 		.naturalKey("romaji")
@@ -111,7 +118,8 @@ public final class PublishedViews {
 	public static final PublishedView<Saga, SagaSummary> SAGA = PublishedView.<Saga, SagaSummary>builder()
 		.entityType("SAGA")
 		.view("published.saga")
-		.detailColumns("id, slug, number, language, name, description, published_at, chapter_count,"
+		.paragraphs(Saga::withParagraphs)
+		.detailColumns("id, slug, number, language, name, published_at, chapter_count,"
 				+ " first_chapter_number, last_chapter_number, first_chapter_date, last_chapter_date, episode_count,"
 				+ " first_episode_number, last_episode_number, first_episode_date, last_episode_date")
 		.summaryColumns("id, slug, number, name")
@@ -123,7 +131,8 @@ public final class PublishedViews {
 	public static final PublishedView<Arc, ArcSummary> ARC = PublishedView.<Arc, ArcSummary>builder()
 		.entityType("ARC")
 		.view("published.arc")
-		.detailColumns("id, slug, number, language, name, description, saga_id, saga_slug, saga_number, saga_title,"
+		.paragraphs(Arc::withParagraphs)
+		.detailColumns("id, slug, number, language, name, saga_id, saga_slug, saga_number, saga_title,"
 				+ " published_at, chapter_count, first_chapter_number, last_chapter_number, first_chapter_date,"
 				+ " last_chapter_date, episode_count, first_episode_number, last_episode_number, first_episode_date,"
 				+ " last_episode_date")
@@ -205,7 +214,8 @@ public final class PublishedViews {
 	public static final PublishedView<Bounty, BountySummary> BOUNTY = PublishedView.<Bounty, BountySummary>builder()
 		.entityType("BOUNTY")
 		.view("published.bounty")
-		.detailColumns(BOUNTY_SUMMARY_COLUMNS + ", language, description, published_at" + FIRST_APPEARANCE_COLUMNS)
+		.paragraphs(Bounty::withParagraphs)
+		.detailColumns(BOUNTY_SUMMARY_COLUMNS + ", language, published_at" + FIRST_APPEARANCE_COLUMNS)
 		.summaryColumns(BOUNTY_SUMMARY_COLUMNS)
 		.naturalKey("poster_name")
 		.detail(PublishedView.reading(BountyRow.class, BountyRowMapper::toDomain))
@@ -227,8 +237,8 @@ public final class PublishedViews {
 		.<Affiliation, AffiliationSummary>builder()
 		.entityType("AFFILIATION")
 		.view("published.affiliation")
-		.detailColumns("id, slug, romaji, language, name, description, kind, image_id, published_at"
-				+ FIRST_APPEARANCE_COLUMNS)
+		.paragraphs(Affiliation::withParagraphs)
+		.detailColumns("id, slug, romaji, language, name, kind, image_id, published_at" + FIRST_APPEARANCE_COLUMNS)
 		.summaryColumns("id, slug, romaji, name, kind, image_id")
 		.naturalKey("romaji")
 		.detail(PublishedView.reading(AffiliationRow.class, AffiliationRowMapper::toDomain))
@@ -244,8 +254,8 @@ public final class PublishedViews {
 		.<Species, SpeciesSummary>builder()
 		.entityType("SPECIES")
 		.view("published.species")
-		.detailColumns(
-				"id, slug, romaji, language, name, description, image_id, published_at" + FIRST_APPEARANCE_COLUMNS)
+		.paragraphs(Species::withParagraphs)
+		.detailColumns("id, slug, romaji, language, name, image_id, published_at" + FIRST_APPEARANCE_COLUMNS)
 		.summaryColumns("id, slug, romaji, name, image_id")
 		.naturalKey("romaji")
 		.detail(PublishedView.reading(SpeciesRow.class, SpeciesRowMapper::toDomain))
@@ -274,9 +284,10 @@ public final class PublishedViews {
 		.<Character, CharacterSummary>builder()
 		.entityType("CHARACTER")
 		.view("published.character")
-		.detailColumns("id, slug, romaji, japanese_name, language, name, description, status, gender, birthday_month,"
-				+ " birthday_day, image_id, published_at" + FIRST_APPEARANCE_COLUMNS)
-		.summaryColumns("id, slug, romaji, name, status, image_id")
+		.paragraphs(Character::withParagraphs)
+		.detailColumns("id, slug, romaji, japanese_name, language, name, status, gender, birthday_month, birthday_day,"
+				+ " published_at" + FIRST_APPEARANCE_COLUMNS)
+		.summaryColumns("id, slug, romaji, name, status")
 		.naturalKey("romaji")
 		.detail(PublishedView.reading(CharacterRow.class, CharacterRowMapper::toDomain))
 		.summary(PublishedView.reading(CharacterSummaryRow.class, CharacterRowMapper::toDomain))
@@ -284,10 +295,10 @@ public final class PublishedViews {
 				ContentFilter.onChild("published.character_species", "character_id", "species_id", "SPECIES"),
 				AFFILIATION_FILTER,
 				ContentFilter.onChild("published.character_affiliation", "character_id", "affiliation_id",
-						"AFFILIATION", "NOT former"),
+						"AFFILIATION", currentMembership("published.character_affiliation")),
 				AFFILIATION_KIND_FILTER, currentMembershipOfKind(), DEVIL_FRUIT_FILTER,
 				ContentFilter.onChild("published.character_devil_fruit", "character_id", "devil_fruit_id",
-						"DEVIL_FRUIT", "NOT former")))
+						"DEVIL_FRUIT", NOT_ENDED)))
 		.build();
 
 	/**
@@ -307,12 +318,23 @@ public final class PublishedViews {
 	}
 
 	/**
+	 * The membership on that alias (a row of {@code published.character_affiliation})
+	 * holds now: one of its periods has no end (workflow 3.7.2, without a filter).
+	 */
+	public static String currentMembership(String alias) {
+		return "EXISTS (SELECT 1 FROM published.character_affiliation_period p WHERE p.character_id = " + alias
+				+ ".character_id AND p.membership_position = " + alias + ".position AND p.ended_chapter IS NULL"
+				+ " AND p.ended_episode IS NULL)";
+	}
+
+	/**
 	 * The characters that currently belong to an affiliation of this kind: the kind is a
 	 * value of a closed set, so only its names get here.
 	 */
 	private static ContentFilter currentMembershipOfKind() {
 		String condition = "id IN (SELECT ca.character_id FROM published.character_affiliation ca"
-				+ " JOIN published.affiliation a ON a.id = ca.affiliation_id WHERE NOT ca.former AND a.kind = :%s)";
+				+ " JOIN published.affiliation a ON a.id = ca.affiliation_id WHERE " + currentMembership("ca")
+				+ " AND a.kind = :%s)";
 		return new ContentFilter(condition, condition);
 	}
 

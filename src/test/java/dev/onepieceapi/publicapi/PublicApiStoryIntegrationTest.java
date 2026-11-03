@@ -242,7 +242,7 @@ class PublicApiStoryIntegrationTest extends PublishedDatabaseTest {
 				.isEqualTo(1)
 				.jsonPath("$.title")
 				.isEqualTo("East Blue")
-				.jsonPath("$.description")
+				.jsonPath("$.description[0].text")
 				.isEqualTo("Description of East Blue")
 				.jsonPath("$.arcs.length()")
 				.isEqualTo(2)

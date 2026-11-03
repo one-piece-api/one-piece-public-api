@@ -85,7 +85,15 @@ examples:
               }
             ],
             "condition": "DEAD_OR_ALIVE",
-            "description": "",
+            "description": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
             "firstAppearance": {
               "chapter": {
                 "id": "",
@@ -107,9 +115,25 @@ examples:
             },
             "id": "",
             "image": "",
+            "initialKnowledge": {
+              "inactive": false
+            },
             "language": "",
             "posterName": "",
             "publishedAt": "",
+            "reveals": [
+              {
+                "fields": [
+                  "INACTIVE"
+                ],
+                "inactive": false,
+                "revealed": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "title": ""
+              }
+            ],
             "slug": "",
             "validity": "ACTIVE"
           }
@@ -191,7 +215,15 @@ examples:
               }
             ],
             "condition": "DEAD_OR_ALIVE",
-            "description": "",
+            "description": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
             "firstAppearance": {
               "chapter": {
                 "id": "",
@@ -213,9 +245,25 @@ examples:
             },
             "id": "",
             "image": "",
+            "initialKnowledge": {
+              "inactive": false
+            },
             "language": "",
             "posterName": "",
             "publishedAt": "",
+            "reveals": [
+              {
+                "fields": [
+                  "INACTIVE"
+                ],
+                "inactive": false,
+                "revealed": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "title": ""
+              }
+            ],
             "slug": "",
             "validity": "ACTIVE"
           }

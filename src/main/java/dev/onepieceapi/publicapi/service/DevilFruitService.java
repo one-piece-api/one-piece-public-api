@@ -4,6 +4,7 @@ import dev.onepieceapi.publicapi.domain.DevilFruit;
 import dev.onepieceapi.publicapi.domain.DevilFruitSummary;
 import dev.onepieceapi.publicapi.persistence.PublishedCharacterListRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedContentRepository;
+import dev.onepieceapi.publicapi.persistence.PublishedRevealRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedViews;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +17,19 @@ public class DevilFruitService extends PublishedContentService<DevilFruit, Devil
 
 	private final PublishedCharacterListRepository characters;
 
+	private final PublishedRevealRepository reveals;
+
 	DevilFruitService(LanguageService languages, PublishedContentRepository repository, ReaderSightService sights,
-			PublishedCharacterListRepository characters) {
+			PublishedCharacterListRepository characters, PublishedRevealRepository reveals) {
 		super(languages, repository, sights, PublishedViews.DEVIL_FRUIT);
 		this.characters = characters;
+		this.reveals = reveals;
 	}
 
 	@Override
 	protected DevilFruit complete(DevilFruit devilFruit) {
-		return devilFruit.withUsers(this.characters.findUsers(devilFruit.id(), devilFruit.language()));
+		return devilFruit.withUsers(this.characters.findUsers(devilFruit.id(), devilFruit.language()))
+			.withReveals(this.reveals.findDevilFruitReveals(devilFruit.id(), devilFruit.language()));
 	}
 
 }

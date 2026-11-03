@@ -48,7 +48,6 @@ public class StoryRowMapper {
 			.number(row.number())
 			.language(row.language())
 			.title(row.name())
-			.description(row.description())
 			.chapters(new StorySpan(row.chapterCount(), row.firstChapterNumber(), row.lastChapterNumber(),
 					row.firstChapterDate(), row.lastChapterDate()))
 			.episodes(new StorySpan(row.episodeCount(), row.firstEpisodeNumber(), row.lastEpisodeNumber(),
@@ -68,7 +67,6 @@ public class StoryRowMapper {
 			.number(row.number())
 			.language(row.language())
 			.title(row.name())
-			.description(row.description())
 			.saga(new SagaSummary(row.sagaId(), row.sagaSlug(), row.sagaNumber(), row.sagaTitle()))
 			.chapters(new StorySpan(row.chapterCount(), row.firstChapterNumber(), row.lastChapterNumber(),
 					row.firstChapterDate(), row.lastChapterDate()))

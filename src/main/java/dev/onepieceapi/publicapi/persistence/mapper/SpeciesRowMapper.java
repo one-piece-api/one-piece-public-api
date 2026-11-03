@@ -21,7 +21,6 @@ public class SpeciesRowMapper {
 			.romaji(row.romaji())
 			.language(row.language())
 			.name(row.name())
-			.description(row.description())
 			.imageId(row.imageId())
 			.publishedAt(row.publishedAt().toInstant().truncatedTo(ChronoUnit.SECONDS))
 			.firstAppearance(firstAppearanceOf(row))

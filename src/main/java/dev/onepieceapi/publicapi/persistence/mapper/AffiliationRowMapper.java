@@ -22,7 +22,6 @@ public class AffiliationRowMapper {
 			.romaji(row.romaji())
 			.language(row.language())
 			.name(row.name())
-			.description(row.description())
 			.kind(kindOf(row.kind()))
 			.imageId(row.imageId())
 			.publishedAt(row.publishedAt().toInstant().truncatedTo(ChronoUnit.SECONDS))

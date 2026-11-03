@@ -1,14 +1,20 @@
 package dev.onepieceapi.publicapi.service;
 
 import dev.onepieceapi.publicapi.domain.Character;
+import dev.onepieceapi.publicapi.domain.CharacterImage;
 import dev.onepieceapi.publicapi.domain.CharacterSummary;
+import dev.onepieceapi.publicapi.domain.Page;
 import dev.onepieceapi.publicapi.domain.Relative;
 import dev.onepieceapi.publicapi.persistence.PublishedCharacterListRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedContentRepository;
+import dev.onepieceapi.publicapi.persistence.PublishedRevealRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedViews;
+import dev.onepieceapi.readertime.Gallery;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -21,10 +27,25 @@ public class CharacterService extends PublishedContentService<Character, Charact
 
 	private final PublishedCharacterListRepository lists;
 
+	private final PublishedRevealRepository reveals;
+
 	CharacterService(LanguageService languages, PublishedContentRepository repository, ReaderSightService sights,
-			PublishedCharacterListRepository lists) {
+			PublishedCharacterListRepository lists, PublishedRevealRepository reveals) {
 		super(languages, repository, sights, PublishedViews.CHARACTER);
 		this.lists = lists;
+		this.reveals = reveals;
+	}
+
+	/**
+	 * Each row with its main portrait, from the galleries of the page in one read
+	 * (workflow 3.5.1).
+	 */
+	@Override
+	protected Page<CharacterSummary> completeRows(Page<CharacterSummary> page, String language) {
+		Map<UUID, List<CharacterImage>> galleries = this.lists
+			.findGalleries(page.content().stream().map(CharacterSummary::id).toList(), language);
+		return page
+			.map((summary) -> summary.withImageId(mainPortraitOf(galleries.getOrDefault(summary.id(), List.of()))));
 	}
 
 	@Override
@@ -35,7 +56,13 @@ public class CharacterService extends PublishedContentService<Character, Charact
 			.withAffiliations(this.lists.findAffiliations(character.id(), character.language()))
 			.withDevilFruits(this.lists.findDevilFruits(character.id(), character.language()))
 			.withRelatives(relativesOf(character))
-			.withBounties(this.lists.findBounties(character.id(), character.language()));
+			.withBounties(this.lists.findBounties(character.id(), character.language()))
+			.withGallery(this.lists.findGallery(character.id(), character.language()))
+			.withReveals(this.reveals.findCharacterReveals(character.id(), character.language()));
+	}
+
+	private static String mainPortraitOf(List<CharacterImage> gallery) {
+		return Gallery.mainPortrait(gallery).map(CharacterImage::imageId).orElse(null);
 	}
 
 	/**

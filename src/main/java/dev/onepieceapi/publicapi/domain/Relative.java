@@ -1,20 +1,23 @@
 package dev.onepieceapi.publicapi.domain;
 
+import dev.onepieceapi.readertime.RevealWindow;
+
 import java.util.UUID;
 
 /**
- * A relative of a character online, as of today (Character plan D13).
+ * A relative of a character online (Character plan D13), inside the window of the
+ * character that stores the link (workflow 3.7.2).
  *
  * @param kind what the relative is to the character
  */
-public record Relative(RelativeReference character, RelativeKind kind) {
+public record Relative(RelativeReference character, RelativeKind kind, RevealWindow window) implements WindowedEntry {
 
 	/**
 	 * The same link read from the relative's side: the relative holds this character as
-	 * the inverse kind.
+	 * the inverse kind, in the same window.
 	 */
 	public Relative inverted() {
-		return new Relative(this.character, this.kind.inverse());
+		return new Relative(this.character, this.kind.inverse(), this.window);
 	}
 
 	/** The relative. */

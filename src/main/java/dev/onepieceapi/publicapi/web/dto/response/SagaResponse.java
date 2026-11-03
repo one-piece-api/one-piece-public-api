@@ -15,7 +15,8 @@ import java.util.UUID;
  * @param arcs its arcs online, by number
  */
 @Builder
-public record SagaResponse(UUID id, String slug, int number, String language, String title, String description,
-		StorySpanResponse chapters, StorySpanResponse episodes, List<ArcReferenceResponse> arcs, Instant publishedAt) {
+public record SagaResponse(UUID id, String slug, int number, String language, String title,
+		List<ParagraphResponse> description, StorySpanResponse chapters, StorySpanResponse episodes,
+		List<ArcReferenceResponse> arcs, Instant publishedAt) {
 
 }

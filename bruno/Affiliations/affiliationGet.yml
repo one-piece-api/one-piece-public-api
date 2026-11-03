@@ -67,7 +67,15 @@ examples:
         type: json
         data: |-
           {
-            "description": "",
+            "description": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
             "firstAppearance": {
               "chapter": {
                 "id": "",
@@ -152,7 +160,15 @@ examples:
         type: json
         data: |-
           {
-            "description": "",
+            "description": [
+              {
+                "discovered": {
+                  "chapter": 0,
+                  "episode": 0
+                },
+                "text": ""
+              }
+            ],
             "firstAppearance": {
               "chapter": {
                 "id": "",

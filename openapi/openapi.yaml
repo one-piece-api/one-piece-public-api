@@ -1698,7 +1698,9 @@ components:
       type: object
       properties:
         description:
-          type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ParagraphResponse"
         firstAppearance:
           $ref: "#/components/schemas/FirstAppearanceResponse"
         id:
@@ -1769,7 +1771,9 @@ components:
         chapters:
           $ref: "#/components/schemas/StorySpanResponse"
         description:
-          type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ParagraphResponse"
         episodes:
           $ref: "#/components/schemas/StorySpanResponse"
         id:
@@ -1804,6 +1808,11 @@ components:
           type: string
         title:
           type: string
+    BountyKnowledgeResponse:
+      type: object
+      properties:
+        inactive:
+          type: boolean
     BountyResponse:
       type: object
       properties:
@@ -1820,7 +1829,9 @@ components:
           - DEAD_OR_ALIVE
           - ONLY_ALIVE
         description:
-          type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ParagraphResponse"
         firstAppearance:
           $ref: "#/components/schemas/FirstAppearanceResponse"
         holder:
@@ -1830,6 +1841,8 @@ components:
           format: uuid
         image:
           type: string
+        initialKnowledge:
+          $ref: "#/components/schemas/BountyKnowledgeResponse"
         language:
           type: string
         posterName:
@@ -1837,6 +1850,10 @@ components:
         publishedAt:
           type: string
           format: date-time
+        reveals:
+          type: array
+          items:
+            $ref: "#/components/schemas/BountyRevealResponse"
         slug:
           type: string
         validity:
@@ -1845,6 +1862,21 @@ components:
           - ACTIVE
           - SUPERSEDED
           - INACTIVE
+    BountyRevealResponse:
+      type: object
+      properties:
+        fields:
+          type: array
+          items:
+            type: string
+            enum:
+            - INACTIVE
+        inactive:
+          type: boolean
+        revealed:
+          $ref: "#/components/schemas/StoryPointResponse"
+        title:
+          type: string
     BountySummaryResponse:
       type: object
       properties:
@@ -1923,6 +1955,23 @@ components:
           type: string
         volume:
           $ref: "#/components/schemas/VolumeSummaryResponse"
+    CharacterKnowledgeResponse:
+      type: object
+      properties:
+        japaneseName:
+          type: string
+        name:
+          type: string
+        romaji:
+          type: string
+        slug:
+          type: string
+        status:
+          type: string
+          enum:
+          - ALIVE
+          - DECEASED
+          - UNKNOWN
     CharacterReferenceResponse:
       type: object
       properties:
@@ -1943,7 +1992,7 @@ components:
         aliases:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/TextEntryResponse"
         birthday:
           type: string
           description: "Day and month, ISO 8601 without year"
@@ -1954,7 +2003,9 @@ components:
           items:
             $ref: "#/components/schemas/HeldBountyResponse"
         description:
-          type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ParagraphResponse"
         devilFruits:
           type: array
           items:
@@ -1962,9 +2013,13 @@ components:
         epithets:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/TextEntryResponse"
         firstAppearance:
           $ref: "#/components/schemas/FirstAppearanceResponse"
+        gallery:
+          type: array
+          items:
+            $ref: "#/components/schemas/GalleryImageResponse"
         gender:
           type: string
           enum:
@@ -1976,6 +2031,8 @@ components:
           format: uuid
         image:
           type: string
+        initialKnowledge:
+          $ref: "#/components/schemas/CharacterKnowledgeResponse"
         japaneseName:
           type: string
         language:
@@ -1989,6 +2046,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/RelativeResponse"
+        reveals:
+          type: array
+          items:
+            $ref: "#/components/schemas/CharacterRevealResponse"
         romaji:
           type: string
         slug:
@@ -1996,13 +2057,41 @@ components:
         species:
           type: array
           items:
-            $ref: "#/components/schemas/SpeciesReferenceResponse"
+            $ref: "#/components/schemas/SpeciesEntryResponse"
         status:
           type: string
           enum:
           - ALIVE
           - DECEASED
           - UNKNOWN
+    CharacterRevealResponse:
+      type: object
+      properties:
+        fields:
+          type: array
+          items:
+            type: string
+            enum:
+            - IDENTITY
+            - STATUS
+        japaneseName:
+          type: string
+        name:
+          type: string
+        revealed:
+          $ref: "#/components/schemas/StoryPointResponse"
+        romaji:
+          type: string
+        slug:
+          type: string
+        status:
+          type: string
+          enum:
+          - ALIVE
+          - DECEASED
+          - UNKNOWN
+        title:
+          type: string
     CharacterSummaryResponse:
       type: object
       properties:
@@ -2023,6 +2112,19 @@ components:
           - ALIVE
           - DECEASED
           - UNKNOWN
+    DevilFruitKnowledgeResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        romaji:
+          type: string
+        slug:
+          type: string
+        subcategory:
+          $ref: "#/components/schemas/DevilFruitSubcategoryReferenceResponse"
+        type:
+          $ref: "#/components/schemas/DevilFruitTypeReferenceResponse"
     DevilFruitOfTypeResponse:
       type: object
       properties:
@@ -2051,11 +2153,17 @@ components:
       type: object
       properties:
         advantages:
-          type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ParagraphResponse"
         description:
-          type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ParagraphResponse"
         disadvantages:
-          type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ParagraphResponse"
         firstAppearance:
           $ref: "#/components/schemas/FirstAppearanceResponse"
         id:
@@ -2063,6 +2171,8 @@ components:
           format: uuid
         image:
           type: string
+        initialKnowledge:
+          $ref: "#/components/schemas/DevilFruitKnowledgeResponse"
         language:
           type: string
         multipleUsers:
@@ -2072,6 +2182,10 @@ components:
         publishedAt:
           type: string
           format: date-time
+        reveals:
+          type: array
+          items:
+            $ref: "#/components/schemas/DevilFruitRevealResponse"
         romaji:
           type: string
         slug:
@@ -2084,6 +2198,31 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/FruitUserResponse"
+    DevilFruitRevealResponse:
+      type: object
+      properties:
+        fields:
+          type: array
+          items:
+            type: string
+            enum:
+            - NAME
+            - ROMAJI
+            - TYPE
+        name:
+          type: string
+        revealed:
+          $ref: "#/components/schemas/StoryPointResponse"
+        romaji:
+          type: string
+        slug:
+          type: string
+        subcategory:
+          $ref: "#/components/schemas/DevilFruitSubcategoryReferenceResponse"
+        title:
+          type: string
+        type:
+          $ref: "#/components/schemas/DevilFruitTypeReferenceResponse"
     DevilFruitSubcategoryReferenceResponse:
       type: object
       properties:
@@ -2150,15 +2289,21 @@ components:
       type: object
       properties:
         advantages:
-          type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ParagraphResponse"
         description:
-          type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ParagraphResponse"
         devilFruits:
           type: array
           items:
             $ref: "#/components/schemas/DevilFruitOfTypeResponse"
         disadvantages:
-          type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ParagraphResponse"
         firstAppearance:
           $ref: "#/components/schemas/FirstAppearanceResponse"
         id:
@@ -2258,6 +2403,10 @@ components:
       properties:
         devilFruit:
           $ref: "#/components/schemas/DevilFruitReferenceResponse"
+        discovered:
+          $ref: "#/components/schemas/StoryPointResponse"
+        ended:
+          $ref: "#/components/schemas/StoryPointResponse"
         former:
           type: boolean
     FruitUserResponse:
@@ -2265,8 +2414,30 @@ components:
       properties:
         character:
           $ref: "#/components/schemas/CharacterReferenceResponse"
+        discovered:
+          $ref: "#/components/schemas/StoryPointResponse"
+        ended:
+          $ref: "#/components/schemas/StoryPointResponse"
         former:
           type: boolean
+    GalleryImageResponse:
+      type: object
+      properties:
+        caption:
+          type: string
+        discovered:
+          $ref: "#/components/schemas/StoryPointResponse"
+        ended:
+          $ref: "#/components/schemas/StoryPointResponse"
+        former:
+          type: boolean
+        image:
+          type: string
+        kind:
+          type: string
+          enum:
+          - APPEARANCE
+          - FORM
     HeldBountyResponse:
       type: object
       properties:
@@ -2300,11 +2471,13 @@ components:
           type: string
         name:
           type: string
-    MembershipResponse:
+    MembershipPeriodResponse:
       type: object
       properties:
-        affiliation:
-          $ref: "#/components/schemas/AffiliationReferenceResponse"
+        discovered:
+          $ref: "#/components/schemas/StoryPointResponse"
+        ended:
+          $ref: "#/components/schemas/StoryPointResponse"
         former:
           type: boolean
         marineRank:
@@ -2331,6 +2504,17 @@ components:
           - CHORE_BOY
         role:
           type: string
+    MembershipResponse:
+      type: object
+      properties:
+        affiliation:
+          $ref: "#/components/schemas/AffiliationReferenceResponse"
+        former:
+          type: boolean
+        periods:
+          type: array
+          items:
+            $ref: "#/components/schemas/MembershipPeriodResponse"
     PageResponseAffiliationSummaryResponse:
       type: object
       properties:
@@ -2540,6 +2724,13 @@ components:
         totalPages:
           type: integer
           format: int32
+    ParagraphResponse:
+      type: object
+      properties:
+        discovered:
+          $ref: "#/components/schemas/StoryPointResponse"
+        text:
+          type: string
     ProblemDetail:
       type: object
       description: "RFC 9457 problem detail, plus this API's own properties"
@@ -2596,6 +2787,12 @@ components:
       properties:
         character:
           $ref: "#/components/schemas/RelativeReferenceResponse"
+        discovered:
+          $ref: "#/components/schemas/StoryPointResponse"
+        ended:
+          $ref: "#/components/schemas/StoryPointResponse"
+        former:
+          type: boolean
         kind:
           type: string
           enum:
@@ -2629,7 +2826,9 @@ components:
         chapters:
           $ref: "#/components/schemas/StorySpanResponse"
         description:
-          type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ParagraphResponse"
         episodes:
           $ref: "#/components/schemas/StorySpanResponse"
         id:
@@ -2660,6 +2859,17 @@ components:
           type: string
         title:
           type: string
+    SpeciesEntryResponse:
+      type: object
+      properties:
+        discovered:
+          $ref: "#/components/schemas/StoryPointResponse"
+        ended:
+          $ref: "#/components/schemas/StoryPointResponse"
+        former:
+          type: boolean
+        species:
+          $ref: "#/components/schemas/SpeciesReferenceResponse"
     SpeciesReferenceResponse:
       type: object
       properties:
@@ -2674,7 +2884,9 @@ components:
       type: object
       properties:
         description:
-          type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ParagraphResponse"
         firstAppearance:
           $ref: "#/components/schemas/FirstAppearanceResponse"
         id:
@@ -2720,6 +2932,15 @@ components:
           type: string
         title:
           type: string
+    StoryPointResponse:
+      type: object
+      properties:
+        chapter:
+          type: integer
+          format: int32
+        episode:
+          type: integer
+          format: int32
     StorySpanResponse:
       type: object
       properties:
@@ -2738,6 +2959,17 @@ components:
         lastNumber:
           type: integer
           format: int32
+    TextEntryResponse:
+      type: object
+      properties:
+        discovered:
+          $ref: "#/components/schemas/StoryPointResponse"
+        ended:
+          $ref: "#/components/schemas/StoryPointResponse"
+        former:
+          type: boolean
+        value:
+          type: string
     VolumeResponse:
       type: object
       properties:
