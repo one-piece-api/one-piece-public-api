@@ -15,6 +15,18 @@ public record Membership(AffiliationReference affiliation, @With List<Membership
 		periods = List.copyOf(periods);
 	}
 
+	/**
+	 * The memberships the reader has met with at least one period discovered, each as the
+	 * reader sees it.
+	 */
+	public static List<Membership> metBy(List<Membership> memberships, ReaderSight sight) {
+		return sight.seen(memberships, Membership::affiliationId)
+			.stream()
+			.map((membership) -> membership.seenBy(sight))
+			.filter(Membership::known)
+			.toList();
+	}
+
 	/** The affiliation it is a membership of. */
 	public UUID affiliationId() {
 		return this.affiliation.id();

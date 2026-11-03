@@ -54,6 +54,7 @@ import dev.onepieceapi.publicapi.persistence.row.VolumeSummaryRow;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * The entities online, one descriptor each. An explicit private constructor, as in
@@ -105,7 +106,9 @@ public final class PublishedViews {
 		.naturalKey("romaji")
 		.detail(PublishedView.reading(DevilFruitRow.class, PublishedRowMapper::toDomain))
 		.summary(PublishedView.reading(DevilFruitSummaryRow.class, PublishedRowMapper::toDomain))
-		.filters(Map.of(TYPE_FILTER, ContentFilter.onContent("type_id", "DEVIL_FRUIT_TYPE")))
+		.filters(Map.of(TYPE_FILTER, ContentFilter.onContent("type_id", "DEVIL_FRUIT_TYPE",
+				(row, typeId, sight, entries) -> row.type() != null && row.type().id().toString().equals(typeId))))
+		.revealedName(new PublishedView.RevealedName<>(DevilFruitSummary::name, DevilFruitSummary::romaji))
 		.build();
 
 	/** The names of the filters of the story entities by what they belong to. */
@@ -220,8 +223,11 @@ public final class PublishedViews {
 		.naturalKey("poster_name")
 		.detail(PublishedView.reading(BountyRow.class, BountyRowMapper::toDomain))
 		.summary(PublishedView.reading(BountySummaryRow.class, BountyRowMapper::toDomain))
-		.filters(Map.of(VALIDITY_FILTER, ContentFilter.onValue("validity"), CONDITION_FILTER,
-				ContentFilter.onValue("condition"), HOLDER_FILTER, ContentFilter.onContent("holder_id", "CHARACTER")))
+		.filters(Map.of(VALIDITY_FILTER,
+				ContentFilter.onValue("validity",
+						(row, validity, sight, entries) -> row.validity().name().equals(validity)),
+				CONDITION_FILTER, ContentFilter.onValue("condition"), HOLDER_FILTER,
+				ContentFilter.onContent("holder_id", "CHARACTER")))
 		.sorts(Map.of(ContentSort.Field.NAME, List.of("poster_name", "amount"), ContentSort.Field.AMOUNT,
 				List.of("amount")))
 		.build();
@@ -291,14 +297,23 @@ public final class PublishedViews {
 		.naturalKey("romaji")
 		.detail(PublishedView.reading(CharacterRow.class, CharacterRowMapper::toDomain))
 		.summary(PublishedView.reading(CharacterSummaryRow.class, CharacterRowMapper::toDomain))
-		.filters(Map.of(STATUS_FILTER, ContentFilter.onValue("status"), SPECIES_FILTER,
-				ContentFilter.onChild("published.character_species", "character_id", "species_id", "SPECIES"),
+		.filters(Map.of(STATUS_FILTER,
+				ContentFilter.onValue("status", (row, status, sight, entries) -> row.status().name().equals(status)),
+				SPECIES_FILTER,
+				ContentFilter.onChild("published.character_species", "character_id", "species_id", "SPECIES",
+						(row, speciesId, sight,
+								entries) -> entries.hasSpecies(row.id(), UUID.fromString(speciesId), sight)),
 				AFFILIATION_FILTER,
 				ContentFilter.onChild("published.character_affiliation", "character_id", "affiliation_id",
-						"AFFILIATION", currentMembership("published.character_affiliation")),
+						"AFFILIATION", currentMembership("published.character_affiliation"),
+						(row, affiliationId, sight, entries) -> entries.belongsTo(row.id(),
+								UUID.fromString(affiliationId), sight)),
 				AFFILIATION_KIND_FILTER, currentMembershipOfKind(), DEVIL_FRUIT_FILTER,
 				ContentFilter.onChild("published.character_devil_fruit", "character_id", "devil_fruit_id",
-						"DEVIL_FRUIT", NOT_ENDED)))
+						"DEVIL_FRUIT", NOT_ENDED,
+						(row, fruitId, sight, entries) -> entries.hasDevilFruit(row.id(), UUID.fromString(fruitId),
+								sight))))
+		.revealedName(new PublishedView.RevealedName<>(CharacterSummary::name, CharacterSummary::romaji))
 		.build();
 
 	/**
@@ -314,7 +329,21 @@ public final class PublishedViews {
 	public static final PublishedReleases EPISODE_BROADCASTS = new PublishedReleases("published.episode_broadcast",
 			"episode_id", "broadcast_date");
 
+	private static final List<PublishedView<?, ?>> ALL = List.of(DEVIL_FRUIT_TYPE, DEVIL_FRUIT, SAGA, ARC, VOLUME,
+			CHAPTER, EPISODE, BOUNTY, AFFILIATION, SPECIES, CHARACTER);
+
 	private PublishedViews() {
+	}
+
+	/**
+	 * The view of an entity type: where a list filter finds the content its value names
+	 * (reveals plan R7 S11).
+	 */
+	public static PublishedView<?, ?> ofEntity(String entityType) {
+		return ALL.stream()
+			.filter((view) -> view.entityType().equals(entityType))
+			.findFirst()
+			.orElseThrow(() -> new IllegalArgumentException("No view for " + entityType));
 	}
 
 	/**
@@ -331,21 +360,23 @@ public final class PublishedViews {
 	 * The characters that currently belong to an affiliation of this kind: the kind is a
 	 * value of a closed set, so only its names get here.
 	 */
-	private static ContentFilter currentMembershipOfKind() {
+	private static ContentFilter<CharacterSummary> currentMembershipOfKind() {
 		String condition = "id IN (SELECT ca.character_id FROM published.character_affiliation ca"
 				+ " JOIN published.affiliation a ON a.id = ca.affiliation_id WHERE " + currentMembership("ca")
 				+ " AND a.kind = :%s)";
-		return new ContentFilter(condition, condition);
+		return new ContentFilter<>(condition, condition, null,
+				(row, kind, sight, entries) -> entries.belongsToKind(row.id(), kind, sight), true);
 	}
 
 	/**
 	 * The arcs of the chapters online of a volume: not asked for in the URL, only for the
 	 * volume detail (story structure plan S7).
 	 */
-	private static ContentFilter arcsOfVolume() {
-		return new ContentFilter("id IN (SELECT arc_id FROM published.chapter WHERE volume_id = :%s)",
+	private static ContentFilter<ArcSummary> arcsOfVolume() {
+		return new ContentFilter<>("id IN (SELECT arc_id FROM published.chapter WHERE volume_id = :%s)",
 				"id IN (SELECT arc_id FROM published.chapter WHERE volume_id = (SELECT content_id"
-						+ " FROM published.content_slug WHERE entity_type = 'VOLUME' AND slug = :%s))");
+						+ " FROM published.content_slug WHERE entity_type = 'VOLUME' AND slug = :%s))",
+				"VOLUME", null, false);
 	}
 
 }

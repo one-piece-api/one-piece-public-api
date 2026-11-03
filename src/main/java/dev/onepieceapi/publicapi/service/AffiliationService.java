@@ -3,6 +3,7 @@ package dev.onepieceapi.publicapi.service;
 import dev.onepieceapi.publicapi.domain.Affiliation;
 import dev.onepieceapi.publicapi.domain.AffiliationSummary;
 import dev.onepieceapi.publicapi.domain.ReaderSight;
+import dev.onepieceapi.publicapi.persistence.PublishedCharacterEntryRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedCharacterListRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedContentRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedViews;
@@ -17,10 +18,13 @@ public class AffiliationService extends PublishedContentService<Affiliation, Aff
 
 	private final PublishedCharacterListRepository characters;
 
+	private final PublishedCharacterEntryRepository entries;
+
 	AffiliationService(LanguageService languages, PublishedContentRepository repository, ReaderSightService sights,
-			PublishedCharacterListRepository characters) {
+			PublishedCharacterListRepository characters, PublishedCharacterEntryRepository entries) {
 		super(languages, repository, sights, PublishedViews.AFFILIATION);
 		this.characters = characters;
+		this.entries = entries;
 	}
 
 	@Override
@@ -28,11 +32,15 @@ public class AffiliationService extends PublishedContentService<Affiliation, Aff
 		return affiliation.withMemberCount(this.characters.countMembers(affiliation.id()));
 	}
 
-	/** It counts only the members the reader has met. */
+	/**
+	 * It counts the members the reader has met and knows to belong to it at N: the same
+	 * characters the filter `affiliation` lists (reveals plan R7 S11).
+	 */
 	@Override
 	protected Affiliation completeFor(Affiliation affiliation, ReaderSight sight) {
-		var members = this.characters.findCurrentMemberIds(affiliation.id());
-		return affiliation.seenBy(sight).withMemberCount(members.stream().filter(sight::sees).count());
+		long members = this.entries.findMembersOf(affiliation.language(), affiliation.id())
+			.countMembers(affiliation.id(), sight);
+		return affiliation.seenBy(sight).withMemberCount(members);
 	}
 
 }

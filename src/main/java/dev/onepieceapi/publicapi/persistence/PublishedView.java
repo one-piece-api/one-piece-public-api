@@ -33,13 +33,17 @@ import java.util.function.Function;
  * declared here; none when null
  * @param paragraphs puts the long texts, as paragraphs (workflow 3.7.3), into a detail;
  * null for an entity without them
+ * @param revealedName how to read the name and the romaji of a row, for an entity whose
+ * name the reader learns by degrees (Character, Devil Fruit): with a spoiler filter its
+ * search and its sort by name are made in memory on the values at N; null for the others
  * @param <D> the detail
  * @param <S> the list row
  */
 @Builder
 public record PublishedView<D, S>(String entityType, String view, String detailColumns, String summaryColumns,
-		String naturalKey, RowMapper<D> detail, RowMapper<S> summary, Map<String, ContentFilter> filters,
-		String embeddedOrder, Map<ContentSort.Field, List<String>> sorts, BiFunction<D, LongTexts, D> paragraphs) {
+		String naturalKey, RowMapper<D> detail, RowMapper<S> summary, Map<String, ContentFilter<S>> filters,
+		String embeddedOrder, Map<ContentSort.Field, List<String>> sorts, BiFunction<D, LongTexts, D> paragraphs,
+		RevealedName<S> revealedName) {
 
 	public PublishedView {
 		embeddedOrder = embeddedOrder == null ? "name" : embeddedOrder;
@@ -50,6 +54,20 @@ public record PublishedView<D, S>(String entityType, String view, String detailC
 	/** Whether its contents have long texts written as paragraphs. */
 	public boolean paragraphed() {
 		return this.paragraphs != null;
+	}
+
+	/** Whether the name of this entity is learned by degrees. */
+	public boolean namedByDegrees() {
+		return this.revealedName != null;
+	}
+
+	/**
+	 * How to read the name and the romaji of a list row.
+	 *
+	 * @param <S> the list row
+	 */
+	public record RevealedName<S>(Function<S, String> name, Function<S, String> romaji) {
+
 	}
 
 	/** Whether the list of this entity can be ordered by the field. */

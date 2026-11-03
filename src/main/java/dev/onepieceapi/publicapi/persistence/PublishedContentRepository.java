@@ -2,6 +2,7 @@ package dev.onepieceapi.publicapi.persistence;
 
 import dev.onepieceapi.publicapi.domain.ContentAddress;
 import dev.onepieceapi.publicapi.domain.ContentFilterValue;
+import dev.onepieceapi.publicapi.domain.ContentIdentity;
 import dev.onepieceapi.publicapi.domain.ContentSearch;
 import dev.onepieceapi.publicapi.domain.ContentSort;
 import dev.onepieceapi.publicapi.domain.LongTexts;
@@ -84,6 +85,35 @@ public class PublishedContentRepository {
 			.list();
 	}
 
+	/**
+	 * Every row of the view in the language, in the order of an embedded relation: the
+	 * spoiler filter picks among them (reveals plan R7 S11).
+	 */
+	public <D, S> List<S> listEvery(PublishedView<D, S> view, String language) {
+		return this.jdbc
+			.sql("SELECT " + view.summaryColumns() + " FROM " + view.view() + " WHERE " + LANGUAGE_FILTER + " ORDER BY "
+					+ view.embeddedOrder() + ", id")
+			.param("language", language)
+			.query(view.summary())
+			.list();
+	}
+
+	/**
+	 * Who the content at an address is, in the language: by id or by any slug it has had
+	 * online (plan D5). Empty when no content online has it.
+	 */
+	public Optional<ContentIdentity> findIdentity(PublishedView<?, ?> view, String language, String idOrSlug) {
+		boolean byId = ContentAddress.isId(idOrSlug);
+		String condition = byId ? "id = :address"
+				: "id = (SELECT content_id FROM published.content_slug WHERE entity_type = :entityType AND slug = :address)";
+		var statement = this.jdbc
+			.sql("SELECT id, slug FROM " + view.view() + " WHERE language = :language AND " + condition)
+			.param("language", language)
+			.param("address", byId ? UUID.fromString(idOrSlug) : idOrSlug);
+		return (byId ? statement : statement.param("entityType", view.entityType())).query(ContentIdentity.class)
+			.optional();
+	}
+
 	public <D, S> Optional<D> findById(PublishedView<D, S> view, String language, UUID id) {
 		return this.jdbc
 			.sql("SELECT " + view.detailColumns() + " FROM " + view.view() + " WHERE language = :language AND id = :id")
@@ -151,7 +181,7 @@ public class PublishedContentRepository {
 			Map<String, Object> parameters) {
 		for (int index = 0; index < filters.size(); index++) {
 			ContentFilterValue filter = filters.get(index);
-			ContentFilter declared = view.filters().get(filter.name());
+			ContentFilter<?> declared = view.filters().get(filter.name());
 			if (declared == null) {
 				throw new IllegalArgumentException("No filter " + filter.name() + " on " + view.view());
 			}

@@ -908,6 +908,7 @@ public class PublishedContentFixture {
 			.param("language", language)
 			.param("name", name)
 			.update());
+		recordSlug(FRUIT, fruitId, romaji);
 	}
 
 	/** What the reader believes of the bounty online at its first appearance. */

@@ -1,5 +1,6 @@
 package dev.onepieceapi.publicapi;
 
+import dev.onepieceapi.publicapi.PublishedContentFixture.Belonging;
 import dev.onepieceapi.publicapi.PublishedContentFixture.CharacterList;
 import dev.onepieceapi.publicapi.PublishedContentFixture.Having;
 import dev.onepieceapi.publicapi.PublishedContentFixture.Persona;
@@ -236,6 +237,91 @@ class PublicApiReaderAxisRevealsIntegrationTest extends PublishedDatabaseTest {
 		for (String uri : uris) {
 			assertThat(body(uri + "?asOfChapter=8")).as(uri).isEqualTo(body(uri));
 		}
+	}
+
+	@Test
+	void searchesAndSortsByTheNameAtN() {
+		ok("/v1/en/characters?asOfChapter=1&q=Mystery").jsonPath("$.totalElements").isEqualTo(1);
+		ok("/v1/en/characters?asOfChapter=1&q=nazo").jsonPath("$.totalElements").isEqualTo(1);
+		ok("/v1/en/characters?asOfChapter=1&q=Dragon").jsonPath("$.totalElements").isEqualTo(0);
+		ok("/v1/en/characters?asOfChapter=5&q=Dragon").jsonPath("$.totalElements").isEqualTo(1);
+		ok("/v1/en/characters?asOfChapter=5&q=Mystery").jsonPath("$.totalElements").isEqualTo(0);
+		ok("/v1/en/characters?asOfChapter=1&sort=name").jsonPath("$.content[*].name")
+			.isEqualTo(List.of("Monkey D. Garp", "Monkey D. Luffy", "Mystery Man", "Portgas D. Ace"));
+		ok("/v1/en/characters?asOfChapter=5&sort=name,desc").jsonPath("$.content[*].name")
+			.isEqualTo(List.of("Portgas D. Ace", "Monkey D. Luffy", "Monkey D. Garp", "Monkey D. Dragon"));
+		ok("/v1/en/devil-fruits?asOfChapter=1&q=Gum").jsonPath("$.totalElements").isEqualTo(1);
+		ok("/v1/en/devil-fruits?asOfChapter=1&q=Human").jsonPath("$.totalElements").isEqualTo(0);
+		ok("/v1/en/devil-fruits?asOfChapter=8&q=Human").jsonPath("$.totalElements").isEqualTo(1);
+		ok("/v1/en/devil-fruits?asOfChapter=8&q=Gum").jsonPath("$.totalElements").isEqualTo(0);
+	}
+
+	@Test
+	void filtersByAValueAsKnownAtN() {
+		ok("/v1/en/characters?asOfChapter=1&status=ALIVE").jsonPath("$.content[?(@.romaji == 'Portgas D. Ace')]")
+			.isNotEmpty();
+		ok("/v1/en/characters?asOfChapter=1&status=DECEASED").jsonPath("$.totalElements").isEqualTo(0);
+		ok("/v1/en/characters?asOfChapter=5&status=DECEASED").jsonPath("$.totalElements").isEqualTo(1);
+		ok("/v1/en/bounties?asOfChapter=1&validity=ACTIVE").jsonPath("$.totalElements").isEqualTo(3);
+		ok("/v1/en/bounties?asOfChapter=5&validity=ACTIVE").jsonPath("$.totalElements").isEqualTo(2);
+		ok("/v1/en/bounties?asOfChapter=5&validity=INACTIVE").jsonPath("$.totalElements").isEqualTo(1);
+		ok("/v1/en/bounties?asOfChapter=8&validity=SUPERSEDED").jsonPath("$.totalElements").isEqualTo(1);
+		ok("/v1/en/devil-fruits?asOfChapter=1&type=paramecia").jsonPath("$.totalElements").isEqualTo(1);
+		ok("/v1/en/devil-fruits?asOfChapter=1&type=zoan").jsonPath("$.totalElements").isEqualTo(0);
+		ok("/v1/en/devil-fruits?asOfChapter=8&type=zoan").jsonPath("$.totalElements").isEqualTo(1);
+		ok("/v1/en/devil-fruits?asOfChapter=8&type=paramecia").jsonPath("$.totalElements").isEqualTo(0);
+		ok("/v1/en/devil-fruits?type=zoan").jsonPath("$.totalElements").isEqualTo(1);
+	}
+
+	@Test
+	void listsTheFruitsOfATypeByTheirTypeAtN() {
+		ok("/v1/en/devil-fruit-types/paramecia?asOfChapter=1").jsonPath("$.devilFruits[*].name")
+			.isEqualTo(List.of("Gum-Gum"));
+		ok("/v1/en/devil-fruit-types/zoan?asOfChapter=1").jsonPath("$.devilFruits.length()").isEqualTo(0);
+		ok("/v1/en/devil-fruit-types/zoan?asOfChapter=8").jsonPath("$.devilFruits[*].name")
+			.isEqualTo(List.of("Human-Human, Model: Nika"));
+		ok("/v1/en/devil-fruit-types/paramecia?asOfChapter=8").jsonPath("$.devilFruits.length()").isEqualTo(0);
+	}
+
+	@Test
+	void filtersTheCharactersByTheListsTheReaderKnowsAtN() {
+		UUID navy = this.fixture.publishAffiliation("Kaigun", null, en("Navy"));
+		this.fixture.affiliationKind(navy, "NAVY");
+		this.fixture.firstAppearance(navy, this.chapter8);
+		UUID smoker = metAtChapter1(this.fixture.publishCharacter(Persona.builder()
+			.romaji("Smoker")
+			.affiliations(List.of(new Belonging(navy, Map.of(), null, false)))
+			.build(), en("Smoker")));
+		this.fixture.periodWindow(smoker, 0, 0, Window.builder().discoveredChapter(this.chapter8).build());
+
+		for (String navyFilter : List.of("affiliation=" + navy, "affiliation=kaigun", "affiliationKind=NAVY")) {
+			ok("/v1/en/characters?asOfChapter=5&" + navyFilter).jsonPath("$.totalElements").isEqualTo(0);
+			ok("/v1/en/characters?asOfChapter=8&" + navyFilter).jsonPath("$.content[*].name")
+				.isEqualTo(List.of("Smoker"));
+		}
+		get("/v1/en/affiliations/" + navy + "?asOfChapter=5").expectStatus().isNotFound();
+		ok("/v1/en/affiliations/" + navy + "?asOfChapter=8").jsonPath("$.memberCount").isEqualTo(1);
+		ok("/v1/en/characters?devilFruit=" + this.gomu).jsonPath("$.content[*].name")
+			.isEqualTo(List.of("Monkey D. Luffy"));
+		ok("/v1/en/characters?asOfChapter=1&devilFruit=gomu-gomu-no-mi").jsonPath("$.content[*].name")
+			.isEqualTo(List.of("Monkey D. Luffy"));
+		ok("/v1/en/characters?asOfChapter=1&devilFruit=hito-hito-no-mi-model-nika").jsonPath("$.totalElements")
+			.isEqualTo(0);
+		ok("/v1/en/characters?asOfChapter=8&devilFruit=hito-hito-no-mi-model-nika").jsonPath("$.content[*].name")
+			.isEqualTo(List.of("Monkey D. Luffy"));
+	}
+
+	@Test
+	void givesAnEmptyPageForAFilterOnAContentTheReaderHasNotMet() {
+		UUID late = this.fixture.publishCharacter(Persona.builder().romaji("Smoker").build(), en("Smoker"));
+		this.fixture.firstAppearance(late, this.chapter8);
+		this.fixture.firstAppearance(this.fixture
+			.bounty(Poster.builder().posterName("Smoker").amount(1L).holderId(late).build(), en("Loguetown")),
+				this.chapter1);
+		ok("/v1/en/bounties?holder=" + late).jsonPath("$.totalElements").isEqualTo(1);
+		ok("/v1/en/bounties?asOfChapter=5&holder=" + late).jsonPath("$.totalElements").isEqualTo(0);
+		ok("/v1/en/bounties?asOfChapter=5&holder=smoker").jsonPath("$.totalElements").isEqualTo(0);
+		ok("/v1/en/bounties?asOfChapter=8&holder=smoker").jsonPath("$.totalElements").isEqualTo(1);
 	}
 
 	private void seedMonkeys() {

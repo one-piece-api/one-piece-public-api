@@ -4,6 +4,7 @@ import dev.onepieceapi.publicapi.PublishedContentFixture.Belonging;
 import dev.onepieceapi.publicapi.PublishedContentFixture.Persona;
 import dev.onepieceapi.publicapi.PublishedContentFixture.Poster;
 import dev.onepieceapi.publicapi.PublishedContentFixture.Translation;
+import dev.onepieceapi.publicapi.PublishedContentFixture.Window;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -79,9 +80,11 @@ class PublicApiReaderAxisIntegrationTest extends PublishedDatabaseTest {
 		UUID luffy = this.fixture.publishCharacter(
 				Persona.builder().romaji("Monkey D. Luffy").affiliations(crew).build(), en("Monkey D. Luffy"));
 		met(luffy, chapter1, episode1);
+		this.fixture.periodWindow(luffy, 0, 0, Window.builder().discoveredChapter(chapter1).build());
 		UUID chopper = this.fixture.publishCharacter(
 				Persona.builder().romaji("Tony Tony Chopper").affiliations(crew).build(), en("Tony Tony Chopper"));
 		met(chopper, chapter5, null);
+		this.fixture.periodWindow(chopper, 0, 0, Window.builder().discoveredChapter(chapter5).build());
 		this.bounty = this.fixture.bounty(
 				Poster.builder().posterName("Tony Tony Chopper").amount(50).holderId(chopper).build(),
 				en("Chopper's poster"));

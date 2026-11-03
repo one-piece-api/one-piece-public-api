@@ -11,7 +11,7 @@ import java.util.List;
  * @param filters the filters of the entity asked for (plan D14); none when null
  * @param page 0-based
  */
-@Builder
+@Builder(toBuilder = true)
 public record ContentSearch(String text, List<ContentFilterValue> filters, ContentSort sort, int page, int size) {
 
 	public ContentSearch {

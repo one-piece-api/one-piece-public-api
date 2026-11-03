@@ -140,19 +140,6 @@ public class PublishedCharacterListRepository {
 	}
 
 	/**
-	 * The characters online that belong now to this affiliation, each once: those a
-	 * reader at N has met are counted (reveals plan R7 D1).
-	 */
-	public List<UUID> findCurrentMemberIds(UUID affiliationId) {
-		return this.jdbc
-			.sql("SELECT DISTINCT character_id FROM published.character_affiliation ca"
-					+ " WHERE affiliation_id = :id AND " + PublishedViews.currentMembership("ca"))
-			.param("id", affiliationId)
-			.query(UUID.class)
-			.list();
-	}
-
-	/**
 	 * Its Devil Fruits online, named in the language and in the version's order: a fruit
 	 * not written in it is left out.
 	 */

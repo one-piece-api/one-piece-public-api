@@ -111,7 +111,7 @@ public record Character(UUID id, String slug, String romaji, String japaneseName
 			.epithets(sight.discovered(this.epithets, TextEntry::withWindow))
 			.aliases(sight.discovered(this.aliases, TextEntry::withWindow))
 			.species(sight.discovered(this.species, SpeciesEntry::speciesId, SpeciesEntry::withWindow))
-			.affiliations(membershipsSeenBy(sight))
+			.affiliations(Membership.metBy(this.affiliations, sight))
 			.devilFruits(devilFruitsSeenBy(sight))
 			.relatives(relativesSeenBy(sight))
 			.bounties(sight.shown(this.bounties))
@@ -141,15 +141,6 @@ public record Character(UUID id, String slug, String romaji, String japaneseName
 		Stream<Relative> stored = seen.stream().filter(Predicate.not(Relative::inverse));
 		Stream<Relative> inverse = seen.stream().filter(Relative::inverse).sorted(byName);
 		return Stream.concat(stored, inverse).toList();
-	}
-
-	/** The memberships in affiliations met with at least one period discovered. */
-	private List<Membership> membershipsSeenBy(ReaderSight sight) {
-		return sight.seen(this.affiliations, Membership::affiliationId)
-			.stream()
-			.map((membership) -> membership.seenBy(sight))
-			.filter(Membership::known)
-			.toList();
 	}
 
 }

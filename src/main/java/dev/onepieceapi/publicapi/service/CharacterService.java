@@ -1,11 +1,13 @@
 package dev.onepieceapi.publicapi.service;
 
 import dev.onepieceapi.publicapi.domain.Character;
+import dev.onepieceapi.publicapi.domain.CharacterEntries;
 import dev.onepieceapi.publicapi.domain.CharacterImage;
 import dev.onepieceapi.publicapi.domain.CharacterSummary;
 import dev.onepieceapi.publicapi.domain.Page;
 import dev.onepieceapi.publicapi.domain.ReaderSight;
 import dev.onepieceapi.publicapi.domain.Relative;
+import dev.onepieceapi.publicapi.persistence.PublishedCharacterEntryRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedCharacterListRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedContentRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedRevealRepository;
@@ -30,11 +32,23 @@ public class CharacterService extends PublishedContentService<Character, Charact
 
 	private final PublishedRevealRepository reveals;
 
+	private final PublishedCharacterEntryRepository entries;
+
 	CharacterService(LanguageService languages, PublishedContentRepository repository, ReaderSightService sights,
-			PublishedCharacterListRepository lists, PublishedRevealRepository reveals) {
+			PublishedCharacterListRepository lists, PublishedRevealRepository reveals,
+			PublishedCharacterEntryRepository entries) {
 		super(languages, repository, sights, PublishedViews.CHARACTER);
 		this.lists = lists;
 		this.reveals = reveals;
+		this.entries = entries;
+	}
+
+	/**
+	 * The species, memberships and Devil Fruits of every character, for the filters at N.
+	 */
+	@Override
+	protected CharacterEntries entriesOf(String language) {
+		return this.entries.findAll(language);
 	}
 
 	/**
