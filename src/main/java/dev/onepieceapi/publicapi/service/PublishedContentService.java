@@ -55,8 +55,8 @@ public abstract class PublishedContentService<D extends PublishedContent & SeenB
 			return completeRows(this.repository.search(this.view, language, search), language);
 		}
 		ReaderSight sight = this.sights.at(position, language);
-		return completeRows(Page.of(sight.shown(this.repository.searchAll(this.view, language, search)), search.page(),
-				search.size()), language);
+		return completeRowsFor(Page.of(sight.shown(this.repository.searchAll(this.view, language, search)),
+				search.page(), search.size()), language, sight);
 	}
 
 	/**
@@ -94,6 +94,15 @@ public abstract class PublishedContentService<D extends PublishedContent & SeenB
 	 */
 	protected Page<S> completeRows(Page<S> page, String language) {
 		return page;
+	}
+
+	/**
+	 * The rows of a page as the reader sees them, already seen at N: what the entity adds
+	 * from other views, at N too. An entity overrides it when what it adds depends on the
+	 * position, such as a portrait (hook of the template).
+	 */
+	protected Page<S> completeRowsFor(Page<S> page, String language, ReaderSight sight) {
+		return completeRows(page, language);
 	}
 
 	/**

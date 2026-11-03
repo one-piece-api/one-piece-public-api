@@ -64,8 +64,20 @@ public record Character(UUID id, String slug, String romaji, String japaneseName
 	 * Its gallery, the main portrait derived from it without a filter (workflow 3.5.1).
 	 */
 	public Character withGallery(List<CharacterImage> images) {
-		String portrait = Gallery.mainPortrait(images).map(CharacterImage::imageId).orElse(null);
-		return toBuilder().gallery(images).imageId(portrait).build();
+		return toBuilder().gallery(images).imageId(mainPortrait(images)).build();
+	}
+
+	/** The main portrait's identifier without a filter; null when it has none. */
+	public static String mainPortrait(List<CharacterImage> gallery) {
+		return Gallery.mainPortrait(gallery).map(CharacterImage::imageId).orElse(null);
+	}
+
+	/**
+	 * The main portrait's identifier at N (workflow 3.5.1), from the whole gallery; null
+	 * when no appearance is discovered by then.
+	 */
+	public static String mainPortraitAt(List<CharacterImage> gallery, ReaderSight sight) {
+		return Gallery.mainPortraitAt(gallery, sight.position()).map(CharacterImage::imageId).orElse(null);
 	}
 
 	/**
@@ -83,7 +95,8 @@ public record Character(UUID id, String slug, String romaji, String japaneseName
 
 	/**
 	 * As the reader sees it at N: identity and status as known then (workflow 3.7.1), the
-	 * entries and reveals reached, every link named as known then.
+	 * entries, gallery and reveals reached, the main portrait at N (3.5.1), every link
+	 * named as known then.
 	 */
 	@Override
 	public Character seenBy(ReaderSight sight) {
@@ -102,6 +115,8 @@ public record Character(UUID id, String slug, String romaji, String japaneseName
 			.devilFruits(devilFruitsSeenBy(sight))
 			.relatives(relativesSeenBy(sight))
 			.bounties(sight.shown(this.bounties))
+			.gallery(sight.discovered(this.gallery, CharacterImage::withWindow))
+			.imageId(mainPortraitAt(this.gallery, sight))
 			.build();
 	}
 

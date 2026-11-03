@@ -4,17 +4,18 @@ import dev.onepieceapi.publicapi.domain.Character;
 import dev.onepieceapi.publicapi.domain.CharacterImage;
 import dev.onepieceapi.publicapi.domain.CharacterSummary;
 import dev.onepieceapi.publicapi.domain.Page;
+import dev.onepieceapi.publicapi.domain.ReaderSight;
 import dev.onepieceapi.publicapi.domain.Relative;
 import dev.onepieceapi.publicapi.persistence.PublishedCharacterListRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedContentRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedRevealRepository;
 import dev.onepieceapi.publicapi.persistence.PublishedViews;
-import dev.onepieceapi.readertime.Gallery;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -42,10 +43,13 @@ public class CharacterService extends PublishedContentService<Character, Charact
 	 */
 	@Override
 	protected Page<CharacterSummary> completeRows(Page<CharacterSummary> page, String language) {
-		Map<UUID, List<CharacterImage>> galleries = this.lists
-			.findGalleries(page.content().stream().map(CharacterSummary::id).toList(), language);
-		return page
-			.map((summary) -> summary.withImageId(mainPortraitOf(galleries.getOrDefault(summary.id(), List.of()))));
+		return withPortraits(page, language, Character::mainPortrait);
+	}
+
+	/** Each row with its main portrait at N (workflow 3.5.1). */
+	@Override
+	protected Page<CharacterSummary> completeRowsFor(Page<CharacterSummary> page, String language, ReaderSight sight) {
+		return withPortraits(page, language, (gallery) -> Character.mainPortraitAt(gallery, sight));
 	}
 
 	@Override
@@ -61,8 +65,12 @@ public class CharacterService extends PublishedContentService<Character, Charact
 			.withReveals(this.reveals.findCharacterReveals(character.id(), character.language()));
 	}
 
-	private static String mainPortraitOf(List<CharacterImage> gallery) {
-		return Gallery.mainPortrait(gallery).map(CharacterImage::imageId).orElse(null);
+	private Page<CharacterSummary> withPortraits(Page<CharacterSummary> page, String language,
+			Function<List<CharacterImage>, String> portrait) {
+		Map<UUID, List<CharacterImage>> galleries = this.lists
+			.findGalleries(page.content().stream().map(CharacterSummary::id).toList(), language);
+		return page
+			.map((summary) -> summary.withImageId(portrait.apply(galleries.getOrDefault(summary.id(), List.of()))));
 	}
 
 	/**

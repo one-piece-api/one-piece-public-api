@@ -747,6 +747,20 @@ public class PublishedContentFixture {
 	}
 
 	/**
+	 * The window of an image of the gallery of the character online (workflow 3.5.1), by
+	 * its position in the gallery.
+	 */
+	public void galleryWindow(UUID characterId, int position, Window window) {
+		this.owner.sql("UPDATE character_version_image t SET " + WINDOW_COLUMNS + """
+				 FROM content_version v
+				WHERE t.version_id = v.id AND v.content_id = :id AND v.status = 'PUBLISHED' AND t.position = :at""")
+			.params(window.parameters())
+			.param("id", characterId)
+			.param("at", position)
+			.update();
+	}
+
+	/**
 	 * A paragraph of the description of the character online, after the others, that the
 	 * reader learns no longer holds: its text superseded (workflow 3.7.3).
 	 */
