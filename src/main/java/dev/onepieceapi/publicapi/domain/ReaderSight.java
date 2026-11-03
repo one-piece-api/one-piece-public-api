@@ -19,7 +19,8 @@ import java.util.function.Function;
  * What a reader at chapter or episode N sees of the contents online (workflow 3.8;
  * reveals plan D12, R7 D1): the reader's position and where the reader meets each
  * content, so the rules of the library {@code one-piece-reader-time} decide what is
- * visible.
+ * visible. It also holds what the reader may know of the revealable fields (reveals plan
+ * R7 S10), so every content is named as known at N.
  * <p>
  * A content without a meeting point (not online, or met on no axis) is never seen.
  */
@@ -29,9 +30,12 @@ public final class ReaderSight {
 
 	private final Map<UUID, Point> meetings;
 
-	private ReaderSight(ReaderPosition position, Map<UUID, Point> meetings) {
+	private final ReaderKnowledge knowledge;
+
+	private ReaderSight(ReaderPosition position, Map<UUID, Point> meetings, ReaderKnowledge knowledge) {
 		this.position = Objects.requireNonNull(position, "position");
 		this.meetings = Map.copyOf(meetings);
+		this.knowledge = Objects.requireNonNull(knowledge, "knowledge");
 	}
 
 	/**
@@ -40,7 +44,14 @@ public final class ReaderSight {
 	 * or its own number for a chapter or an episode
 	 */
 	public static ReaderSight of(ReaderPosition position, Map<UUID, Point> meetings) {
-		return new ReaderSight(position, meetings);
+		return of(position, meetings, ReaderKnowledge.none());
+	}
+
+	/**
+	 * @param knowledge what the reader may know of the revealable fields of every content
+	 */
+	public static ReaderSight of(ReaderPosition position, Map<UUID, Point> meetings, ReaderKnowledge knowledge) {
+		return new ReaderSight(position, meetings, knowledge);
 	}
 
 	public ReaderPosition position() {
@@ -110,6 +121,50 @@ public final class ReaderSight {
 	 */
 	public RevealWindow onAxis(RevealWindow window) {
 		return new RevealWindow(reachedPart(window.discovered()), reachedPart(window.ended()));
+	}
+
+	/** The revealable values of a Character as known at N (workflow 3.7.1). */
+	public CharacterValues characterAt(UUID id, CharacterValues current) {
+		return this.knowledge.characterAt(id, current, this.position);
+	}
+
+	/** The revealable values of a Devil Fruit as known at N (workflow 3.7.1). */
+	public DevilFruitValues devilFruitAt(UUID id, DevilFruitValues current) {
+		return this.knowledge.devilFruitAt(id, current, this.position);
+	}
+
+	/**
+	 * Whether a bounty holds as known at N (workflow 3.1.8): inactive from what is known
+	 * at N, superseded when a bounty the reader has met replaces it.
+	 */
+	public BountyValidity validityAt(UUID bountyId, BountyValidity current) {
+		if (this.knowledge.inactiveAt(bountyId, current == BountyValidity.INACTIVE, this.position)) {
+			return BountyValidity.INACTIVE;
+		}
+		return this.knowledge.successorsOf(bountyId).stream().anyMatch(this::sees) ? BountyValidity.SUPERSEDED
+				: BountyValidity.ACTIVE;
+	}
+
+	/** The slug of a content at N (plan D13); null when its romaji at N leaves none. */
+	public String slugAt(UUID id, String current) {
+		return this.knowledge.slugAt(id, current, this.position);
+	}
+
+	/** Whether the reader may know the content by this slug at N (plan D13). */
+	public boolean knowsSlug(UUID id, String slug, String current) {
+		return this.knowledge.slugsKnownAt(id, current, this.position).contains(slug);
+	}
+
+	/**
+	 * The reveals the reader has reached, each point on the reader's axis only; the
+	 * initial knowledge always (reveals plan R7 S7).
+	 */
+	public <F extends Enum<F>, V extends RevealedValues<F, V>> FieldReveals<F, V> reached(FieldReveals<F, V> all) {
+		return all.withReveals(all.reveals()
+			.stream()
+			.filter((reveal) -> reached(reveal.revealed()))
+			.map((reveal) -> reveal.withRevealed(reachedPart(reveal.revealed())))
+			.toList());
 	}
 
 	/** The contents the reader has met, in their order, each as the reader sees it. */

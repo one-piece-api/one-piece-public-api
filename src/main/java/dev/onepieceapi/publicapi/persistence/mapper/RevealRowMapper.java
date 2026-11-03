@@ -15,42 +15,40 @@ import dev.onepieceapi.publicapi.domain.RevealedValues;
 import dev.onepieceapi.publicapi.persistence.row.BountyValuesRow;
 import dev.onepieceapi.publicapi.persistence.row.CharacterValuesRow;
 import dev.onepieceapi.publicapi.persistence.row.DevilFruitValuesRow;
+import dev.onepieceapi.publicapi.persistence.row.RevealRow;
 import dev.onepieceapi.readertime.Point;
 import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * From the rows of the initial knowledge and the reveals (workflow 3.7.1) to the domain.
- * A content with no reveal has no initial knowledge to show.
+ * From the rows of the initial knowledge and the reveals (workflow 3.7.1) to the domain,
+ * by content: the reveals of each in the rows' order. A content with no reveal has no
+ * initial knowledge to show, and is left out.
  */
 @UtilityClass
 public class RevealRowMapper {
 
-	public FieldReveals<CharacterField, CharacterValues> toCharacterReveals(Optional<CharacterValuesRow> initial,
-			List<CharacterValuesRow> reveals) {
-		return toReveals(initial, reveals, RevealRowMapper::toValues, CharacterValuesRow::fields,
-				CharacterValuesRow::title, (row) -> new Point(row.revealedChapter(), row.revealedEpisode()),
-				CharacterField.class);
+	public Map<UUID, FieldReveals<CharacterField, CharacterValues>> toCharacterReveals(
+			List<CharacterValuesRow> initials, List<CharacterValuesRow> reveals) {
+		return group(initials, reveals, RevealRowMapper::toValues, CharacterField.class);
 	}
 
-	public FieldReveals<DevilFruitField, DevilFruitValues> toDevilFruitReveals(Optional<DevilFruitValuesRow> initial,
-			List<DevilFruitValuesRow> reveals) {
-		return toReveals(initial, reveals, RevealRowMapper::toValues, DevilFruitValuesRow::fields,
-				DevilFruitValuesRow::title, (row) -> new Point(row.revealedChapter(), row.revealedEpisode()),
-				DevilFruitField.class);
+	public Map<UUID, FieldReveals<DevilFruitField, DevilFruitValues>> toDevilFruitReveals(
+			List<DevilFruitValuesRow> initials, List<DevilFruitValuesRow> reveals) {
+		return group(initials, reveals, RevealRowMapper::toValues, DevilFruitField.class);
 	}
 
-	public FieldReveals<BountyField, BountyValues> toBountyReveals(Optional<BountyValuesRow> initial,
+	public Map<UUID, FieldReveals<BountyField, BountyValues>> toBountyReveals(List<BountyValuesRow> initials,
 			List<BountyValuesRow> reveals) {
-		return toReveals(initial, reveals, (row) -> new BountyValues(row.inactive()), BountyValuesRow::fields,
-				BountyValuesRow::title, (row) -> new Point(row.revealedChapter(), row.revealedEpisode()),
-				BountyField.class);
+		return group(initials, reveals, (row) -> new BountyValues(row.inactive()), BountyField.class);
 	}
 
 	private CharacterValues toValues(CharacterValuesRow row) {
@@ -68,17 +66,17 @@ public class RevealRowMapper {
 		return new DevilFruitValues(row.name(), row.romaji(), row.slug(), type, subcategory);
 	}
 
-	private <R, F extends Enum<F>, V extends RevealedValues<F, V>> FieldReveals<F, V> toReveals(Optional<R> initial,
-			List<R> reveals, Function<R, V> values, Function<R, String> fields, Function<R, String> title,
-			Function<R, Point> point, Class<F> fieldType) {
-		if (reveals.isEmpty()) {
-			return FieldReveals.none();
-		}
-		List<Reveal<F, V>> mapped = reveals.stream()
-			.map((row) -> new Reveal<>(title.apply(row), point.apply(row), fieldsOf(fields.apply(row), fieldType),
-					values.apply(row)))
-			.toList();
-		return new FieldReveals<>(initial.map(values).orElse(null), mapped);
+	private <R extends RevealRow, F extends Enum<F>, V extends RevealedValues<F, V>> Map<UUID, FieldReveals<F, V>> group(
+			List<R> initials, List<R> reveals, Function<R, V> values, Class<F> fieldType) {
+		Function<R, Reveal<F, V>> toReveal = (row) -> new Reveal<>(row.title(),
+				new Point(row.revealedChapter(), row.revealedEpisode()), fieldsOf(row.fields(), fieldType),
+				values.apply(row));
+		Map<UUID, V> initialById = initials.stream().collect(Collectors.toMap(RevealRow::contentId, values));
+		Map<UUID, List<Reveal<F, V>>> revealsById = reveals.stream()
+			.collect(Collectors.groupingBy(RevealRow::contentId, Collectors.mapping(toReveal, Collectors.toList())));
+		Map<UUID, FieldReveals<F, V>> byId = new HashMap<>();
+		revealsById.forEach((id, named) -> byId.put(id, new FieldReveals<>(initialById.get(id), named)));
+		return byId;
 	}
 
 	private <F extends Enum<F>> Set<F> fieldsOf(String fields, Class<F> fieldType) {

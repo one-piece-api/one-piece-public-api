@@ -10,7 +10,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -35,16 +37,21 @@ public class ContentResponses {
 	/**
 	 * An old slug answers with the current one as a relative {@code Location}: it
 	 * resolves against the request, so it holds behind any prefix the gateway strips
-	 * (plan D5, D10).
+	 * (plan D5, D10). The query goes along, so a reader at N stays at N (workflow 3.8).
 	 */
 	public <D, R> ResponseEntity<R> lookup(WebRequest request, Supplier<ContentLookup<D>> query,
 			Function<D, R> toResponse) {
 		return this.conditionalGet.get(request, query, (lookup, eTag) -> switch (lookup) {
 			case ContentLookup.Found<D> found -> ResponseEntity.ok().eTag(eTag).body(toResponse.apply(found.content()));
 			case ContentLookup.Moved<D> moved -> ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
-				.header(HttpHeaders.LOCATION, moved.currentSlug())
+				.header(HttpHeaders.LOCATION, location(request, moved.currentSlug()))
 				.build();
 		});
+	}
+
+	private static String location(WebRequest request, String slug) {
+		String query = (request instanceof ServletWebRequest servlet) ? servlet.getRequest().getQueryString() : null;
+		return UriComponentsBuilder.fromPath(slug).query(query).build().toUriString();
 	}
 
 }

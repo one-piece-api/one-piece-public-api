@@ -6,8 +6,11 @@ import lombok.With;
 
 import java.time.Instant;
 import java.time.MonthDay;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * A Character online, in one language, as of today (Character plan D1-D8).
@@ -78,17 +81,51 @@ public record Character(UUID id, String slug, String romaji, String japaneseName
 		return new CharacterValues(this.name, this.romaji, this.slug, this.japaneseName, this.status);
 	}
 
+	/**
+	 * As the reader sees it at N: identity and status as known then (workflow 3.7.1), the
+	 * entries and reveals reached, every link named as known then.
+	 */
 	@Override
 	public Character seenBy(ReaderSight sight) {
-		return toBuilder().firstAppearance(sight.onAxis(this.firstAppearance))
+		CharacterValues known = sight.characterAt(this.id, currentValues());
+		return toBuilder().name(known.name())
+			.romaji(known.romaji())
+			.slug(known.slug())
+			.japaneseName(known.japaneseName())
+			.status(known.status())
+			.reveals(sight.reached(this.reveals))
+			.firstAppearance(sight.onAxis(this.firstAppearance))
 			.epithets(sight.discovered(this.epithets, TextEntry::withWindow))
 			.aliases(sight.discovered(this.aliases, TextEntry::withWindow))
 			.species(sight.discovered(this.species, SpeciesEntry::speciesId, SpeciesEntry::withWindow))
 			.affiliations(membershipsSeenBy(sight))
-			.devilFruits(sight.discovered(this.devilFruits, FruitUse::devilFruitId, FruitUse::withWindow))
-			.relatives(sight.discovered(this.relatives, Relative::characterId, Relative::withWindow))
-			.bounties(sight.seen(this.bounties, HeldBounty::id))
+			.devilFruits(devilFruitsSeenBy(sight))
+			.relatives(relativesSeenBy(sight))
+			.bounties(sight.shown(this.bounties))
 			.build();
+	}
+
+	private List<FruitUse> devilFruitsSeenBy(ReaderSight sight) {
+		return sight.discovered(this.devilFruits, FruitUse::devilFruitId, FruitUse::withWindow)
+			.stream()
+			.map((use) -> use.namedBy(sight))
+			.toList();
+	}
+
+	/**
+	 * The relatives met, named as known at N: those it stores in the version's order,
+	 * then those that store it by name at N (reveals plan R7 S13).
+	 */
+	private List<Relative> relativesSeenBy(ReaderSight sight) {
+		List<Relative> seen = sight.discovered(this.relatives, Relative::characterId, Relative::withWindow)
+			.stream()
+			.map((relative) -> relative.namedBy(sight))
+			.toList();
+		Comparator<Relative> byName = Comparator.comparing(Relative::name, NameOrder.in(this.language))
+			.thenComparing(Relative::characterId);
+		Stream<Relative> stored = seen.stream().filter(Predicate.not(Relative::inverse));
+		Stream<Relative> inverse = seen.stream().filter(Relative::inverse).sorted(byName);
+		return Stream.concat(stored, inverse).toList();
 	}
 
 	/** The memberships in affiliations met with at least one period discovered. */

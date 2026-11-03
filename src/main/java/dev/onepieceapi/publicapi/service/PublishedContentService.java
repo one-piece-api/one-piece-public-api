@@ -64,6 +64,10 @@ public abstract class PublishedContentService<D extends PublishedContent & SeenB
 	 * its current one, which is where the caller is sent (plan D5). A content the reader
 	 * has not met is not found, never forbidden: that would tell it exists (workflow
 	 * 3.8).
+	 * <p>
+	 * With a reader position the slug at N is the canonical one (plan D13): another slug
+	 * the reader may know by then moves there, a slug the reader cannot know yet is not
+	 * found.
 	 * @param position where the reader is; null for no spoiler filter
 	 */
 	public ContentLookup<D> find(String language, String idOrSlug, ReaderPosition position) {
@@ -71,16 +75,16 @@ public abstract class PublishedContentService<D extends PublishedContent & SeenB
 		ReaderSight sight = (position != null) ? this.sights.at(position, language) : null;
 		D found = findOnline(language, idOrSlug).filter((content) -> sight == null || sight.sees(content.id()))
 			.orElseThrow(() -> new ContentNotFoundException(idOrSlug));
-		if (ContentAddress.isId(idOrSlug) || idOrSlug.equals(found.slug())) {
+		String canonical = (sight == null) ? found.slug() : sight.slugAt(found.id(), found.slug());
+		if (ContentAddress.isId(idOrSlug) || idOrSlug.equals(canonical)) {
 			D described = withParagraphs(found, language, sight);
 			return new ContentLookup.Found<>((sight == null) ? complete(described) : completeFor(described, sight));
 		}
-		// An old slug of a content whose romaji now leaves no slug has nowhere to point
-		// to.
-		if (found.slug() == null) {
+		// An old slug of a content whose romaji leaves no slug has nowhere to point to.
+		if (canonical == null || (sight != null && !sight.knowsSlug(found.id(), idOrSlug, found.slug()))) {
 			throw new ContentNotFoundException(idOrSlug);
 		}
-		return new ContentLookup.Moved<>(found.slug());
+		return new ContentLookup.Moved<>(canonical);
 	}
 
 	/**

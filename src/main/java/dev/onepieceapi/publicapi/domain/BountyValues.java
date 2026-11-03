@@ -7,6 +7,9 @@ package dev.onepieceapi.publicapi.domain;
  */
 public record BountyValues(Boolean inactive) implements RevealedValues<BountyField, BountyValues> {
 
+	/** Nothing known. */
+	public static final BountyValues UNKNOWN = new BountyValues(null);
+
 	@Override
 	public boolean holds(BountyField field) {
 		return this.inactive != null;

@@ -14,9 +14,12 @@ import java.util.UUID;
 public record CharacterSummary(UUID id, String slug, String romaji, String name, CharacterStatus status,
 		@With String imageId) implements SeenByReader<CharacterSummary> {
 
+	/** Named, addressed and with its status as known at N (workflow 3.7.1). */
 	@Override
 	public CharacterSummary seenBy(ReaderSight sight) {
-		return this;
+		CharacterValues known = sight.characterAt(this.id,
+				new CharacterValues(this.name, this.romaji, this.slug, null, this.status));
+		return toBuilder().name(known.name()).romaji(known.romaji()).slug(known.slug()).status(known.status()).build();
 	}
 
 }

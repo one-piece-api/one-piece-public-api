@@ -5,4 +5,9 @@ import java.util.UUID;
 /** The subcategory of its type a Devil Fruit names, in the fruit's detail. */
 public record DevilFruitSubcategoryReference(UUID id, String name, String description) {
 
+	/** As a row of the list names it. */
+	public DevilFruitSubcategorySummary summary() {
+		return new DevilFruitSubcategorySummary(this.id, this.name);
+	}
+
 }

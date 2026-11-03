@@ -54,9 +54,11 @@ public record Bounty(UUID id, String slug, String posterName, long amount, Bount
 
 	@Override
 	public Bounty seenBy(ReaderSight sight) {
-		return toBuilder().holder(sight.ifSeen(this.holder, CharacterReference::id))
+		return toBuilder().validity(sight.validityAt(this.id, this.validity))
+			.holder(CharacterReference.seenBy(this.holder, sight))
 			.chain(sight.shown(this.chain))
 			.firstAppearance(sight.onAxis(this.firstAppearance))
+			.reveals(sight.reached(this.reveals))
 			.build();
 	}
 

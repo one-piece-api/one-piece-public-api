@@ -59,11 +59,23 @@ public record DevilFruit(UUID id, String slug, String romaji, String language, S
 		return new DevilFruitValues(this.name, this.romaji, this.slug, this.type, this.subcategory);
 	}
 
+	/**
+	 * As the reader sees it at N: name, romaji, type and subcategory as known then
+	 * (workflow 3.7.1), a type not met yet left out with its subcategory; the reveals
+	 * reached and the users met, named as known then.
+	 */
 	@Override
 	public DevilFruit seenBy(ReaderSight sight) {
-		DevilFruitTypeReference typeSeen = sight.ifSeen(this.type, DevilFruitTypeReference::id);
-		return toBuilder().type(typeSeen)
-			.subcategory((typeSeen != null) ? sight.ifSeen(this.subcategory, DevilFruitSubcategoryReference::id) : null)
+		DevilFruitValues known = sight.devilFruitAt(this.id, currentValues());
+		DevilFruitTypeReference typeSeen = sight.ifSeen(known.type(), DevilFruitTypeReference::id);
+		DevilFruitSubcategoryReference subcategorySeen = (typeSeen != null)
+				? sight.ifSeen(known.subcategory(), DevilFruitSubcategoryReference::id) : null;
+		return toBuilder().name(known.name())
+			.romaji(known.romaji())
+			.slug(known.slug())
+			.type(typeSeen)
+			.subcategory(subcategorySeen)
+			.reveals(sight.reached(this.reveals))
 			.firstAppearance(sight.onAxis(this.firstAppearance))
 			.users(usersSeenBy(sight))
 			.build();
@@ -79,6 +91,7 @@ public record DevilFruit(UUID id, String slug, String romaji, String language, S
 			.thenComparing(FruitUser::characterId);
 		return sight.discovered(this.users, FruitUser::characterId, FruitUser::withWindow)
 			.stream()
+			.map((user) -> user.namedBy(sight))
 			.sorted(order)
 			.toList();
 	}

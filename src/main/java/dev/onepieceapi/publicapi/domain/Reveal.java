@@ -1,8 +1,11 @@
 package dev.onepieceapi.publicapi.domain;
 
+import dev.onepieceapi.readertime.FieldReveal;
 import dev.onepieceapi.readertime.Point;
+import lombok.With;
 
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * A point where the reader learns some fields of a content (workflow 3.7.1).
@@ -15,8 +18,8 @@ import java.util.Set;
  * @param <F> the revealable fields of the entity
  * @param <V> their values
  */
-public record Reveal<F extends Enum<F>, V extends RevealedValues<F, V>>(String title, Point revealed, Set<F> fields,
-		V values) {
+public record Reveal<F extends Enum<F>, V extends RevealedValues<F, V>>(String title, @With Point revealed,
+		Set<F> fields, V values) {
 
 	public Reveal {
 		fields = Set.copyOf(fields);
@@ -34,6 +37,21 @@ public record Reveal<F extends Enum<F>, V extends RevealedValues<F, V>>(String t
 			}
 		}
 		return new Reveal<>(this.title, this.revealed, this.fields, filled);
+	}
+
+	/** Whether the reader learns the field here. */
+	public boolean names(F field) {
+		return this.fields.contains(field);
+	}
+
+	/**
+	 * What the reader learns here of a field it names, as the library reads it: the value
+	 * learned, or the current one.
+	 * @param value the part of the values the field is about
+	 */
+	public <T> FieldReveal<T> of(F field, Function<V, T> value) {
+		return this.values.holds(field) ? FieldReveal.learned(this.revealed, value.apply(this.values))
+				: FieldReveal.ofCurrentValue(this.revealed);
 	}
 
 }

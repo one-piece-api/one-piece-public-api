@@ -1,13 +1,16 @@
 package dev.onepieceapi.publicapi.persistence;
 
 import dev.onepieceapi.publicapi.domain.BountySummary;
+import dev.onepieceapi.publicapi.persistence.row.SuccessionRow;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * The chain of a bounty online (Bounty plan D3, D5): the bounties it replaces and those
@@ -53,6 +56,22 @@ public class PublishedBountyChainRepository {
 			.param("id", bountyId)
 			.query(PublishedViews.BOUNTY.summary())
 			.list();
+	}
+
+	/**
+	 * For each bounty online in the language, those online that name it as previous
+	 * (workflow 3.1.8): whether one the reader has met supersedes it is decided at N.
+	 */
+	public Map<UUID, List<UUID>> findSuccessors(String language) {
+		return this.jdbc.sql("""
+				SELECT id, previous_id FROM published.bounty
+				WHERE language = :language AND previous_id IS NOT NULL""")
+			.param("language", language)
+			.query(SuccessionRow.class)
+			.list()
+			.stream()
+			.collect(Collectors.groupingBy(SuccessionRow::previousId,
+					Collectors.mapping(SuccessionRow::id, Collectors.toList())));
 	}
 
 }

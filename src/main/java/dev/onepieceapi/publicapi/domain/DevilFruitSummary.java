@@ -17,13 +17,30 @@ public record DevilFruitSummary(UUID id, String slug, String romaji, String name
 		DevilFruitSubcategorySummary subcategory, String imageId,
 		FirstAppearance firstAppearance) implements SeenByReader<DevilFruitSummary> {
 
+	/**
+	 * Named, addressed and typed as known at N (workflow 3.7.1); a type not met yet left
+	 * out with its subcategory.
+	 */
 	@Override
 	public DevilFruitSummary seenBy(ReaderSight sight) {
-		DevilFruitTypeReference typeSeen = sight.ifSeen(this.type, DevilFruitTypeReference::id);
-		return toBuilder().type(typeSeen)
-			.subcategory((typeSeen != null) ? sight.ifSeen(this.subcategory, DevilFruitSubcategorySummary::id) : null)
+		DevilFruitValues known = sight.devilFruitAt(this.id, currentValues());
+		DevilFruitTypeReference typeSeen = sight.ifSeen(known.type(), DevilFruitTypeReference::id);
+		DevilFruitSubcategoryReference subcategorySeen = (typeSeen != null)
+				? sight.ifSeen(known.subcategory(), DevilFruitSubcategoryReference::id) : null;
+		return toBuilder().name(known.name())
+			.romaji(known.romaji())
+			.slug(known.slug())
+			.type(typeSeen)
+			.subcategory((subcategorySeen != null) ? subcategorySeen.summary() : null)
 			.firstAppearance(sight.onAxis(this.firstAppearance))
 			.build();
+	}
+
+	/** What the row says: the current value of every revealable field. */
+	private DevilFruitValues currentValues() {
+		DevilFruitSubcategoryReference current = (this.subcategory != null)
+				? new DevilFruitSubcategoryReference(this.subcategory.id(), this.subcategory.name(), null) : null;
+		return new DevilFruitValues(this.name, this.romaji, this.slug, this.type, current);
 	}
 
 }

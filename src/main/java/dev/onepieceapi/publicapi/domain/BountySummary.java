@@ -16,9 +16,12 @@ import java.util.UUID;
 public record BountySummary(UUID id, String slug, String posterName, long amount, BountyCondition condition,
 		BountyValidity validity, String imageId, CharacterReference holder) implements SeenByReader<BountySummary> {
 
+	/** With its validity as known at N (workflow 3.1.8) and its holder as met by then. */
 	@Override
 	public BountySummary seenBy(ReaderSight sight) {
-		return toBuilder().holder(sight.ifSeen(this.holder, CharacterReference::id)).build();
+		return toBuilder().validity(sight.validityAt(this.id, this.validity))
+			.holder(CharacterReference.seenBy(this.holder, sight))
+			.build();
 	}
 
 }

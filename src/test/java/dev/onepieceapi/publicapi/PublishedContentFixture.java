@@ -838,6 +838,44 @@ public class PublishedContentFixture {
 	}
 
 	/**
+	 * Who the reader believes the character online is at its first appearance: its
+	 * romaji, with its slug on record as content-service records every romaji, and its
+	 * English name.
+	 */
+	public void characterInitialIdentity(UUID characterId, String romaji, String name) {
+		this.owner.sql("""
+				INSERT INTO character_version_initial_knowledge (version_id, romaji)
+				SELECT id, :romaji FROM content_version WHERE content_id = :id AND status = 'PUBLISHED'""")
+			.param("id", characterId)
+			.param("romaji", romaji)
+			.update();
+		this.owner.sql("""
+				INSERT INTO character_version_initial_knowledge_translation (version_id, language_code, name)
+				SELECT id, 'en', :name FROM content_version WHERE content_id = :id AND status = 'PUBLISHED'""")
+			.param("id", characterId)
+			.param("name", name)
+			.update();
+		recordSlug(CHARACTER, characterId, romaji);
+	}
+
+	/**
+	 * A reveal of the character online at a chapter online that teaches an identity of
+	 * its own: its romaji (slug on record) and its English name.
+	 */
+	public void characterIdentityReveal(UUID characterId, UUID chapterId, String title, String romaji, String name) {
+		UUID revealId = reveal(CHARACTER, characterId, chapterId, title, "IDENTITY");
+		this.owner.sql("UPDATE character_version_reveal SET romaji = :romaji WHERE id = :id")
+			.param("id", revealId)
+			.param("romaji", romaji)
+			.update();
+		this.owner.sql("UPDATE character_version_reveal_translation SET name = :name WHERE reveal_id = :id")
+			.param("id", revealId)
+			.param("name", name)
+			.update();
+		recordSlug(CHARACTER, characterId, romaji);
+	}
+
+	/**
 	 * What the reader believes of the fruit online at its first appearance: its romaji,
 	 * its type and its name by language.
 	 */
@@ -886,7 +924,7 @@ public class PublishedContentFixture {
 		reveal(BOUNTY, bountyId, chapterId, title, fields);
 	}
 
-	private void reveal(Entity entity, UUID contentId, UUID chapterId, String title, String... fields) {
+	private UUID reveal(Entity entity, UUID contentId, UUID chapterId, String title, String... fields) {
 		UUID revealId = UUID.randomUUID();
 		String table = entity.table() + "_reveal";
 		this.owner
@@ -909,6 +947,7 @@ public class PublishedContentFixture {
 			.param("id", revealId)
 			.param("title", title)
 			.update();
+		return revealId;
 	}
 
 	/** Whether several characters may have the power of the fruit online at once. */

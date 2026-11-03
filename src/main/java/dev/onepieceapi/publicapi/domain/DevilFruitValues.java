@@ -1,5 +1,7 @@
 package dev.onepieceapi.publicapi.domain;
 
+import lombok.With;
+
 /**
  * The revealable values of a Devil Fruit (workflow 3.7.1); a field not held is null.
  *
@@ -7,8 +9,11 @@ package dev.onepieceapi.publicapi.domain;
  * @param slug the address derived from the romaji; null when it leaves none
  * @param subcategory null for none, or when the type is not held
  */
-public record DevilFruitValues(String name, String romaji, String slug, DevilFruitTypeReference type,
+public record DevilFruitValues(String name, String romaji, @With String slug, DevilFruitTypeReference type,
 		DevilFruitSubcategoryReference subcategory) implements RevealedValues<DevilFruitField, DevilFruitValues> {
+
+	/** Nothing known. */
+	public static final DevilFruitValues UNKNOWN = new DevilFruitValues(null, null, null, null, null);
 
 	@Override
 	public boolean holds(DevilFruitField field) {
