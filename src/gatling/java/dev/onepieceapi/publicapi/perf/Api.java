@@ -33,12 +33,18 @@ final class Api {
 	/** Where the service is reached: the local port-forward by default. */
 	private static final String BASE_URL = System.getProperty("baseUrl", "http://localhost:8084");
 
+	/**
+	 * The reader-position filter sent with every request ({@code -DasOfChapter=<n>}); absent:
+	 * the unfiltered path.
+	 */
+	private static final String AS_OF_CHAPTER = System.getProperty("asOfChapter");
+
 	private static final List<String> LANGUAGES = List.of("it", "en");
 
 	private static final List<String> SEARCH_TERMS = List.of("fuoco", "fire", "frutto", "gomu", "ombra", "no mi");
 
-	/** The pages of 100 that the discovery draws from: 5,000 contents seeded. */
-	private static final int DISCOVERABLE_PAGES = 50;
+	/** The pages of 100 that the discovery draws from: 5,000 contents seeded by default. */
+	private static final int DISCOVERABLE_PAGES = Integer.getInteger("pages", 50);
 
 	private static final int REQUESTS_PER_USER = 5;
 
@@ -61,7 +67,7 @@ final class Api {
 	/** A client learns ids and slugs by listing; so does a virtual user, once. */
 	static final ChainBuilder DISCOVER = exec(Api::chooseLanguage)
 		.exec(session -> session.set("page", random(DISCOVERABLE_PAGES)))
-		.exec(http("discover").get(LIST_URI + "?size=100&page=#{page}")
+		.exec(filtered(http("discover").get(LIST_URI + "?size=100&page=#{page}"))
 			.check(status().is(200), jmesPath("content[].id").ofList().saveAs("ids"),
 					jmesPath("content[].slug").ofList().saveAs("slugs")))
 		.exitHereIfFailed();
@@ -69,14 +75,14 @@ final class Api {
 	static final ChainBuilder DETAIL = exec(Api::chooseLanguage)
 		.exec(session -> session.set("target",
 				random(2) == 0 ? pick(session.getList("ids")) : pick(session.getList("slugs"))))
-		.exec(revalidated("detail", n -> http(n).get(LIST_URI + "/#{target}")));
+		.exec(revalidated("detail", n -> filtered(http(n).get(LIST_URI + "/#{target}"))));
 
 	static final ChainBuilder LIST = exec(Api::chooseLanguage).exec(session -> session.set("page", random(5)))
-		.exec(revalidated("list", n -> http(n).get(LIST_URI + "?page=#{page}&sort=name,asc")));
+		.exec(revalidated("list", n -> filtered(http(n).get(LIST_URI + "?page=#{page}&sort=name,asc"))));
 
 	static final ChainBuilder SEARCH = exec(Api::chooseLanguage)
 		.exec(session -> session.set("term", pick(SEARCH_TERMS)))
-		.exec(revalidated("search", n -> http(n).get(LIST_URI).queryParam("q", "#{term}")));
+		.exec(revalidated("search", n -> filtered(http(n).get(LIST_URI).queryParam("q", "#{term}"))));
 
 	static final ChainBuilder MIX = randomSwitch().on(percent(70.0).then(DETAIL), percent(20.0).then(LIST),
 			percent(10.0).then(SEARCH));
@@ -104,6 +110,10 @@ final class Api {
 		return exec(request.apply(name).check(status().is(200), header("ETag").saveAs("etag")))
 			.exec(doIf(session -> !session.isFailed() && random(2) == 0)
 				.then(exec(request.apply(name + "-304").header("If-None-Match", "#{etag}").check(status().is(304)))));
+	}
+
+	private static HttpRequestActionBuilder filtered(HttpRequestActionBuilder request) {
+		return AS_OF_CHAPTER == null ? request : request.queryParam("asOfChapter", AS_OF_CHAPTER);
 	}
 
 	private static Session chooseLanguage(Session session) {
