@@ -34,8 +34,8 @@ final class Api {
 	private static final String BASE_URL = System.getProperty("baseUrl", "http://localhost:8084");
 
 	/**
-	 * The reader-position filter sent with every request ({@code -DasOfChapter=<n>}); absent:
-	 * the unfiltered path.
+	 * The reader-position filter sent with every request ({@code -DasOfChapter=<n>});
+	 * absent: the unfiltered path.
 	 */
 	private static final String AS_OF_CHAPTER = System.getProperty("asOfChapter");
 
@@ -43,7 +43,9 @@ final class Api {
 
 	private static final List<String> SEARCH_TERMS = List.of("fuoco", "fire", "frutto", "gomu", "ombra", "no mi");
 
-	/** The pages of 100 that the discovery draws from: 5,000 contents seeded by default. */
+	/**
+	 * The pages of 100 that the discovery draws from: 5,000 contents seeded by default.
+	 */
 	private static final int DISCOVERABLE_PAGES = Integer.getInteger("pages", 50);
 
 	private static final int REQUESTS_PER_USER = 5;
@@ -67,9 +69,8 @@ final class Api {
 	/** A client learns ids and slugs by listing; so does a virtual user, once. */
 	static final ChainBuilder DISCOVER = exec(Api::chooseLanguage)
 		.exec(session -> session.set("page", random(DISCOVERABLE_PAGES)))
-		.exec(filtered(http("discover").get(LIST_URI + "?size=100&page=#{page}"))
-			.check(status().is(200), jmesPath("content[].id").ofList().saveAs("ids"),
-					jmesPath("content[].slug").ofList().saveAs("slugs")))
+		.exec(filtered(http("discover").get(LIST_URI + "?size=100&page=#{page}")).check(status().is(200),
+				jmesPath("content[].id").ofList().saveAs("ids"), jmesPath("content[].slug").ofList().saveAs("slugs")))
 		.exitHereIfFailed();
 
 	static final ChainBuilder DETAIL = exec(Api::chooseLanguage)
