@@ -113,3 +113,5 @@ query o indici: le asserzioni falliscono se un p95 supera la soglia.
 **Capacità:** circa 60–65 rps per replica, oltre la latenza esplode. Il limite è il PostgreSQL
 condiviso (0,5 CPU, saturo e throttlato), non il servizio: le liste fanno pagina e conteggio
 sulla join delle tre tabelle dietro la vista.
+
+**Con il filtro** (`-DasOfChapter=<capitolo massimo>`, 2026-11-04, 3 utenti/s, circa 25 rps, tutti i contenuti visibili): senza filtro p95 26 ms (500 contenuti) e 44 ms (5.000); con il filtro p95 circa 21 s e 30 s, circa 8 e 5 rps serviti. Il percorso filtrato legge e risolve tutta la sezione in memoria (dettaglio compreso) e consuma circa 35 ms di CPU a richiesta con 500 contenuti: con 0,5 CPU il limite è circa 8 rps per replica. Accettato finché non c'è un client (ADR-0005); da ottimizzare. Senza filtro, a 7 utenti/s il servizio satura ora a circa 28 rps (ottobre: 60–65), con Postgres throttlato. `-Dpages=<n>` limita la scoperta alle prime n pagine da 100 (default 50, per 5.000 contenuti).

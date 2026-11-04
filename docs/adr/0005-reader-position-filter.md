@@ -58,8 +58,9 @@ content-service (its ADR-0013), so both must give the same answer.
 ## Consequences
 
 - A filtered list reads the whole section of the entity: fine for a catalogue of
-  hundreds, to be revisited with the load test (P5) if the catalogue grows by orders of
-  magnitude.
+  hundreds, but measured costly (P5, 2026-11-04): about 35 ms of CPU per request at 500
+  rows, about 8 rps per 0.5 CPU replica, detail included (README, "Prestazioni"). Accepted
+  while there is no client; the way out is caching the resolved section or resolving in SQL.
 - The order by name at N can differ from Postgres on spaces and punctuation: a known,
   accepted limit.
 - Every new revealable field, entity or list filter must say which family it is in; a
